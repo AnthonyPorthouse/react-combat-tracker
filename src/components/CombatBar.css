@@ -1,0 +1,60 @@
+.combat-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #f3f4f6;
+  border-bottom: 1px solid #e5e7eb;
+  gap: 1rem;
+}
+
+.combat-bar-left,
+.combat-bar-center,
+.combat-bar-right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.combat-bar-left {
+  flex: 1;
+  justify-content: flex-start;
+}
+
+.combat-bar-center {
+  flex: 1;
+  justify-content: center;
+}
+
+.combat-bar-right {
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.combat-bar-button {
+  padding: 0.5rem 1rem;
+  background-color: #059669;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.combat-bar-button:hover:not(:disabled) {
+  background-color: #047857;
+}
+
+.combat-bar-button:disabled {
+  background-color: #d1d5db;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.combat-bar-round {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
