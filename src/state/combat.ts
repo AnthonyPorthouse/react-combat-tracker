@@ -87,7 +87,10 @@ export function combatReducer(draft: CombatState, action: CombatAction) {
             return;
 
         case 'IMPORT_STATE':
-            draft = action.payload;
+            draft.inCombat = action.payload.inCombat;
+            draft.round = action.payload.round;
+            draft.step = action.payload.step;
+            draft.combatants = action.payload.combatants;
             return;
 
         default:
