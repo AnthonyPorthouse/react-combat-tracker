@@ -4,6 +4,7 @@ interface CombatBarProps {
   inCombat: boolean;
   round: number;
   step: number;
+  combatantCount: number;
   onStartCombat: () => void;
   onNextStep: () => void;
   onPreviousStep: () => void;
@@ -13,6 +14,7 @@ export function CombatBar({
   inCombat,
   round,
   step,
+  combatantCount,
   onStartCombat,
   onNextStep,
   onPreviousStep,
@@ -36,7 +38,7 @@ export function CombatBar({
 
       <div className="flex items-center gap-4">
         {!inCombat ? (
-          <button onClick={onStartCombat} className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors">
+          <button onClick={onStartCombat} disabled={combatantCount === 0} className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-3 py-1 rounded text-sm font-medium transition-colors">
             Start Combat
           </button>
         ) : (

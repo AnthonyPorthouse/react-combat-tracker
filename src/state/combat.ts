@@ -1,11 +1,14 @@
-import type { Combatant } from "../types/combatant";
+import z from "zod";
+import { CombatantValidator, type Combatant } from "../types/combatant";
 
-interface CombatState {
-    inCombat: boolean;
-    round: number;
-    step: number;
-    combatants: Combatant[];
-}
+export const CombatValidator = z.strictObject({
+    inCombat: z.boolean(),
+    round: z.number().int().nonnegative().default(0),
+    step: z.number().int().nonnegative().default(0),
+    combatants: z.array(CombatantValidator).default([]),
+})
+
+export type CombatState = z.infer<typeof CombatValidator>;
 
 export type CombatAction =
     | { type: 'ADD_COMBATANT'; payload: Combatant }
@@ -17,7 +20,8 @@ export type CombatAction =
     | { type: 'NEXT_ROUND' }
     | { type: 'PREVIOUS_ROUND' }
     | { type: 'NEXT_STEP' }
-    | { type: 'PREVIOUS_STEP' };
+    | { type: 'PREVIOUS_STEP' }
+    | { type: 'IMPORT_STATE'; payload: CombatState };
 
 export const initialCombatState: CombatState = {
   inCombat: false,
@@ -80,6 +84,10 @@ export function combatReducer(draft: CombatState, action: CombatAction) {
 
         case 'REORDER_COMBATANTS':
             draft.combatants = action.payload;
+            return;
+
+        case 'IMPORT_STATE':
+            draft = action.payload;
             return;
 
         default:
