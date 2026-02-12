@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
+import { X, Plus } from 'lucide-react'
 import { v7 as uuidv7 } from 'uuid'
 import z from 'zod'
 import { CombatantValidator } from '../../types/combatant'
 import type { Combatant } from '../../types/combatant'
-import './CreateCombatant.css'
 
 interface CreateCombatantProps {
   isOpen: boolean
@@ -51,7 +51,7 @@ export function CreateCombatant({
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault()
 
     // Construct combatant object with generated UUID v7
@@ -96,88 +96,105 @@ export function CreateCombatant({
   if (!isOpen) return null
 
   return createPortal(
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>Add New Combatant</h2>
+    <div className="fixed inset-0 bg-black/50 md:flex items-center justify-center z-50" onClick={onClose}>
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-y-auto md:rounded-lg md:max-w-md md:overflow-y-auto md:m-0 rounded-none h-screen md:h-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="sticky top-0 bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+          <h2 className="text-lg font-bold text-gray-900">Add New Combatant</h2>
           <button
-            className="close-button"
+            className="text-gray-500 hover:text-gray-700"
             onClick={onClose}
             aria-label="Close modal"
           >
-            ×
+            <X size={24} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="combatant-form">
-          <div className="form-group">
-            <label htmlFor="name">Name *</label>
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div className="flex flex-col gap-1">
+            <label htmlFor="name" className="text-sm font-medium text-gray-700">Name *</label>
             <input
               id="name"
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className={formErrors.name ? 'input-error' : ''}
+              className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 ${
+                formErrors.name
+                  ? 'border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 focus:ring-blue-500'
+              }`}
               required
             />
             {formErrors.name && (
-              <span className="error-message">{formErrors.name}</span>
+              <span className="text-sm text-red-600">{formErrors.name}</span>
             )}
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="initiative">Initiative</label>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="flex flex-col gap-1">
+              <label htmlFor="initiative" className="text-sm font-medium text-gray-700">Initiative</label>
               <input
                 id="initiative"
                 type="number"
                 name="initiative"
                 value={formData.initiative}
                 onChange={handleChange}
-                className={formErrors.initiative ? 'input-error' : ''}
+                className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 ${
+                  formErrors.initiative
+                    ? 'border-red-500 focus:ring-red-500'
+                    : 'border-gray-300 focus:ring-blue-500'
+                }`}
               />
               {formErrors.initiative && (
-                <span className="error-message">{formErrors.initiative}</span>
+                <span className="text-sm text-red-600">{formErrors.initiative}</span>
               )}
             </div>
 
-            <div className="form-group">
-              <label htmlFor="hp">HP</label>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="hp" className="text-sm font-medium text-gray-700">HP</label>
               <input
                 id="hp"
                 type="number"
                 name="hp"
                 value={formData.hp}
                 onChange={handleChange}
-                className={formErrors.hp ? 'input-error' : ''}
+                className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 ${
+                  formErrors.hp
+                    ? 'border-red-500 focus:ring-red-500'
+                    : 'border-gray-300 focus:ring-blue-500'
+                }`}
               />
               {formErrors.hp && (
-                <span className="error-message">{formErrors.hp}</span>
+                <span className="text-sm text-red-600">{formErrors.hp}</span>
               )}
             </div>
 
-            <div className="form-group">
-              <label htmlFor="maxHp">Max HP</label>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="maxHp" className="text-sm font-medium text-gray-700">Max HP</label>
               <input
                 id="maxHp"
                 type="number"
                 name="maxHp"
                 value={formData.maxHp}
                 onChange={handleChange}
-                className={formErrors.maxHp ? 'input-error' : ''}
+                className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 ${
+                  formErrors.maxHp
+                    ? 'border-red-500 focus:ring-red-500'
+                    : 'border-gray-300 focus:ring-blue-500'
+                }`}
               />
               {formErrors.maxHp && (
-                <span className="error-message">{formErrors.maxHp}</span>
+                <span className="text-sm text-red-600">{formErrors.maxHp}</span>
               )}
             </div>
           </div>
 
-          <div className="form-actions">
-            <button type="button" onClick={onClose} className="button-secondary">
+          <div className="flex gap-3 pt-4">
+            <button type="button" onClick={onClose} className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded font-medium transition-colors">
               Cancel
             </button>
-            <button type="submit" className="button-primary">
+            <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-4 py-2 rounded font-medium transition-colors flex items-center justify-center gap-2">
+              <Plus size={18} />
               Add Combatant
             </button>
           </div>

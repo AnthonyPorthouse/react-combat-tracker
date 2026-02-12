@@ -1,4 +1,5 @@
 import { useMemo, type Dispatch } from 'react'
+import { ChevronRight } from 'lucide-react'
 import type { Combatant } from '../../types/combatant'
 import {
   DndContext,
@@ -17,7 +18,6 @@ import {
 } from '@dnd-kit/sortable'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import './CombatantList.css'
 import type { CombatAction } from '../../state/combat'
 
 type CombatDispatch = Dispatch<CombatAction>
@@ -59,15 +59,15 @@ function SortableCombatantItem({ combatant, isCurrentTurn }: SortableCombatantIt
     <div
       ref={setNodeRef}
       style={style}
-      className="combatant-item"
+      className="p-3 bg-white border border-gray-200 rounded cursor-grab hover:cursor-grabbing hover:shadow-md transition-shadow flex items-center gap-3"
       {...attributes}
       {...listeners}
     >
-      <div className="combatant-marker">
-        {isCurrentTurn && <span>→</span>}
+      <div className="text-gray-600 font-bold w-6">
+        {isCurrentTurn && <ChevronRight size={20} />}
       </div>
-      <div className="combatant-name">{combatant.name}</div>
-      <div className="combatant-hp">{getHpPercentage(combatant.hp, combatant.maxHp)}</div>
+      <div className="flex-1 font-medium text-gray-900">{combatant.name}</div>
+      <div className="text-gray-600 text-sm font-semibold">{getHpPercentage(combatant.hp, combatant.maxHp)}</div>
     </div>
   )
 }
@@ -109,8 +109,12 @@ export function CombatantList({
     return inCombat && currentStep - 1 === index
   }
 
+  if (combatants.length === 0) {
+    return;
+  }
+
   return (
-    <div className="combatant-list">
+    <div className="flex flex-col gap-3 w-full md:max-w-sm p-6 bg-gray-50 border border-gray-200 rounded-lg">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
