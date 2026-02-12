@@ -1,12 +1,13 @@
-import { useReducer, useState } from 'react'
+import { useState } from 'react'
 import { combatReducer, initialCombatState } from './state/combat'
 import { CreateCombatant } from './components/combatants/CreateCombatant'
 import { CombatantList } from './components/combatants/CombatantList'
 import { CombatBar } from './components/CombatBar'
+import { useImmerReducer } from 'use-immer'
 import './App.css'
 
 function App() {
-  const [state, dispatch] = useReducer(combatReducer, initialCombatState)
+  const [state, dispatch] = useImmerReducer(combatReducer, initialCombatState)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
   return (

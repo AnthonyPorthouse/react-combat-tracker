@@ -26,81 +26,61 @@ export const initialCombatState: CombatState = {
   combatants: [],
 };
 
-export function combatReducer(state: CombatState, action: CombatAction): CombatState {
+export function combatReducer(draft: CombatState, action: CombatAction) {
     switch (action.type) {
 
         case 'START_COMBAT':
-            return {
-                ...state,
-                inCombat: true,
-                round: 1,
-                step: 1,
-                combatants: [...state.combatants].sort((a, b) => b.initiative - a.initiative),
-            };
+            draft.inCombat = true;
+            draft.round = 1;
+            draft.step = 1;
+            draft.combatants.sort((a, b) => b.initiative - a.initiative);
+            return;
 
         case 'END_COMBAT':
-            return {
-                ...state,
-                inCombat: false,
-                round: 0,
-                step: 0,
-                combatants: [],
-            };
+            draft.inCombat = false;
+            draft.round = 0;
+            draft.step = 0;
+            return;
 
         case 'NEXT_STEP':
-            if (state.step >= state.combatants.length) {
-                return {
-                    ...state,
-                    step: 1,
-                    round: state.round + 1,
-                };
+            if (draft.step >= draft.combatants.length) {
+                draft.step = 1;
+                draft.round += 1;
+                return;
             }
 
-            return {
-                ...state,
-                step: state.step + 1,
-            };
+            draft.step += 1;
+            return
 
         case 'PREVIOUS_STEP':
-            if (state.step <= 1) {
-                if (state.round <= 1) {
-                    return state;
-                }
-                return {
-                    ...state,
-                    step: state.combatants.length,
-                    round: state.round - 1,
-                };
+            if (draft.step == 1 && draft.round == 1) {
+                return;
             }
 
-            return {
-                ...state,
-                step: state.step - 1,
-            };
+            if (draft.step == 1) {
+                draft.step = draft.combatants.length;
+                draft.round -= 1;
+                return
+            }
+
+            draft.step -= 1;
+            return;
 
         case 'ADD_COMBATANT':
-            return {
-                ...state,
-                combatants: [...state.combatants, action.payload],
-            };
+            draft.combatants.push(action.payload);
+            return;
 
         case 'REMOVE_COMBATANT':
-            return {
-                ...state,
-                combatants: state.combatants.filter(c => c.id !== action.payload),
-            };
+            draft.combatants = draft.combatants.filter(c => c.id !== action.payload);
+            return;
 
         case 'UPDATE_COMBATANT':
-            return {
-                ...state,
-                combatants: state.combatants.map(c => c.id === action.payload.id ? action.payload : c),
-            };
+            draft.combatants = draft.combatants.map(c => c.id === action.payload.id ? action.payload : c);
+            return;
 
         case 'REORDER_COMBATANTS':
-            return {
-                ...state,
-                combatants: action.payload,
-            };
+            draft.combatants = action.payload;
+            return;
 
         default:
             throw new Error(`Unhandled action type: ${action.type}`);
