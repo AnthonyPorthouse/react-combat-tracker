@@ -37,6 +37,16 @@ export function combatReducer(draft: CombatState, action: CombatAction) {
             draft.inCombat = true;
             draft.round = 1;
             draft.step = 1;
+
+            // Roll initiative for combatants with 'roll' initiative type
+            draft.combatants = draft.combatants.map(c => {
+                if (c.initiativeType === 'roll') {
+                    c.initiative = Math.floor(Math.random() * 20) + 1 + c.initiative; // Simulate d20 roll
+                }
+
+                return c;
+            })
+
             draft.combatants.sort((a, b) => b.initiative - a.initiative);
             return;
 
@@ -44,6 +54,7 @@ export function combatReducer(draft: CombatState, action: CombatAction) {
             draft.inCombat = false;
             draft.round = 0;
             draft.step = 0;
+            draft.combatants = [];
             return;
 
         case 'NEXT_STEP':

@@ -27,8 +27,8 @@ interface CombatantListProps {
   dispatch: CombatDispatch
 }
 
-function SortableCombatantItem({ combatant, isCurrentTurn, inCombat }: { combatant: Combatant; isCurrentTurn: boolean; inCombat: boolean }) {
-  return <CombatantItem combatant={combatant} isCurrentTurn={isCurrentTurn} inCombat={inCombat} />
+function SortableCombatantItem({ combatant, isCurrentTurn, inCombat, onRemove }: { combatant: Combatant; isCurrentTurn: boolean; inCombat: boolean; onRemove: (id: string) => void }) {
+  return <CombatantItem combatant={combatant} isCurrentTurn={isCurrentTurn} inCombat={inCombat} onRemove={onRemove} />
 }
 
 export function CombatantList({
@@ -90,6 +90,7 @@ export function CombatantList({
               combatant={combatant}
               isCurrentTurn={isCurrentTurn(index)}
               inCombat={inCombat}
+              onRemove={(id) => dispatch({ type: 'REMOVE_COMBATANT', payload: id })}
             />
           ))}
         </SortableContext>

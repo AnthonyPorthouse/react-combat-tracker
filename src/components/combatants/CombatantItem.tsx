@@ -1,15 +1,19 @@
-import { ChevronRight, GripVertical } from 'lucide-react'
+import { useState } from 'react'
+import { ChevronRight, GripVertical, Trash2 } from 'lucide-react'
 import type { Combatant } from '../../types/combatant'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { RemoveCombatantModal } from '../modals/RemoveCombatantModal'
 
 interface CombatantItemProps {
   combatant: Combatant
   isCurrentTurn: boolean
   inCombat: boolean
+  onRemove: (combatantId: string) => void
 }
 
-export function CombatantItem({ combatant, isCurrentTurn, inCombat }: CombatantItemProps) {
+export function CombatantItem({ combatant, isCurrentTurn, inCombat, onRemove }: CombatantItemProps) {
+  const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false)
   const {
     attributes,
     listeners,
@@ -45,12 +49,26 @@ export function CombatantItem({ combatant, isCurrentTurn, inCombat }: CombatantI
           <GripVertical size={20} />
         </button>
       )}
-      {!inCombat && <div className="w-6" />}
+      {!inCombat && <div className="w-6">{combatant.initiativeType === "fixed" ? combatant.initiative : `${combatant.initiative>=0 ? '+': ''}${combatant.initiative}`}</div>}
       <div className="text-gray-600 font-bold w-6">
         {isCurrentTurn && <ChevronRight size={20} />}
       </div>
       <div className="flex-1 font-medium text-gray-900">{combatant.name}</div>
       <div className="text-gray-600 text-sm font-semibold">{getHpPercentage(combatant.hp, combatant.maxHp)}</div>
+      <button
+        onClick={() => setIsRemoveModalOpen(true)}
+        className="text-gray-400 hover:text-red-600 transition-colors flex-shrink-0"
+        aria-label="Remove combatant"
+      >
+        <Trash2 size={18} />
+      </button>
+
+      <RemoveCombatantModal
+        isOpen={isRemoveModalOpen}
+        onClose={() => setIsRemoveModalOpen(false)}
+        onConfirm={() => onRemove(combatant.id)}
+        combatantName={combatant.name}
+      />
     </div>
   )
 }

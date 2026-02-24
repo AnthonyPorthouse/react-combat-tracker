@@ -4,8 +4,9 @@ import { combatReducer, initialCombatState } from './state/combat'
 import { CreateCombatant } from './components/combatants/CreateCombatant'
 import { CombatantList } from './components/combatants/CombatantList'
 import { CombatBar } from './components/CombatBar'
-import { ExportModal } from './components/ExportModal'
-import { ImportModal } from './components/ImportModal'
+import { ExportModal } from './components/modals/ExportModal'
+import { ImportModal } from './components/modals/ImportModal'
+import { EndCombatModal } from './components/modals/EndCombatModal'
 import { useImmerReducer } from 'use-immer'
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
   const [isImportModalOpen, setIsImportModalOpen] = useState(false)
+  const [isEndCombatModalOpen, setIsEndCombatModalOpen] = useState(false)
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -74,6 +76,12 @@ function App() {
             dispatch({ type: 'IMPORT_STATE', payload: importedState })
           }}
         />
+
+        <EndCombatModal
+          isOpen={isEndCombatModalOpen}
+          onClose={() => setIsEndCombatModalOpen(false)}
+          onConfirm={() => dispatch({ type: 'END_COMBAT' })}
+        />
       </main>
 
       <footer>
@@ -83,6 +91,7 @@ function App() {
         step={state.step}
         combatantCount={state.combatants.length}
         onStartCombat={() => dispatch({ type: 'START_COMBAT' })}
+        onEndCombat={() => setIsEndCombatModalOpen(true)}
         onNextStep={() => dispatch({ type: 'NEXT_STEP' })}
         onPreviousStep={() => dispatch({ type: 'PREVIOUS_STEP' })}
       />

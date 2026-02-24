@@ -6,6 +6,7 @@ interface CombatBarProps {
   step: number;
   combatantCount: number;
   onStartCombat: () => void;
+  onEndCombat: () => void;
   onNextStep: () => void;
   onPreviousStep: () => void;
 }
@@ -16,6 +17,7 @@ export function CombatBar({
   step,
   combatantCount,
   onStartCombat,
+  onEndCombat,
   onNextStep,
   onPreviousStep,
 }: CombatBarProps) {
@@ -42,7 +44,15 @@ export function CombatBar({
             Start Combat
           </button>
         ) : (
-          <span className="font-bold text-gray-700 text-lg">Round {round}</span>
+          <div className="flex items-center gap-3">
+            <span className="font-bold text-gray-700 text-lg">Round {round}</span>
+            <button
+              onClick={onEndCombat}
+              className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
+            >
+              End Combat
+            </button>
+          </div>
         )}
       </div>
 
