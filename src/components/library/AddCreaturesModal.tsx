@@ -1,0 +1,173 @@
+import { useState, useMemo } from 'react';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db } from '../../db/db';
+import { BaseModal } from '../modals/BaseModal';
+import { creaturesToCombatants } from './useCreaturesFromLibrary';
+
+interface AddCreaturesModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onAddCreatures: (combatants: ReturnType<typeof creaturesToCombatants>) => void;
+}
+
+export function AddCreaturesModal({
+  isOpen,
+  onClose,
+  onAddCreatures,
+}: AddCreaturesModalProps) {
+  const creatures = useLiveQuery(() => db.creatures.toArray());
+  const categories = useLiveQuery(() => db.categories.toArray());
+  const [selectedCreatureIds, setSelectedCreatureIds] = useState<string[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredCreatures = useMemo(() => {
+    if (!creatures) return [];
+
+    return creatures.filter((creature) => {
+      const matchesCategory =
+        selectedCategoryId === 'all' ||
+        creature.categoryIds.includes(selectedCategoryId);
+      const matchesSearch =
+        creature.name.toLowerCase().includes(searchTerm.toLowerCase());
+
+      return matchesCategory && matchesSearch;
+    });
+  }, [creatures, selectedCategoryId, searchTerm]);
+
+  const toggleCreature = (creatureId: string) => {
+    setSelectedCreatureIds((prev) =>
+      prev.includes(creatureId)
+        ? prev.filter((id) => id !== creatureId)
+        : [...prev, creatureId]
+    );
+  };
+
+  const handleAddCreatures = () => {
+    if (!creatures) return;
+
+    const creaturesToAdd = creatures.filter((c) =>
+      selectedCreatureIds.includes(c.id)
+    );
+    const combatants = creaturesToCombatants(creaturesToAdd);
+
+    combatants.forEach((combatant) => {
+      onAddCreatures([combatant]);
+    });
+
+    setSelectedCreatureIds([]);
+    setSearchTerm('');
+    setSelectedCategoryId('all');
+    onClose();
+  };
+
+  const getCategoryNames = (categoryIds: string[]) => {
+    if (!categories) return '';
+    return categories
+      .filter((c) => categoryIds.includes(c.id))
+      .map((c) => c.name)
+      .join(', ');
+  };
+
+  return (
+    <BaseModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Add Creatures from Library"
+      onSubmit={selectedCreatureIds.length > 0 ? (e) => {
+        e.preventDefault();
+        handleAddCreatures();
+      } : undefined}
+      actions={
+        selectedCreatureIds.length > 0 ? (
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+            >
+              Add {selectedCreatureIds.length} Creature{selectedCreatureIds.length !== 1 ? 's' : ''}
+            </button>
+          </div>
+        ) : null
+      }
+    >
+      <div className="space-y-4">
+        {categories && categories.length > 0 && (
+          <div>
+            <label
+              htmlFor="category-filter"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Filter by Category
+            </label>
+            <select
+              id="category-filter"
+              value={selectedCategoryId}
+              onChange={(e) => setSelectedCategoryId(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:border-blue-500"
+            >
+              <option value="all">All Categories</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        <input
+          type="text"
+          placeholder="Search creatures..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:border-blue-500"
+        />
+
+        {!creatures || filteredCreatures.length === 0 ? (
+          <p className="text-gray-500 text-sm text-center py-4">
+            {creatures?.length === 0
+              ? 'No creatures in library yet.'
+              : 'No creatures match your filter.'}
+          </p>
+        ) : (
+          <div className="space-y-2 max-h-64 overflow-y-auto border border-gray-200 rounded p-3 bg-gray-50">
+            {filteredCreatures.map((creature) => (
+              <label
+                key={creature.id}
+                className="flex items-start gap-3 p-2 hover:bg-white rounded cursor-pointer transition"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedCreatureIds.includes(creature.id)}
+                  onChange={() => toggleCreature(creature.id)}
+                  className="w-4 h-4 rounded border-gray-300 mt-0.5"
+                />
+                <div className="flex-1">
+                  <h4 className="font-medium text-gray-900 text-sm">
+                    {creature.name}
+                  </h4>
+                  <p className="text-xs text-gray-600">
+                    Init: {creature.initiative} ({creature.initiativeType})
+                  </p>
+                  {getCategoryNames(creature.categoryIds) && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      {getCategoryNames(creature.categoryIds)}
+                    </p>
+                  )}
+                </div>
+              </label>
+            ))}
+          </div>
+        )}
+      </div>
+    </BaseModal>
+  );
+}

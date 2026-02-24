@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { Button } from './common/Button'
 
 interface CombatBarProps {
   inCombat: boolean;
@@ -27,41 +28,52 @@ export function CombatBar({
     <div className="flex justify-between items-center gap-4 px-8 py-4 bg-gray-100 border-t border-gray-200">
       <div className="flex items-center gap-4">
         {inCombat && (
-          <button
+          <Button
             onClick={onPreviousStep}
             disabled={isPreviousDisabled}
-            className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-3 py-1 rounded text-sm font-medium transition-colors flex items-center gap-2"
+            variant="success"
+            size="sm"
+            icon={<ChevronLeft size={16} />}
           >
-            <ChevronLeft size={16} />
             Previous Step
-          </button>
+          </Button>
         )}
       </div>
 
       <div className="flex items-center gap-4">
         {!inCombat ? (
-          <button onClick={onStartCombat} disabled={combatantCount === 0} className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-3 py-1 rounded text-sm font-medium transition-colors">
+          <Button 
+            onClick={onStartCombat} 
+            disabled={combatantCount === 0}
+            variant="success"
+            size="sm"
+          >
             Start Combat
-          </button>
+          </Button>
         ) : (
           <div className="flex items-center gap-3">
             <span className="font-bold text-gray-700 text-lg">Round {round}</span>
-            <button
+            <Button
               onClick={onEndCombat}
-              className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
+              variant="danger"
+              size="sm"
             >
               End Combat
-            </button>
+            </Button>
           </div>
         )}
       </div>
 
       <div className="flex items-center gap-4">
         {inCombat && (
-          <button onClick={onNextStep} className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors flex items-center gap-2">
+          <Button 
+            onClick={onNextStep}
+            variant="success"
+            size="sm"
+            icon={<ChevronRight size={16} />}
+          >
             Next Step
-            <ChevronRight size={16} />
-          </button>
+          </Button>
         )}
       </div>
     </div>

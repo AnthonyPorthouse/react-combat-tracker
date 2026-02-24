@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { Plus, Share, Import } from 'lucide-react'
+import { Plus, Share, Import, BookOpen } from 'lucide-react'
 import { combatReducer, initialCombatState } from './state/combat'
 import { CreateCombatant } from './components/combatants/CreateCombatant'
 import { CombatantList } from './components/combatants/CombatantList'
@@ -7,14 +6,18 @@ import { CombatBar } from './components/CombatBar'
 import { ExportModal } from './components/modals/ExportModal'
 import { ImportModal } from './components/modals/ImportModal'
 import { EndCombatModal } from './components/modals/EndCombatModal'
+import { LibraryModal } from './components/library/LibraryModal'
+import { Button } from './components/common/Button'
+import { useModal } from './hooks/useModal'
 import { useImmerReducer } from 'use-immer'
 
 function App() {
   const [state, dispatch] = useImmerReducer(combatReducer, initialCombatState)
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [isExportModalOpen, setIsExportModalOpen] = useState(false)
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false)
-  const [isEndCombatModalOpen, setIsEndCombatModalOpen] = useState(false)
+  const createModal = useModal()
+  const exportModal = useModal()
+  const importModal = useModal()
+  const endCombatModal = useModal()
+  const libraryModal = useModal()
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -22,14 +25,21 @@ function App() {
         <h1 className="text-2xl font-bold text-gray-900">Combat Tracker</h1>
         <div className="flex gap-3">
           <button
-            onClick={() => setIsExportModalOpen(true)}
+            onClick={libraryModal.open}
+            className="text-gray-700 hover:text-gray-900 transition-colors p-2 hover:bg-gray-200 rounded"
+            aria-label="Open creature library"
+          >
+            <BookOpen size={20} />
+          </button>
+          <button
+            onClick={exportModal.open}
             className="text-gray-700 hover:text-gray-900 transition-colors p-2 hover:bg-gray-200 rounded"
             aria-label="Export combat state"
           >
             <Share size={20} />
           </button>
           <button
-            onClick={() => setIsImportModalOpen(true)}
+            onClick={importModal.open}
             className="text-gray-700 hover:text-gray-900 transition-colors p-2 hover:bg-gray-200 rounded"
             aria-label="Import combat state"
           >
@@ -46,41 +56,50 @@ function App() {
           dispatch={dispatch}
         />
 
-        <button
-          onClick={() => setIsCreateModalOpen(true)}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-medium transition-colors flex items-center gap-2"
+        <Button
+          variant="success"
+          onClick={createModal.open}
+          icon={<Plus size={18} />}
         >
-          <Plus size={18} />
           Add Combatant
-        </button>
+        </Button>
 
         <CreateCombatant
-          isOpen={isCreateModalOpen}
-          onClose={() => setIsCreateModalOpen(false)}
+          isOpen={createModal.isOpen}
+          onClose={createModal.close}
           onSubmit={(combatant) => {
             dispatch({ type: 'ADD_COMBATANT', payload: combatant })
-            setIsCreateModalOpen(false)
+            createModal.close()
           }}
         />
 
         <ExportModal
-          isOpen={isExportModalOpen}
-          onClose={() => setIsExportModalOpen(false)}
+          isOpen={exportModal.isOpen}
+          onClose={exportModal.close}
           state={state}
         />
 
         <ImportModal
-          isOpen={isImportModalOpen}
-          onClose={() => setIsImportModalOpen(false)}
+          isOpen={importModal.isOpen}
+          onClose={importModal.close}
           onImport={(importedState) => {
             dispatch({ type: 'IMPORT_STATE', payload: importedState })
           }}
         />
 
         <EndCombatModal
-          isOpen={isEndCombatModalOpen}
-          onClose={() => setIsEndCombatModalOpen(false)}
+          isOpen={endCombatModal.isOpen}
+          onClose={endCombatModal.close}
           onConfirm={() => dispatch({ type: 'END_COMBAT' })}
+        />
+
+        <LibraryModal
+          isOpen={libraryModal.isOpen}
+          onClose={libraryModal.close}
+          onAddCombatants={(combatants) => {
+            if (combatants.length === 0) return
+            dispatch({ type: 'ADD_COMBATANTS', payload: combatants })
+          }}
         />
       </main>
 
@@ -91,7 +110,7 @@ function App() {
         step={state.step}
         combatantCount={state.combatants.length}
         onStartCombat={() => dispatch({ type: 'START_COMBAT' })}
-        onEndCombat={() => setIsEndCombatModalOpen(true)}
+        onEndCombat={() => endCombatModal.open()}
         onNextStep={() => dispatch({ type: 'NEXT_STEP' })}
         onPreviousStep={() => dispatch({ type: 'PREVIOUS_STEP' })}
       />

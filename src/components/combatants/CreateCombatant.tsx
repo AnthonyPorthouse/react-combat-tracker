@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
-import { v7 as uuidv7 } from 'uuid'
+import { nanoid } from 'nanoid'
 import z from 'zod'
 import { CombatantValidator } from '../../types/combatant'
 import type { Combatant } from '../../types/combatant'
 import { BaseModal } from '../modals/BaseModal'
+import { FormField } from '../common/FormField'
 
 interface CreateCombatantProps {
   isOpen: boolean
@@ -54,12 +54,12 @@ export function CreateCombatant({
     }
   }
 
-  const handleSubmit = (e: React.SubmitEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    // Construct combatant object with generated UUID v7
+    // Construct combatant object with generated nanoid
     const combatantData = {
-      id: uuidv7(),
+      id: nanoid(),
       name: formData.name,
       initiativeType: formData.initiativeType,
       initiative: parseInt(formData.initiative, 10) || 0,
@@ -78,7 +78,7 @@ export function CreateCombatant({
       const errors: FormErrors = {}
       
       Object.entries(fieldErrors).forEach(([field, messages]) => {
-        if (messages && messages.length > 0) {
+        if (Array.isArray(messages) && messages.length > 0) {
           errors[field as keyof CombatantFormData] = messages[0]
         }
       })
@@ -111,9 +111,8 @@ export function CreateCombatant({
         <div className="flex gap-3 pt-4">
           <button
             type="submit"
-            className="flex-1 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-4 py-2 rounded font-medium transition-colors flex items-center justify-center gap-2"
+            className="flex-1 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-4 py-2 rounded font-medium transition-colors"
           >
-            <Plus size={18} />
             Add Combatant
           </button>
           <button
@@ -126,25 +125,16 @@ export function CreateCombatant({
         </div>
       }
     >
-      <div className="flex flex-col gap-1">
-        <label htmlFor="name" className="text-sm font-medium text-gray-700">Name *</label>
-        <input
-          id="name"
-          type="text"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 ${
-            formErrors.name
-              ? 'border-red-500 focus:ring-red-500'
-              : 'border-gray-300 focus:ring-blue-500'
-          }`}
-          required
-        />
-        {formErrors.name && (
-          <span className="text-sm text-red-600">{formErrors.name}</span>
-        )}
-      </div>
+      <FormField
+        id="name"
+        label="Name"
+        type="text"
+        name="name"
+        value={formData.name}
+        onChange={handleChange}
+        error={formErrors.name}
+        required
+      />
 
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-1">
@@ -165,64 +155,37 @@ export function CreateCombatant({
           </select>
         </div>
 
-        <div className="flex flex-col gap-1">
-          <label htmlFor="initiative" className="text-sm font-medium text-gray-700">Initiative</label>
-          <input
-            id="initiative"
-            type="number"
-            name="initiative"
-            value={formData.initiative}
-            onChange={handleChange}
-            className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 ${
-              formErrors.initiative
-                ? 'border-red-500 focus:ring-red-500'
-                : 'border-gray-300 focus:ring-blue-500'
-            }`}
-          />
-          {formErrors.initiative && (
-            <span className="text-sm text-red-600">{formErrors.initiative}</span>
-          )}
-        </div>
+        <FormField
+          id="initiative"
+          label="Initiative"
+          type="number"
+          name="initiative"
+          value={formData.initiative}
+          onChange={handleChange}
+          error={formErrors.initiative}
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="flex flex-col gap-1">
-          <label htmlFor="hp" className="text-sm font-medium text-gray-700">HP</label>
-          <input
-            id="hp"
-            type="number"
-            name="hp"
-            value={formData.hp}
-            onChange={handleChange}
-            className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 ${
-              formErrors.hp
-                ? 'border-red-500 focus:ring-red-500'
-                : 'border-gray-300 focus:ring-blue-500'
-            }`}
-          />
-          {formErrors.hp && (
-            <span className="text-sm text-red-600">{formErrors.hp}</span>
-          )}
-        </div>
+        <FormField
+          id="hp"
+          label="HP"
+          type="number"
+          name="hp"
+          value={formData.hp}
+          onChange={handleChange}
+          error={formErrors.hp}
+        />
 
-        <div className="flex flex-col gap-1">
-          <label htmlFor="maxHp" className="text-sm font-medium text-gray-700">Max HP</label>
-          <input
-            id="maxHp"
-            type="number"
-            name="maxHp"
-            value={formData.maxHp}
-            onChange={handleChange}
-            className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 ${
-              formErrors.maxHp
-                ? 'border-red-500 focus:ring-red-500'
-                : 'border-gray-300 focus:ring-blue-500'
-            }`}
-          />
-          {formErrors.maxHp && (
-            <span className="text-sm text-red-600">{formErrors.maxHp}</span>
-          )}
-        </div>
+        <FormField
+          id="maxHp"
+          label="Max HP"
+          type="number"
+          name="maxHp"
+          value={formData.maxHp}
+          onChange={handleChange}
+          error={formErrors.maxHp}
+        />
       </div>
     </BaseModal>
   )

@@ -1,7 +1,7 @@
 import z from "zod";
 
 export const FixedInitiativeCombatantValidator = z.strictObject({
-    id: z.uuid(),
+    id: z.nanoid(),
     name: z.string(),
     initiativeType: z.literal('fixed'),
     initiative: z.number().int().nonnegative().default(0),
@@ -10,7 +10,7 @@ export const FixedInitiativeCombatantValidator = z.strictObject({
 })
 
 export const RolledInitiativeCombatantValidator = z.strictObject({
-    id: z.uuid(),
+    id: z.nanoid(),
     name: z.string(),
     initiativeType: z.literal('roll'),
     initiative: z.number().int().default(0),

@@ -12,6 +12,7 @@ export type CombatState = z.infer<typeof CombatValidator>;
 
 export type CombatAction =
     | { type: 'ADD_COMBATANT'; payload: Combatant }
+    | { type: 'ADD_COMBATANTS'; payload: Combatant[] }
     | { type: 'REMOVE_COMBATANT'; payload: string }
     | { type: 'UPDATE_COMBATANT'; payload: Combatant }
     | { type: 'REORDER_COMBATANTS'; payload: Combatant[] }
@@ -29,6 +30,44 @@ export const initialCombatState: CombatState = {
   step: 0,
   combatants: [],
 };
+
+function getBaseName(name: string): string {
+    const match = name.match(/^(.*)\s(\d+)$/);
+    if (!match) return name;
+    return match[1];
+}
+
+function renumberCombatants(combatants: Combatant[]): Combatant[] {
+    const grouped = new Map<string, Combatant[]>();
+
+    combatants.forEach((combatant) => {
+        const baseName = getBaseName(combatant.name).trim();
+        const group = grouped.get(baseName) ?? [];
+        group.push(combatant);
+        grouped.set(baseName, group);
+    });
+
+    return combatants.map((combatant) => {
+        const baseName = getBaseName(combatant.name).trim();
+        const group = grouped.get(baseName) ?? [];
+
+        if (group.length <= 1) {
+            return combatant;
+        }
+
+        const index = group.findIndex((member) => member.id === combatant.id);
+        const numberedName = `${baseName} ${index + 1}`;
+
+        if (combatant.name === numberedName) {
+            return combatant;
+        }
+
+        return {
+            ...combatant,
+            name: numberedName,
+        };
+    });
+}
 
 export function combatReducer(draft: CombatState, action: CombatAction) {
     switch (action.type) {
@@ -82,7 +121,17 @@ export function combatReducer(draft: CombatState, action: CombatAction) {
             return;
 
         case 'ADD_COMBATANT':
-            draft.combatants.push(action.payload);
+            draft.combatants = renumberCombatants([
+                ...draft.combatants,
+                action.payload,
+            ]);
+            return;
+
+        case 'ADD_COMBATANTS':
+            draft.combatants = renumberCombatants([
+                ...draft.combatants,
+                ...action.payload,
+            ]);
             return;
 
         case 'REMOVE_COMBATANT':
