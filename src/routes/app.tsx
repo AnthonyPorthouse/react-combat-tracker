@@ -11,7 +11,7 @@ import {
 } from '../features/combat'
 import { Button } from '../components/common'
 import { useModal } from '../hooks'
-import { useCombat } from '../state/combat'
+import { useCombat } from '../state/combatContext'
 
 export const Route = createFileRoute('/app')({
   component: CombatAppPage,

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { BaseModal } from '../../../components/modals/BaseModal';
 import type { Creature } from '../../../db/stores/creature';
 import { Minus, Plus, Trash2 } from 'lucide-react';
@@ -21,25 +21,34 @@ export function ConfirmAddCreaturesModal({
   creatures,
   onConfirm,
 }: ConfirmAddCreaturesModalProps) {
-  const [items, setItems] = useState<ConfirmItem[]>([]);
+  const [quantityOverrides, setQuantityOverrides] = useState<Record<string, number>>({});
+  const [removedCreatureIds, setRemovedCreatureIds] = useState<string[]>([]);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    setItems(creatures.map((creature) => ({ creature, quantity: 1 })));
-  }, [creatures, isOpen]);
+  const items = useMemo<ConfirmItem[]>(() => {
+    return creatures
+      .filter((creature) => !removedCreatureIds.includes(creature.id))
+      .map((creature) => ({
+        creature,
+        quantity: Math.max(1, quantityOverrides[creature.id] ?? 1),
+      }));
+  }, [creatures, quantityOverrides, removedCreatureIds]);
+
+  const resetItems = () => {
+    setQuantityOverrides({});
+    setRemovedCreatureIds([]);
+  };
 
   const updateQuantity = (creatureId: string, quantity: number) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.creature.id === creatureId
-          ? { ...item, quantity: Math.max(1, quantity) }
-          : item
-      )
-    );
+    setQuantityOverrides((prev) => ({
+      ...prev,
+      [creatureId]: Math.max(1, quantity),
+    }));
   };
 
   const handleRemove = (creatureId: string) => {
-    setItems((prev) => prev.filter((item) => item.creature.id !== creatureId));
+    setRemovedCreatureIds((prev) =>
+      prev.includes(creatureId) ? prev : [...prev, creatureId]
+    );
   };
 
   const handleConfirm = () => {
@@ -47,17 +56,22 @@ export function ConfirmAddCreaturesModal({
     onConfirm(items);
   };
 
+  const handleClose = () => {
+    resetItems();
+    onClose();
+  };
+
   return (
     <BaseModal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       title="Confirm Add to Combat"
       className="max-w-3xl"
       actions={
         <div className="flex justify-end gap-2">
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition"
           >
             Back

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import z from 'zod'
-import { CombatValidator, type CombatState } from '../../../state/combat'
+import { CombatValidator, type CombatState } from '../../../state/combatState'
 import { verifyHmac } from '../../../utils/hmac'
 import { BaseModal } from '../../../components/modals/BaseModal'
 

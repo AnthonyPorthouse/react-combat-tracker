@@ -15,7 +15,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
-import type { CombatAction } from '../../../../state/combat'
+import type { CombatAction } from '../../../../state/combatState'
 import { CombatantItem } from './CombatantItem'
 
 type CombatDispatch = Dispatch<CombatAction>

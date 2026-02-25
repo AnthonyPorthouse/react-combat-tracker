@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Copy, Check } from 'lucide-react'
-import type { CombatState } from '../../../state/combat'
+import type { CombatState } from '../../../state/combatState'
 import { generateHmac } from '../../../utils/hmac'
 import { BaseModal } from '../../../components/modals/BaseModal'
 

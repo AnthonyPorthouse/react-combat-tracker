@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 interface MenuPosition {
@@ -48,30 +48,33 @@ export function DropdownMenu({
     }
   }, [isOpen])
 
-  useLayoutEffect(() => {
-    if (!isOpen) return
-
-    const rect = triggerRef.current?.getBoundingClientRect()
-    if (!rect) return
-
-    const top = rect.bottom + 8
-    const left = align === 'right' ? rect.right : rect.left
-    const transform = align === 'right' ? 'translateX(-100%)' : 'none'
-
-    setMenuPosition({ top, left, transform })
-  }, [align, isOpen])
-
   useEffect(() => {
     if (isOpen) {
       overlayRef.current?.focus()
-    } else {
-      setMenuPosition(null)
     }
   }, [isOpen])
 
   const menuRoot = typeof document !== 'undefined' ? document.getElementById('menu-root') : null
 
-  const closeMenu = () => setIsOpen(false)
+  const closeMenu = () => {
+    setIsOpen(false)
+    setMenuPosition(null)
+  }
+
+  const handleTriggerClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (isOpen) {
+      closeMenu()
+      return
+    }
+
+    const rect = event.currentTarget.getBoundingClientRect()
+    const top = rect.bottom + 8
+    const left = align === 'right' ? rect.right : rect.left
+    const transform = align === 'right' ? 'translateX(-100%)' : 'none'
+
+    setMenuPosition({ top, left, transform })
+    setIsOpen(true)
+  }
 
   const handleOverlayKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Escape') {
@@ -83,7 +86,7 @@ export function DropdownMenu({
     <div className="inline-flex">
       <button
         type="button"
-        onClick={() => setIsOpen((open) => !open)}
+        onClick={handleTriggerClick}
         className={triggerClassName}
         aria-label={triggerLabel}
         aria-expanded={isOpen}

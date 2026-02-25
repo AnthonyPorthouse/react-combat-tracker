@@ -1,5 +1,5 @@
 import { Plus, Share, Import, BookOpen } from 'lucide-react'
-import { combatReducer, initialCombatState } from './state/combat'
+import { combatReducer, initialCombatState } from './state/combatState'
 import { CreateCombatant, CombatantList, CombatBar, ExportModal, ImportModal, EndCombatModal } from './features/combat'
 import { LibraryModal } from './features/library'
 import { Button } from './components/common'
