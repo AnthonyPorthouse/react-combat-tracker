@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { nanoid } from 'nanoid';
-import { creatureValidator, type Creature } from '../../db/stores/creature';
-import { type Category } from '../../db/stores/categories';
-import { FormField } from '../common/FormField';
-import { CheckboxItem } from '../common/CheckboxItem';
-import { Button } from '../common/Button';
+import { creatureValidator, type Creature } from '../../../db/stores/creature';
+import { type Category } from '../../../db/stores/categories';
+import { FormField } from '../../../components/common/FormField';
+import { CheckboxItem } from '../../../components/common/CheckboxItem';
+import { Button } from '../../../components/common/Button';
 
 interface CreatureFormProps {
   creature?: Creature;

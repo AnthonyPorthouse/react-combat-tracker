@@ -1,5 +1,5 @@
 import { useMemo, type Dispatch } from 'react'
-import type { Combatant } from '../../types/combatant'
+import type { Combatant } from '../../../../types/combatant'
 import {
   DndContext,
   closestCenter,
@@ -15,7 +15,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
-import type { CombatAction } from '../../state/combat'
+import type { CombatAction } from '../../../../state/combat'
 import { CombatantItem } from './CombatantItem'
 
 type CombatDispatch = Dispatch<CombatAction>

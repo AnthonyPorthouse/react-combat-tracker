@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import z from 'zod'
-import { CombatValidator, type CombatState } from '../../state/combat'
-import { verifyHmac } from '../../utils/hmac'
-import { BaseModal } from './BaseModal'
+import { CombatValidator, type CombatState } from '../../../state/combat'
+import { verifyHmac } from '../../../utils/hmac'
+import { BaseModal } from '../../../components/modals/BaseModal'
 
 interface ImportModalProps {
   isOpen: boolean

@@ -1,14 +1,14 @@
 import { Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { BaseModal } from '../modals/BaseModal';
-import { db } from '../../db/db';
-import type { Category } from '../../db/stores/categories';
-import type { Creature } from '../../db/stores/creature';
-import type { Combatant } from '../../types/combatant';
-import { CategoryForm } from './CategoryForm';
-import { CreatureForm } from './CreatureForm';
-import { creaturesToCombatants } from './useCreaturesFromLibrary';
+import { BaseModal } from '../../../components/modals/BaseModal';
+import { db } from '../../../db/db';
+import type { Category } from '../../../db/stores/categories';
+import type { Creature } from '../../../db/stores/creature';
+import type { Combatant } from '../../../types/combatant';
+import { CategoryForm } from '../components/CategoryForm';
+import { CreatureForm } from '../components/CreatureForm';
+import { creaturesToCombatants } from '../hooks/useCreaturesFromLibrary';
 import { ConfirmAddCreaturesModal } from './ConfirmAddCreaturesModal';
 
 interface LibraryModalProps {

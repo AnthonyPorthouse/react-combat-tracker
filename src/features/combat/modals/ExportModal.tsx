@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Copy, Check } from 'lucide-react'
-import type { CombatState } from '../../state/combat'
-import { generateHmac } from '../../utils/hmac'
-import { BaseModal } from './BaseModal'
+import type { CombatState } from '../../../state/combat'
+import { generateHmac } from '../../../utils/hmac'
+import { BaseModal } from '../../../components/modals/BaseModal'
 
 interface ExportModalProps {
   isOpen: boolean

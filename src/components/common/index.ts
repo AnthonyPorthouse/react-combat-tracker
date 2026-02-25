@@ -16,3 +16,7 @@ export type {
   ConfirmDialogProps,
   FormErrors,
 } from '../../types/common'
+
+// Base modal primitive
+export { BaseModal } from '../modals/BaseModal'
+export type { BaseModalProps } from '../modals/BaseModal'

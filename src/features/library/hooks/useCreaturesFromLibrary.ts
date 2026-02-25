@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid';
-import type { Creature } from '../../db/stores/creature';
-import type { Combatant } from '../../types/combatant';
+import type { Creature } from '../../../db/stores/creature';
+import type { Combatant } from '../../../types/combatant';
 
 /**
  * Converts creatures from the library to combatants ready for combat.

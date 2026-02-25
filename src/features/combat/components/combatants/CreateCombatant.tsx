@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { nanoid } from 'nanoid'
 import z from 'zod'
-import { CombatantValidator } from '../../types/combatant'
-import type { Combatant } from '../../types/combatant'
-import { BaseModal } from '../modals/BaseModal'
-import { FormField } from '../common/FormField'
+import { CombatantValidator } from '../../../../types/combatant'
+import type { Combatant } from '../../../../types/combatant'
+import { BaseModal } from '../../../../components/modals/BaseModal'
+import { FormField } from '../../../../components/common/FormField'
 
 interface CreateCombatantProps {
   isOpen: boolean

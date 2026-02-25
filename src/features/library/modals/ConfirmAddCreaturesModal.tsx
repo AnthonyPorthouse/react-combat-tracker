@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { BaseModal } from '../modals/BaseModal';
-import type { Creature } from '../../db/stores/creature';
+import { BaseModal } from '../../../components/modals/BaseModal';
+import type { Creature } from '../../../db/stores/creature';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 
 interface ConfirmAddCreaturesModalProps {

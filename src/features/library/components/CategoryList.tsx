@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../../db/db';
-import { type Category } from '../../db/stores/categories';
+import { db } from '../../../db/db';
+import { type Category } from '../../../db/stores/categories';
 import { CategoryForm } from './CategoryForm';
 import { Edit, Trash2, Plus } from 'lucide-react';
 

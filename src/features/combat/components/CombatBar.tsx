@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { Button } from './common/Button'
+import { Button } from '../../../components/common/Button'
 
 interface CombatBarProps {
   inCombat: boolean;

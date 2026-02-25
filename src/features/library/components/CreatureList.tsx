@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../../db/db';
-import { type Creature } from '../../db/stores/creature';
+import { db } from '../../../db/db';
+import { type Creature } from '../../../db/stores/creature';
 
 import { CreatureForm } from './CreatureForm';
 import { Edit, Trash2, Plus } from 'lucide-react';

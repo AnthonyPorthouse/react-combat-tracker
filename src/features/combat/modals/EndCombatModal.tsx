@@ -1,5 +1,5 @@
 import { AlertTriangle } from 'lucide-react'
-import { ConfirmDialog } from '../common/ConfirmDialog'
+import { ConfirmDialog } from '../../../components/common/ConfirmDialog'
 
 interface EndCombatModalProps {
   isOpen: boolean

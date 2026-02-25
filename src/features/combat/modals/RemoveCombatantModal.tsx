@@ -1,5 +1,5 @@
 import { Trash2 } from 'lucide-react'
-import { ConfirmDialog } from '../common/ConfirmDialog'
+import { ConfirmDialog } from '../../../components/common/ConfirmDialog'
 
 interface RemoveCombatantModalProps {
   isOpen: boolean

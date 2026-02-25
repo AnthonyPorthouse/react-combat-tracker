@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../../db/db';
-import { BaseModal } from '../modals/BaseModal';
-import { creaturesToCombatants } from './useCreaturesFromLibrary';
+import { db } from '../../../db/db';
+import { BaseModal } from '../../../components/modals/BaseModal';
+import { creaturesToCombatants } from '../hooks/useCreaturesFromLibrary';
 
 interface AddCreaturesModalProps {
   isOpen: boolean;

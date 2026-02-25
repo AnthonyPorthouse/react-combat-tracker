@@ -3,7 +3,7 @@ import type { ReactNode, SubmitEventHandler } from 'react'
 import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 
-interface BaseModalProps {
+export interface BaseModalProps {
   isOpen: boolean
   onClose: () => void
   title: ReactNode

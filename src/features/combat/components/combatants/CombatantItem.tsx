@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { ChevronRight, GripVertical, Trash2 } from 'lucide-react'
-import type { Combatant } from '../../types/combatant'
+import type { Combatant } from '../../../../types/combatant'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { RemoveCombatantModal } from '../modals/RemoveCombatantModal'
+import { RemoveCombatantModal } from '../../modals/RemoveCombatantModal'
 
 interface CombatantItemProps {
   combatant: Combatant

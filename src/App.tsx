@@ -1,14 +1,9 @@
 import { Plus, Share, Import, BookOpen } from 'lucide-react'
 import { combatReducer, initialCombatState } from './state/combat'
-import { CreateCombatant } from './components/combatants/CreateCombatant'
-import { CombatantList } from './components/combatants/CombatantList'
-import { CombatBar } from './components/CombatBar'
-import { ExportModal } from './components/modals/ExportModal'
-import { ImportModal } from './components/modals/ImportModal'
-import { EndCombatModal } from './components/modals/EndCombatModal'
-import { LibraryModal } from './components/library/LibraryModal'
-import { Button } from './components/common/Button'
-import { useModal } from './hooks/useModal'
+import { CreateCombatant, CombatantList, CombatBar, ExportModal, ImportModal, EndCombatModal } from './features/combat'
+import { LibraryModal } from './features/library'
+import { Button } from './components/common'
+import { useModal } from './hooks'
 import { useImmerReducer } from 'use-immer'
 
 function App() {

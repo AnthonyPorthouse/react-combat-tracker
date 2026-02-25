@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { nanoid } from 'nanoid';
-import { categoryValidator, type Category } from '../../db/stores/categories';
-import { FormField } from '../common/FormField';
-import { Button } from '../common/Button';
+import { categoryValidator, type Category } from '../../../db/stores/categories';
+import { FormField } from '../../../components/common/FormField';
+import { Button } from '../../../components/common/Button';
 
 interface CategoryFormProps {
   category?: Category;
