@@ -1,89 +1,49 @@
-import { useState, useMemo } from 'react';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../../../db/db';
-import { type Creature } from '../../../db/stores/creature';
-
-import { CreatureForm } from './CreatureForm';
-import { Edit, Trash2, Plus } from 'lucide-react';
+import { useState, useMemo } from 'react'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { Link } from '@tanstack/react-router'
+import { db } from '../../../db/db'
+import { Edit, Trash2 } from 'lucide-react'
 
 interface CreatureListProps {
-  selectedCategoryId?: string;
+  selectedCategoryId?: string
 }
 
 export function CreatureList({ selectedCategoryId }: CreatureListProps) {
-  const creatures = useLiveQuery(() => db.creatures.toArray());
-  const categories = useLiveQuery(() => db.categories.toArray());
-  const [editingCreature, setEditingCreature] = useState<Creature | undefined>();
-  const [isCreating, setIsCreating] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const creatures = useLiveQuery(() => db.creatures.toArray())
+  const categories = useLiveQuery(() => db.categories.toArray())
+  const [searchTerm, setSearchTerm] = useState('')
 
   const filteredCreatures = useMemo(() => {
-    if (!creatures) return [];
+    if (!creatures) return []
 
     return creatures.filter((creature) => {
       const matchesCategory =
-        !selectedCategoryId || creature.categoryIds.includes(selectedCategoryId);
+        !selectedCategoryId || creature.categoryIds.includes(selectedCategoryId)
       const matchesSearch =
-        creature.name.toLowerCase().includes(searchTerm.toLowerCase());
+        creature.name.toLowerCase().includes(searchTerm.toLowerCase())
 
-      return matchesCategory && matchesSearch;
-    });
-  }, [creatures, selectedCategoryId, searchTerm]);
-
-  const handleSave = async (creature: Creature) => {
-    if (editingCreature) {
-      await db.creatures.update(creature.id, creature);
-      setEditingCreature(undefined);
-    } else {
-      await db.creatures.add(creature);
-      setIsCreating(false);
-    }
-  };
+      return matchesCategory && matchesSearch
+    })
+  }, [creatures, selectedCategoryId, searchTerm])
 
   const handleDelete = async (id: string) => {
     if (confirm('Delete this creature?')) {
-      await db.creatures.delete(id);
+      await db.creatures.delete(id)
     }
-  };
+  }
 
   const getCategoryNames = (categoryIds: string[]) => {
-    if (!categories) return '';
+    if (!categories) return ''
     return categories
       .filter((c) => categoryIds.includes(c.id))
       .map((c) => c.name)
-      .join(', ');
-  };
-
-  if (isCreating || editingCreature) {
-    return (
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-900">
-          {editingCreature ? 'Edit Creature' : 'Create Creature'}
-        </h3>
-        <CreatureForm
-          creature={editingCreature}
-          categories={categories || []}
-          onSubmit={handleSave}
-          onCancel={() => {
-            setIsCreating(false);
-            setEditingCreature(undefined);
-          }}
-        />
-      </div>
-    );
+      .join(', ')
   }
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-gray-900">Creatures</h3>
-        <button
-          onClick={() => setIsCreating(true)}
-          className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition"
-        >
-          <Plus size={16} />
-          New
-        </button>
       </div>
 
       <input
@@ -120,13 +80,14 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
                   )}
                 </div>
                 <div className="flex gap-2">
-                  <button
-                    onClick={() => setEditingCreature(creature)}
+                  <Link
+                    to="/library/creature/$id"
+                    params={{ id: creature.id }}
                     className="text-blue-600 hover:text-blue-700 p-1 transition"
                     aria-label="Edit creature"
                   >
                     <Edit size={16} />
-                  </button>
+                  </Link>
                   <button
                     onClick={() => handleDelete(creature.id)}
                     className="text-red-600 hover:text-red-700 p-1 transition"
@@ -141,5 +102,5 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
         </div>
       )}
     </div>
-  );
+  )
 }

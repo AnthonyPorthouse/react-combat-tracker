@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BaseModal } from '../../../components/modals/BaseModal';
 import type { Creature } from '../../../db/stores/creature';
 import { Minus, Plus, Trash2 } from 'lucide-react';
@@ -21,9 +21,12 @@ export function ConfirmAddCreaturesModal({
   creatures,
   onConfirm,
 }: ConfirmAddCreaturesModalProps) {
-  const [items, setItems] = useState<ConfirmItem[]>(() =>
-    creatures.map((creature) => ({ creature, quantity: 1 }))
-  );
+  const [items, setItems] = useState<ConfirmItem[]>([]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setItems(creatures.map((creature) => ({ creature, quantity: 1 })));
+  }, [creatures, isOpen]);
 
   const updateQuantity = (creatureId: string, quantity: number) => {
     setItems((prev) =>

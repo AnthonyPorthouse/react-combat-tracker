@@ -42,7 +42,7 @@ export function BaseModal({
   if (!isOpen) return null
 
   const panelClassName = [
-    'static bg-white rounded-lg shadow-xl w-full overflow-y-auto m-4 md:m-0',
+    'static bg-white rounded-lg shadow-xl max-w-2xl overflow-y-auto m-4 md:m-0',
     className,
   ]
     .filter(Boolean)

@@ -4,6 +4,7 @@ export { FormField } from './FormField'
 export { CheckboxItem } from './CheckboxItem'
 export { ModalActions } from './ModalActions'
 export { ConfirmDialog } from './ConfirmDialog'
+export { DropdownMenu } from './DropdownMenu'
 
 // Re-export types for convenience
 export type {

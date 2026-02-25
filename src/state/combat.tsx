@@ -1,3 +1,5 @@
+import { createContext, useContext, type Dispatch, type PropsWithChildren, type ReactNode } from 'react'
+import { useImmerReducer } from 'use-immer'
 import z from "zod";
 import { CombatantValidator, type Combatant } from "../types/combatant";
 
@@ -80,7 +82,11 @@ export function combatReducer(draft: CombatState, action: CombatAction) {
             // Roll initiative for combatants with 'roll' initiative type
             draft.combatants = draft.combatants.map(c => {
                 if (c.initiativeType === 'roll') {
-                    c.initiative = Math.floor(Math.random() * 20) + 1 + c.initiative; // Simulate d20 roll
+                    return CombatantValidator.parse({
+                        ...c,
+                        initiativeType: 'fixed',
+                        initiative: Math.floor(Math.random() * 20) + 1 + c.initiative,
+                    })
                 }
 
                 return c;
@@ -156,4 +162,31 @@ export function combatReducer(draft: CombatState, action: CombatAction) {
         default:
             throw new Error(`Unhandled action type: ${action.type}`);
     }
+}
+
+interface CombatContextValue {
+    state: CombatState
+    dispatch: Dispatch<CombatAction>
+}
+
+const CombatContext = createContext<CombatContextValue | null>(null)
+
+export function CombatProvider({ children }: PropsWithChildren) {
+    const [state, dispatch] = useImmerReducer(combatReducer, initialCombatState)
+
+    return (
+        <CombatContext.Provider value={{ state, dispatch }}>
+            {children}
+        </CombatContext.Provider>
+    )
+}
+
+export function useCombat() {
+    const context = useContext(CombatContext)
+
+    if (!context) {
+        throw new Error('useCombat must be used within CombatProvider')
+    }
+
+    return context
 }
