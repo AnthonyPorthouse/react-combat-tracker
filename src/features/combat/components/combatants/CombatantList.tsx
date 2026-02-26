@@ -5,6 +5,7 @@ import {
   closestCenter,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -48,6 +49,11 @@ function SortableCombatantItem({ combatant, isCurrentTurn, inCombat, onRemove, o
  * Two sensors are configured:
  * - `PointerSensor` with an 8px distance threshold — prevents accidental
  *   drags when the user intends to click an action button.
+ * - `TouchSensor` with a 250ms delay and 5px tolerance — mobile browsers
+ *   intercept touch events for native scrolling before PointerSensor fires,
+ *   so a dedicated TouchSensor is needed. The 250ms delay gives the browser
+ *   time to distinguish a scroll gesture from a drag intent; the 5px tolerance
+ *   allows minor finger movement during the hold without cancelling the drag.
  * - `KeyboardSensor` — enables drag-and-drop for keyboard-only users.
  *
  * Drag-and-drop is disabled (`disabled={!inCombat}`) before combat starts,
@@ -69,6 +75,12 @@ export function CombatantList({
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
       },
     }),
     useSensor(KeyboardSensor, {
