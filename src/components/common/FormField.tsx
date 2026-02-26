@@ -36,6 +36,8 @@ export function FormField({
         id={id}
         value={value}
         onChange={handleChange}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? `${id}-error` : undefined}
         className={`w-full px-3 py-2 border rounded outline-none transition ${
           error
             ? 'border-red-500 focus:border-red-600'
@@ -43,7 +45,7 @@ export function FormField({
         }`}
         {...props}
       />
-      {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
+      {error && <p id={`${id}-error`} role="alert" className="text-red-600 text-sm mt-1">{error}</p>}
     </div>
   );
 }

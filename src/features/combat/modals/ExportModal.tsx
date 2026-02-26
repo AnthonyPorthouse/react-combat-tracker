@@ -92,6 +92,7 @@ export function ExportModal({ isOpen, onClose, state }: ExportModalProps) {
       <textarea
         value={exportData}
         readOnly
+        aria-label="Exported combat state JSON"
         className="w-full h-48 p-3 border border-gray-300 rounded font-mono text-sm bg-gray-50 text-gray-700 focus:outline-none resize-none"
       />
     </BaseModal>

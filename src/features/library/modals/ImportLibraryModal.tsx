@@ -134,7 +134,7 @@ export function ImportLibraryModal({ isOpen, onClose, onImport }: ImportLibraryM
       />
 
       {error && (
-        <div className="p-3 bg-red-50 border border-red-300 rounded text-sm text-red-700">
+        <div role="alert" className="p-3 bg-red-50 border border-red-300 rounded text-sm text-red-700">
           {error}
         </div>
       )}

@@ -86,7 +86,7 @@ export function BaseModal({
   const content = (
     <>
       <div className="sticky top-0 bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-        <h2 className="text-lg font-bold text-gray-900">{title}</h2>
+        <h2 id="modal-title" className="text-lg font-bold text-gray-900">{title}</h2>
         {isClosable && (
           <button
             className="text-gray-500 hover:text-gray-700"
@@ -117,7 +117,7 @@ export function BaseModal({
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
       onClick={handleBackdropClick}
     >
-      <dialog open={isOpen} aria-modal="true"  className={panelClassName} onClick={(e) => e.stopPropagation()}>
+      <dialog open={isOpen} aria-modal="true" aria-labelledby="modal-title" className={panelClassName} onClick={(e) => e.stopPropagation()}>
         {content}
       </dialog>
     </div>,

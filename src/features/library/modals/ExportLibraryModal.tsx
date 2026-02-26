@@ -99,6 +99,7 @@ export function ExportLibraryModal({ isOpen, onClose }: ExportLibraryModalProps)
       <textarea
         value={exportData}
         readOnly
+        aria-label="Exported library JSON"
         className="w-full h-48 p-3 border border-gray-300 rounded font-mono text-sm bg-gray-50 text-gray-700 focus:outline-none resize-none"
       />
     </BaseModal>

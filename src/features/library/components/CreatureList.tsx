@@ -69,6 +69,7 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
 
       <input
         type="text"
+        aria-label="Search creatures"
         placeholder="Search creatures..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
