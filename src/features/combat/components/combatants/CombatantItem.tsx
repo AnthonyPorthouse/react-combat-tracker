@@ -13,6 +13,23 @@ interface CombatantItemProps {
   onRemove: (combatantId: string) => void
 }
 
+/**
+ * Renders a single combatant row in the combat list.
+ *
+ * Each row shows the combatant's initiative, name, and a ⋮ action menu.
+ * A `▶` chevron marks the currently active turn so the DM can instantly
+ * see whose turn it is without reading initiative numbers.
+ *
+ * The drag handle (`⋮⋮`) is only shown during active combat — before combat
+ * starts, initiative order hasn't been locked in and reordering is handled
+ * implicitly by the `START_COMBAT` sort. During combat the DM may want to
+ * manually reorder combatants (e.g. for late arrivals or initiative ties).
+ *
+ * Initiative is displayed differently by type:
+ * - `fixed` — shown as a plain number (e.g. "Init: 15")
+ * - `roll` — shown with an explicit sign (e.g. "Init: +3") to clarify it is
+ *   still a modifier, not a resolved roll
+ */
 export function CombatantItem({ combatant, isCurrentTurn, inCombat, onRemove }: CombatantItemProps) {
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false)
   const {
@@ -30,6 +47,13 @@ export function CombatantItem({ combatant, isCurrentTurn, inCombat, onRemove }: 
     opacity: isDragging ? 0.5 : 1,
   }
 
+  /**
+   * Builds the initiative display string for the combatant's sub-label.
+   *
+   * For `roll` combatants the initiative is still a modifier (positive or
+   * negative), so an explicit sign is shown. For `fixed` combatants the
+   * number is the resolved initiative value and needs no sign prefix.
+   */
   const getInitiativeLabel = (): string => {
     const initiativeValue =
       combatant.initiativeType === 'fixed'

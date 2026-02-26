@@ -22,6 +22,21 @@ type CombatantFormData = {
 
 type FormErrors = Partial<Record<keyof CombatantFormData, string>>
 
+/**
+ * Modal form for manually adding a combatant directly to the encounter.
+ *
+ * Complements the library workflow (browse → select → quantity) with a fast
+ * path for one-off combatants that aren't in the library — a custom NPC, an
+ * improvised monster, or a player character joining mid-session. The form
+ * supports both fixed initiative (DM assigns a specific value) and roll-type
+ * (a modifier that will be resolved to a d20 roll when combat starts).
+ *
+ * HP and Max HP are collected here so manually-added combatants can
+ * participate in damage tracking on an equal footing with library creatures.
+ *
+ * Validation uses the same `CombatantValidator` Zod schema used throughout
+ * the app, so the same business rules apply regardless of entry point.
+ */
 export function CreateCombatant({
   isOpen,
   onClose,
@@ -37,6 +52,14 @@ export function CreateCombatant({
 
   const [formErrors, setFormErrors] = useState<FormErrors>({})
 
+  /**
+   * Generic change handler for all form inputs and selects.
+   *
+   * Uses the input's `name` attribute as the key into `formData` so a single
+   * handler covers every field without per-field callbacks. The error for the
+   * changed field is cleared immediately so the user gets real-time visual
+   * feedback that they're addressing the problem.
+   */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.currentTarget
 
@@ -54,6 +77,18 @@ export function CreateCombatant({
     }
   }
 
+  /**
+   * Validates and submits the form data as a new `Combatant`.
+   *
+   * Numeric fields are stored as strings in `formData` (so the input can hold
+   * an empty string while the user is typing) and are parsed here with
+   * `parseInt` before passing to the Zod validator. Zod is the final
+   * authority on validity — if it rejects the data, its per-field errors are
+   * mapped to the form's error state and the submission is halted.
+   *
+   * On success, the form resets to defaults so the modal can be reused
+   * immediately to add another combatant without manual clearing.
+   */
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
@@ -69,8 +104,6 @@ export function CreateCombatant({
 
     // Validate using Zod
     const result = CombatantValidator.safeParse(combatantData)
-
-    console.log(result)
 
     if (!result.success) {
       // Use z.flattenError() for flat form error structure

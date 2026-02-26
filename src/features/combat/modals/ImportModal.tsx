@@ -10,6 +10,26 @@ interface ImportModalProps {
   onImport: (state: CombatState) => void
 }
 
+/**
+ * Modal for importing a previously exported combat state string.
+ *
+ * The import pipeline is the reverse of export and includes a full validation
+ * chain to guard against corrupted or tampered strings:
+ * 1. Split on `.` to extract HMAC and base64 payload.
+ * 2. Re-compute the HMAC and compare — rejects if the payload was altered.
+ * 3. `atob` decode the base64 back to a JSON string.
+ * 4. `JSON.parse` the JSON.
+ * 5. Validate the parsed object against `CombatValidator` — rejects
+ *    structurally invalid data (wrong field types, missing fields, etc.).
+ *
+ * Each failure surface produces a specific user-readable error message so
+ * the DM can diagnose what went wrong (bad paste, truncated string, etc.)
+ * rather than seeing a generic failure.
+ *
+ * The async import is wrapped in a synchronous `handleSubmit` that spawns
+ * the async function internally — required because React's `onSubmit` expects
+ * a synchronous handler and `async` handlers would swallow uncaught rejections.
+ */
 export function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
   const [base64Input, setBase64Input] = useState('')
   const [error, setError] = useState<string | null>(null)

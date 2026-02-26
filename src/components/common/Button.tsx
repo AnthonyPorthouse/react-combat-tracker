@@ -1,5 +1,15 @@
 import type { ButtonVariant, ButtonSize, ButtonProps } from '../../types/common';
 
+/**
+ * Maps a button variant to its Tailwind colour classes.
+ *
+ * Centralising variant→class mapping here means adding a new variant only
+ * requires touching this one function rather than hunting for className
+ * strings scattered across multiple components.
+ *
+ * @param variant - The semantic colour intent of the button.
+ * @returns The Tailwind utility classes for the requested variant.
+ */
 const getVariantClasses = (variant: ButtonVariant = 'primary'): string => {
   const variants: Record<ButtonVariant, string> = {
     primary: 'bg-blue-600 hover:bg-blue-700 text-white',
@@ -10,6 +20,15 @@ const getVariantClasses = (variant: ButtonVariant = 'primary'): string => {
   return variants[variant];
 };
 
+/**
+ * Maps a button size to its Tailwind padding/text classes.
+ *
+ * Kept separate from variant mapping so each concern can evolve
+ * independently — changing the `md` padding doesn't touch colour logic.
+ *
+ * @param size - The desired button size.
+ * @returns The Tailwind utility classes for the requested size.
+ */
 const getSizeClasses = (size: ButtonSize = 'md'): string => {
   const sizes: Record<ButtonSize, string> = {
     sm: 'px-2 py-1 text-sm',
@@ -19,6 +38,18 @@ const getSizeClasses = (size: ButtonSize = 'md'): string => {
   return sizes[size];
 };
 
+/**
+ * A styled, accessible button with variant and size support.
+ *
+ * Accepts all native `<button>` attributes via spread props, making it a
+ * drop-in replacement wherever a `<button>` is used. The optional `icon`
+ * prop wraps both the icon and label in a flex container so they stay
+ * vertically centred without callers needing to add layout classes.
+ *
+ * Disabled state is handled uniformly here rather than per-callsite — the
+ * `disabled:` Tailwind variant overrides the variant colour and sets a
+ * `not-allowed` cursor so the visual feedback is consistent everywhere.
+ */
 export function Button({
   variant = 'primary',
   size = 'md',

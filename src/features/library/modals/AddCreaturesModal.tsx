@@ -10,6 +10,21 @@ interface AddCreaturesModalProps {
   onAddCreatures: (combatants: ReturnType<typeof creaturesToCombatants>) => void;
 }
 
+/**
+ * An older creature-selection modal used to add library creatures to combat.
+ *
+ * @deprecated Superseded by the `CombatLibraryModal` + `ConfirmAddCreaturesModal`
+ * two-step flow, which adds quantity selection and category filtering. This
+ * component is kept to avoid breaking any consumers that may still reference
+ * it, but new code should use `CombatLibraryModal` instead.
+ *
+ * Differences from the current flow:
+ * - No quantity selection — each selected creature is added once.
+ * - Single-select category filter via a `<select>` dropdown rather than
+ *   multi-select checkboxes.
+ * - Adds combatants one-at-a-time via individual `onAddCreatures` calls
+ *   rather than a single bulk dispatch.
+ */
 export function AddCreaturesModal({
   isOpen,
   onClose,
@@ -35,6 +50,7 @@ export function AddCreaturesModal({
     });
   }, [creatures, selectedCategoryId, searchTerm]);
 
+  /** Toggles a creature's presence in the selection set. */
   const toggleCreature = (creatureId: string) => {
     setSelectedCreatureIds((prev) =>
       prev.includes(creatureId)
@@ -43,6 +59,10 @@ export function AddCreaturesModal({
     );
   };
 
+  /**
+   * Converts the selected creatures to combatants and notifies the parent.
+   * Resets all local state on completion so the modal is clean if reopened.
+   */
   const handleAddCreatures = () => {
     if (!creatures) return;
 
@@ -61,6 +81,7 @@ export function AddCreaturesModal({
     onClose();
   };
 
+  /** Resolves category ids to a comma-separated display string. Returns empty string while categories are loading. */
   const getCategoryNames = (categoryIds: string[]) => {
     if (!categories) return '';
     return categories

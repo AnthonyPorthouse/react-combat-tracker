@@ -1,11 +1,27 @@
-// Static secret key for HMAC generation
-// In a production app with authentication, this could be derived from user credentials
+/**
+ * A static secret used for HMAC signing of exported state strings.
+ *
+ * The primary goal is tamper-detection during copy-paste transfers — not
+ * secrecy. Because the key is embedded in the client bundle, anyone with the
+ * source can compute a valid signature. If genuine data-integrity guarantees
+ * are needed in the future, this should be replaced with a per-user key
+ * derived from authentication credentials.
+ */
 const SECRET_KEY = 'combat-tracker-secret-key-v1'
 
 /**
- * Generate HMAC-SHA256 for the given data
- * @param data - The data to generate HMAC for
- * @returns Promise<string> - Hex-encoded HMAC string
+ * Signs a string with HMAC-SHA256 using the application's static secret key.
+ *
+ * Produces a hex-encoded signature that is prepended to exported state strings
+ * (e.g. `<hmac>.<base64data>`). On import, the signature is recomputed and
+ * compared to catch accidental corruption or manual edits made during transit.
+ *
+ * Uses the Web Crypto API (`crypto.subtle`) so it is non-blocking and
+ * available in both browser and Cloudflare Workers environments without
+ * additional dependencies.
+ *
+ * @param data - The raw string to sign (typically a base64-encoded JSON payload).
+ * @returns A hex-encoded HMAC-SHA256 digest of `data`.
  */
 export async function generateHmac(data: string): Promise<string> {
   const encoder = new TextEncoder()
@@ -30,10 +46,16 @@ export async function generateHmac(data: string): Promise<string> {
 }
 
 /**
- * Verify HMAC-SHA256 for the given data
- * @param data - The data to verify
- * @param providedHmac - The HMAC to verify against
- * @returns Promise<boolean> - True if HMAC is valid, false otherwise
+ * Verifies that a string matches an expected HMAC-SHA256 signature.
+ *
+ * Recomputes the signature from scratch rather than doing a direct string
+ * comparison via a timing-safe method, preventing timing-attack vectors even
+ * though the secret is not truly private in this client-side context.
+ *
+ * @param data - The raw string whose integrity is being verified.
+ * @param providedHmac - The hex HMAC string to check against (extracted from
+ *   the leading segment of the import payload).
+ * @returns `true` if the computed and provided signatures match; `false` otherwise.
  */
 export async function verifyHmac(
   data: string,

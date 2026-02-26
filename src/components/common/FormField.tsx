@@ -1,5 +1,18 @@
 import type { FormFieldProps } from '../../types/common';
 
+/**
+ * A labelled text input with inline validation error display.
+ *
+ * Composes the repetitive label + input + error-message pattern into a single
+ * unit so forms stay DRY and error styling is applied consistently. The
+ * `error` prop drives both a red border on the input and a descriptive
+ * message below it, giving users both a visual indicator and readable context
+ * for what went wrong.
+ *
+ * All extra `InputHTMLAttributes` are forwarded to the underlying `<input>`
+ * via spread props, so callers can set `type`, `placeholder`, `min`, etc.
+ * without needing wrapper-specific props for each one.
+ */
 export function FormField({
   label,
   id,

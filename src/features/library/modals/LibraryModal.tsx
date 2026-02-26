@@ -17,6 +17,24 @@ interface LibraryModalProps {
   onAddCombatants: (combatants: Combatant[]) => void;
 }
 
+/**
+ * Full-featured library browser with inline creature and category creation.
+ *
+ * Extends the read-only `CombatLibraryModal` with the ability to create new
+ * categories and creatures without leaving the modal. This is the primary
+ * entry point to the library from within the combat tracker, intended for
+ * use when the DM wants to add and immediately use a new creature in the
+ * current encounter.
+ *
+ * Inline creation (`isAddingCategory` / `isAddingCreature`) replaces the
+ * creature/category list area with the respective form, keeping the modal
+ * focused rather than navigating away to a separate route. Only one form
+ * can be open at a time — opening one closes the other.
+ *
+ * The selection + confirmation two-step flow works identically to
+ * `CombatLibraryModal`: this modal handles selection and the
+ * `ConfirmAddCreaturesModal` handles quantity adjustment.
+ */
 export function LibraryModal({
   isOpen,
   onClose,
@@ -32,6 +50,7 @@ export function LibraryModal({
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [confirmCreatures, setConfirmCreatures] = useState<Creature[]>([]);
 
+  /** Closes the modal and resets all transient state (selection, confirm step). */
   const handleCloseModal = () => {
     setIsConfirmOpen(false);
     setConfirmCreatures([]);
@@ -54,6 +73,11 @@ export function LibraryModal({
     });
   }, [creatures, nameFilter, selectedCategoryIds]);
 
+  /**
+   * Toggles a category filter. An empty selection means "show all creatures".
+   * Adding a filter narrows the creature list to those assigned to any
+   * of the selected categories.
+   */
   const toggleCategory = (categoryId: string) => {
     setSelectedCategoryIds((prev) =>
       prev.includes(categoryId)
@@ -62,6 +86,7 @@ export function LibraryModal({
     );
   };
 
+  /** Toggles a creature's presence in the selection set for the confirm step. */
   const toggleCreature = (creatureId: string) => {
     setSelectedCreatureIds((prev) =>
       prev.includes(creatureId)
@@ -70,16 +95,37 @@ export function LibraryModal({
     );
   };
 
+  /**
+   * Persists a new category to IndexedDB and hides the inline creation form.
+   *
+   * The `useLiveQuery` subscription in this component will automatically
+   * pick up the new category and re-render the category filter list.
+   */
   const handleCreateCategory = async (category: Category) => {
     await db.categories.add(category);
     setIsAddingCategory(false);
   };
 
+  /**
+   * Persists a new creature to IndexedDB and hides the inline creation form.
+   *
+   * After saving, the creature will appear in the filterable creature list
+   * immediately via the live query, so the DM can select it right away
+   * without closing and reopening the modal.
+   */
   const handleCreateCreature = async (creature: Creature) => {
     await db.creatures.add(creature);
     setIsAddingCreature(false);
   };
 
+  /**
+   * Snapshots the selected creatures and opens the quantity confirmation step.
+   *
+   * The snapshot is necessary because the `creatures` live query could update
+   * between the selection step and the confirmation step (e.g. another tab
+   * edits a creature). The confirm modal works from the snapshot, not the
+   * live query, for consistency.
+   */
   const handleOpenConfirm = () => {
     if (!creatures) return;
     const selected = creatures.filter((c) => selectedCreatureIds.includes(c.id));
@@ -89,6 +135,14 @@ export function LibraryModal({
     setIsConfirmOpen(true);
   };
 
+  /**
+   * Expands confirmed creature+quantity pairs into individual combatants
+   * and forwards them to the encounter.
+   *
+   * Each creature is pushed `quantity` times so the reducer's
+   * `renumberCombatants` logic receives the correct repetition count for
+   * auto-numbering (e.g. 3× Goblin → "Goblin 1", "Goblin 2", "Goblin 3").
+   */
   const handleConfirmAdd = (items: { creature: Creature; quantity: number }[]) => {
     const expandedCreatures: Creature[] = [];
 

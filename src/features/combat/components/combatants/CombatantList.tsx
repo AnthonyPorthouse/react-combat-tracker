@@ -27,10 +27,38 @@ interface CombatantListProps {
   dispatch: CombatDispatch
 }
 
+/**
+ * A thin wrapper that makes `CombatantItem` sortable via @dnd-kit.
+ *
+ * Exists as a named component (rather than an inline element in the map)
+ * because React requires a stable component reference at the JSX level for
+ * the reconciler to correctly pair drag state to the right item during
+ * the animated reorder. An anonymous inline component would cause every
+ * item to remount on each drag update.
+ */
 function SortableCombatantItem({ combatant, isCurrentTurn, inCombat, onRemove }: { combatant: Combatant; isCurrentTurn: boolean; inCombat: boolean; onRemove: (id: string) => void }) {
   return <CombatantItem combatant={combatant} isCurrentTurn={isCurrentTurn} inCombat={inCombat} onRemove={onRemove} />
 }
 
+/**
+ * Renders the full sortable list of combatants for the current encounter.
+ *
+ * Wraps the combatant rows in a `DndContext` + `SortableContext` from
+ * @dnd-kit so the DM can drag combatants into a custom order during combat.
+ * Two sensors are configured:
+ * - `PointerSensor` with an 8px distance threshold — prevents accidental
+ *   drags when the user intends to click an action button.
+ * - `KeyboardSensor` — enables drag-and-drop for keyboard-only users.
+ *
+ * Drag-and-drop is disabled (`disabled={!inCombat}`) before combat starts,
+ * because pre-combat ordering is overridden by the initiative sort on
+ * `START_COMBAT`. Post-sort manual reordering is intentional (e.g. to
+ * handle tied initiative values).
+ *
+ * The component returns `undefined` when the list is empty rather than an
+ * empty container, so the parent can conditionally render call-to-action
+ * content in the same space.
+ */
 export function CombatantList({
   combatants,
   currentStep,
@@ -50,6 +78,14 @@ export function CombatantList({
 
   const combatantIds = useMemo(() => combatants.map((c) => c.id), [combatants])
 
+  /**
+   * Translates a dnd-kit drag-end event into a `REORDER_COMBATANTS` dispatch.
+   *
+   * `arrayMove` from @dnd-kit/sortable is used instead of manual splice logic
+   * to correctly handle index calculations when dragging forwards vs backwards
+   * in the list. The dispatch only fires when the item has actually moved to a
+   * different position (`active.id !== over.id`).
+   */
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
 
@@ -64,6 +100,13 @@ export function CombatantList({
     }
   }
 
+  /**
+   * Returns true if the combatant at `index` holds the current turn.
+   *
+   * `step` is 1-indexed in the state (step 1 = first combatant) while array
+   * indices are 0-indexed, so `step - 1 === index` is the correct comparison.
+   * Only meaningful during active combat — always false otherwise.
+   */
   const isCurrentTurn = (index: number): boolean => {
     return inCombat && currentStep - 1 === index
   }

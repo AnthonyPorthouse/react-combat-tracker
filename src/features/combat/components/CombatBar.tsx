@@ -12,6 +12,22 @@ interface CombatBarProps {
   onPreviousStep: () => void;
 }
 
+/**
+ * The persistent footer control bar for a combat encounter.
+ *
+ * Surfaces the three distinct phases of combat through a single bar that
+ * changes layout based on state, rather than showing/hiding separate UI
+ * sections:
+ *
+ * - **Pre-combat:** Shows only "Start Combat". Disabled while the combatant
+ *   list is empty so the user can't start a round with nobody in it.
+ * - **Active combat:** Shows Previous Step ← Round N / End Combat → Next Step.
+ *   Previous is disabled on the very first step of round 1 since there is
+ *   nothing to go back to.
+ *
+ * All state and dispatch are owned by the parent; this component is purely
+ * presentational and calls the appropriate callback prop on each action.
+ */
 export function CombatBar({
   inCombat,
   round,

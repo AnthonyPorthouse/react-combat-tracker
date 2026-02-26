@@ -10,10 +10,31 @@ interface CategoryFormProps {
   onCancel: () => void;
 }
 
+/**
+ * Form component for creating or editing a library category.
+ *
+ * Categories are purely organisational — they have only a name and are
+ * used to filter creatures in the library and combat library browser.
+ * Validation is done via `categoryValidator` (the same Zod schema used for
+ * persistence) so invalid names (empty string, etc.) are caught before the
+ * record is written to IndexedDB.
+ *
+ * When `category` is provided, the form is in edit mode: the existing name
+ * pre-populates the field and the submit button reads "Update Category".
+ * When omitted, it is in create mode: a new nanoid is generated on submit.
+ */
 export function CategoryForm({ category, onSubmit, onCancel }: CategoryFormProps) {
   const [name, setName] = useState(category?.name || '');
   const [error, setError] = useState<string>('');
 
+  /**
+   * Validates and submits the category name via the Zod validator.
+   *
+   * Reuses the existing `category.id` in edit mode to avoid creating a
+   * duplicate record — the caller is expected to `update` rather than `add`
+   * when an id is already present. In create mode a new nanoid is generated
+   * here so the caller always receives a fully-formed `Category` object.
+   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');

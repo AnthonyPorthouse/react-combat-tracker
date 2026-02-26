@@ -3,9 +3,34 @@ import { Link } from '@tanstack/react-router'
 import { db } from '../../../db/db'
 import { Edit, Trash2 } from 'lucide-react'
 
+/**
+ * Displays all library categories with edit and delete actions.
+ *
+ * Uses a `useLiveQuery` subscription so the list updates in real time if
+ * another tab adds or removes a category (or if the library import flow
+ * writes categories in bulk).
+ *
+ * Category deletion cascades to remove the deleted category id from the
+ * `categoryIds` array of every creature that references it, using Dexie's
+ * multi-entry index (`*categoryIds`) to find the affected records efficiently
+ * without a full table scan.
+ */
 export function CategoryList() {
   const categories = useLiveQuery(() => db.categories.toArray())
 
+  /**
+   * Deletes a category and removes it from every creature that references it.
+   *
+   * Deletion is performed as two sequential operations (not a transaction)
+   * because IndexedDB does not support cascades natively. The category record
+   * is deleted first; then each creature with that id in its `categoryIds`
+   * array is updated to filter it out. If the second step fails, the category
+   * will be gone but orphaned references may linger — a future improvement
+   * would wrap both in a `db.transaction('rw', ...)` call.
+   *
+   * The native `confirm()` prompt is intentional for simplicity — replacing
+   * it with a proper `ConfirmDialog` modal is a natural future improvement.
+   */
   const handleDelete = async (id: string) => {
     if (confirm('Delete this category?')) {
       await db.categories.delete(id)

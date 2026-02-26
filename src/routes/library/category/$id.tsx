@@ -8,6 +8,18 @@ export const Route = createFileRoute('/library/category/$id')({
   component: EditCategoryPage,
 })
 
+/**
+ * Full-page category edit form at `/library/category/:id`.
+ *
+ * Handles the same three loading states as `EditCreaturePage` (loading,
+ * not found, loaded). On submit, `db.categories.update` persists the
+ * updated name and navigates back to `/library`.
+ *
+ * Note: changing a category name here does not require any update to the
+ * creatures that reference this category — creatures store only the id.
+ * The UI resolves names at render time, so a name change is immediately
+ * reflected everywhere without any cascade update.
+ */
 function EditCategoryPage() {
   const navigate = useNavigate()
   const { id } = Route.useParams()

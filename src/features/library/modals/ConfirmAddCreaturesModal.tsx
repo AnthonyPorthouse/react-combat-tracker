@@ -15,6 +15,21 @@ interface ConfirmItem {
   quantity: number;
 }
 
+/**
+ * Second step of the library-to-combat flow: adjust quantities before adding.
+ *
+ * After the DM selects creatures in the library browser, this modal lets them
+ * specify how many of each creature to spawn. This is essential for encounter
+ * design — a DM typically wants 4 Goblins and 1 Hobgoblin, not just "these
+ * three creature types".
+ *
+ * Creatures can be removed from the list in this step without going back to
+ * the selection step, providing a lightweight way to reconsider the selection
+ * without losing the rest of the choices.
+ *
+ * State is reset on close (via `handleClose`) so reopening the modal starts
+ * fresh rather than showing the previous session's adjustments.
+ */
 export function ConfirmAddCreaturesModal({
   isOpen,
   onClose,
@@ -33,11 +48,23 @@ export function ConfirmAddCreaturesModal({
       }));
   }, [creatures, quantityOverrides, removedCreatureIds]);
 
+  /**
+   * Resets both quantity overrides and removed creature ids back to defaults.
+   * Called on modal close so the modal starts fresh if reopened.
+   */
   const resetItems = () => {
     setQuantityOverrides({});
     setRemovedCreatureIds([]);
   };
 
+  /**
+   * Updates the spawn quantity for a specific creature.
+   *
+   * `Math.max(1, ...)` enforces a minimum of 1 so the DM can't accidentally
+   * set a quantity to 0 (which would silently add nothing). Quantities are
+   * stored in a separate `quantityOverrides` map rather than mutating the
+   * `creatures` prop, preserving the original template data.
+   */
   const updateQuantity = (creatureId: string, quantity: number) => {
     setQuantityOverrides((prev) => ({
       ...prev,
@@ -45,12 +72,21 @@ export function ConfirmAddCreaturesModal({
     }));
   };
 
+  /**
+   * Marks a creature as removed from this confirm session.
+   *
+   * Rather than splicing the `creatures` prop (which is owned by the parent),
+   * removals are tracked in a local `removedCreatureIds` set and filtered out
+   * in the `items` memo. This avoids prop mutation and keeps the parent's
+   * selection intact in case the user navigates back.
+   */
   const handleRemove = (creatureId: string) => {
     setRemovedCreatureIds((prev) =>
       prev.includes(creatureId) ? prev : [...prev, creatureId]
     );
   };
 
+  /** Forwards the current item list to the parent. No-ops if the list is empty. */
   const handleConfirm = () => {
     if (items.length === 0) return;
     onConfirm(items);

@@ -8,6 +8,14 @@ interface RemoveCombatantModalProps {
   combatantName: string
 }
 
+/**
+ * Confirmation dialog shown before removing a combatant from an active encounter.
+ *
+ * Removal during combat shifts the turn pointer — if the removed combatant
+ * held the current step, the next combatant will take over. This dialog
+ * ensures the DM consciously confirms the action rather than removing someone
+ * by mistake from the ⋮ action menu while trying to view their stats.
+ */
 export function RemoveCombatantModal({
   isOpen,
   onClose,

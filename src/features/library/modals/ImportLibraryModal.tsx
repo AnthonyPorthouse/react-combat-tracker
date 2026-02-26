@@ -11,6 +11,25 @@ interface ImportLibraryModalProps {
   onImport?: (state: LibraryState) => void
 }
 
+/**
+ * Imports a previously exported library string, merging categories and
+ * creatures into the existing IndexedDB data.
+ *
+ * The import pipeline:
+ * 1. Split on `.` to extract HMAC and base64 payload.
+ * 2. Verify the HMAC — rejects tampered or corrupted strings.
+ * 3. `atob` decode and `JSON.parse`.
+ * 4. Validate against `LibraryValidator` — ensures both arrays have the
+ *    correct structure before any write occurs.
+ * 5. Write categories and creatures via `db.transaction('rw', ...)` with
+ *    `bulkPut` — existing records with the same id are overwritten, new
+ *    ids are inserted. This is a merge, not a replace: creatures already in
+ *    the library but absent from the import are left untouched.
+ *
+ * The async work is wrapped in a synchronous `handleSubmit` that spawns it
+ * internally — the same pattern used in `ImportModal` for the same reason
+ * (React's `onSubmit` expects a synchronous handler).
+ */
 export function ImportLibraryModal({ isOpen, onClose, onImport }: ImportLibraryModalProps) {
   const [base64Input, setBase64Input] = useState('')
   const [error, setError] = useState<string | null>(null)

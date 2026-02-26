@@ -4,6 +4,15 @@ export const Route = createFileRoute('/')({
   component: LandingPage,
 })
 
+/**
+ * The application landing page at `/`.
+ *
+ * Serves as an entry point and orientation for new users, combining a brief
+ * product pitch with direct navigation links to the two main areas of the
+ * app: the combat tracker and the creature library. A static "Combat Snapshot"
+ * preview card gives first-time visitors a visual sense of the tracker UI
+ * before they enter.
+ */
 function LandingPage() {
   return (
     <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-emerald-50 px-8 py-14 shadow-sm">

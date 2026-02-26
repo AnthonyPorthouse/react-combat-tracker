@@ -8,6 +8,15 @@ export const Route = createFileRoute('/library/creature/new')({
   component: CreateCreaturePage,
 })
 
+/**
+ * Full-page creature creation form at `/library/creature/new`.
+ *
+ * Mirrors the inline `CreatureForm` available inside `LibraryModal`, but as
+ * a dedicated route. Navigating here is appropriate when the DM wants to
+ * create a creature outside of an active combat session (e.g. during
+ * preparation). On success, redirects back to `/library` so the new creature
+ * appears in the list immediately.
+ */
 function CreateCreaturePage() {
   const navigate = useNavigate()
   const categories = useLiveQuery(() => db.categories.toArray())

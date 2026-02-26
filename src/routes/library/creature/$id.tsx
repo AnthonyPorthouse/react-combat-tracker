@@ -8,6 +8,19 @@ export const Route = createFileRoute('/library/creature/$id')({
   component: EditCreaturePage,
 })
 
+/**
+ * Full-page creature edit form at `/library/creature/:id`.
+ *
+ * Fetches the creature by id from IndexedDB via a live query. Three
+ * render states are handled explicitly:
+ * - `undefined` — query is still loading; shows a skeleton message.
+ * - `null/falsy` — id not found in the database; shows "not found" with a
+ *   back link so the user isn't stranded.
+ * - Loaded — renders the pre-populated `CreatureForm` for editing.
+ *
+ * On submit, `db.creatures.update` merges the changes and navigates back
+ * to `/library`.
+ */
 function EditCreaturePage() {
   const navigate = useNavigate()
   const { id } = Route.useParams()

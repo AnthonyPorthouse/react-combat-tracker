@@ -14,6 +14,27 @@ export interface BaseModalProps {
   onSubmit?: SubmitEventHandler<HTMLFormElement>
 }
 
+/**
+ * The foundational modal dialog component for the application.
+ *
+ * Renders into the `#modal-root` portal to ensure modals sit above all page
+ * content regardless of where they are mounted in the React tree, avoiding
+ * z-index conflicts with positioned ancestors.
+ *
+ * The `#root` element is marked `inert` while the modal is open to:
+ * 1. Trap keyboard focus inside the modal (screen-reader safety).
+ * 2. Prevent the page behind the backdrop from being accidentally interacted
+ *    with on touch devices.
+ *
+ * When `onSubmit` is provided, the body is wrapped in a `<form>` element so
+ * native browser form validation (required fields, number ranges, etc.) runs
+ * before the submit handler, and pressing Enter in a text input submits
+ * correctly without extra event wiring.
+ *
+ * @param isClosable - When `false`, hides the × button and ignores backdrop
+ *   clicks. Use this for operations that must not be interrupted mid-flight
+ *   (e.g. during an import in progress).
+ */
 export function BaseModal({
   isOpen,
   onClose,
@@ -48,6 +69,14 @@ export function BaseModal({
     .filter(Boolean)
     .join(' ')
 
+  /**
+   * Closes the modal when the user clicks the dimmed backdrop area.
+   *
+   * Guarded by `isClosable` so callers can prevent accidental dismissal
+   * during sensitive operations (e.g. a long-running import). The dialog
+   * element's own click handler calls `stopPropagation` so clicks inside
+   * the panel don't bubble up and trigger this.
+   */
   const handleBackdropClick = () => {
     if (isClosable) {
       onClose()

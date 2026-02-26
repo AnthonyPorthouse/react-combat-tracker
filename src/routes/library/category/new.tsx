@@ -7,6 +7,13 @@ export const Route = createFileRoute('/library/category/new')({
   component: CreateCategoryPage,
 })
 
+/**
+ * Full-page category creation form at `/library/category/new`.
+ *
+ * A dedicated route for creating categories during library preparation. On
+ * success, redirects to `/library` where the new category will be visible
+ * in the list immediately via the live query.
+ */
 function CreateCategoryPage() {
   const navigate = useNavigate()
 

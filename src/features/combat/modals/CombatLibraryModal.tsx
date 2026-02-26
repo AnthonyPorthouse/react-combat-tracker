@@ -14,6 +14,22 @@ interface CombatLibraryModalProps {
   onAddCombatants: (combatants: Combatant[]) => void
 }
 
+/**
+ * A searchable, filterable browser for adding library creatures to combat.
+ *
+ * Presented as an alternative to manually creating each combatant — the DM
+ * selects creatures they've prepared in the library and then specifies how
+ * many of each to spawn. This two-step flow (browse → confirm quantities)
+ * is split across two modals: this one handles selection, and
+ * `ConfirmAddCreaturesModal` handles quantity adjustment.
+ *
+ * The two modals are mutually exclusive: when the confirm modal opens, this
+ * modal hides (via `showLibraryModal = isOpen && !isConfirmOpen`) rather than
+ * stacking, to avoid nested modal z-index issues and cognitive overload.
+ *
+ * `useLiveQuery` subscriptions ensure the creature and category lists stay
+ * current if the user edits the library in another tab between sessions.
+ */
 export function CombatLibraryModal({
   isOpen,
   onClose,
@@ -43,12 +59,20 @@ export function CombatLibraryModal({
     })
   }, [creatures, nameFilter, selectedCategoryIds])
 
+  /** Closes both this modal and any open confirm modal, resetting all local state. */
   const handleCloseModal = () => {
     setIsConfirmOpen(false)
     setConfirmCreatures([])
     onClose()
   }
 
+  /**
+   * Toggles a category filter on or off.
+   *
+   * When at least one category is selected, only creatures assigned to that
+   * category are shown. When the selection is empty, all creatures are shown —
+   * an empty filter means "show everything", not "show nothing".
+   */
   const toggleCategory = (categoryId: string) => {
     setSelectedCategoryIds((prev) =>
       prev.includes(categoryId)
@@ -57,6 +81,7 @@ export function CombatLibraryModal({
     )
   }
 
+  /** Toggles a creature's presence in the selection set. */
   const toggleCreature = (creatureId: string) => {
     setSelectedCreatureIds((prev) =>
       prev.includes(creatureId)
@@ -65,6 +90,14 @@ export function CombatLibraryModal({
     )
   }
 
+  /**
+   * Transitions from the selection step to the quantity confirmation step.
+   *
+   * Snapshots the currently selected creatures into `confirmCreatures` before
+   * opening the confirm modal, so the quantity form shows exactly what was
+   * selected even if the underlying `creatures` live query updates between
+   * the two steps.
+   */
   const handleOpenConfirm = () => {
     if (!creatures) return
     const selected = creatures.filter((c) => selectedCreatureIds.includes(c.id))
@@ -74,6 +107,15 @@ export function CombatLibraryModal({
     setIsConfirmOpen(true)
   }
 
+  /**
+   * Expands the confirmed creature+quantity pairs into individual combatants
+   * and dispatches them to the encounter.
+   *
+   * Each creature is pushed `quantity` times into a flat array before being
+   * passed to `creaturesToCombatants` — this allows the combatant auto-
+   * numbering logic in the reducer to correctly group and number identical
+   * creatures (e.g. 3× Goblin → "Goblin 1", "Goblin 2", "Goblin 3").
+   */
   const handleConfirmAdd = (items: { creature: Creature; quantity: number }[]) => {
     const expandedCreatures: Creature[] = []
 

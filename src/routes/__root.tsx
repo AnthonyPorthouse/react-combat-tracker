@@ -1,10 +1,23 @@
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
 import { CombatProvider } from '../state/combat.tsx'
+import { ErrorBoundary } from '../components/ErrorBoundary'
 
 export const Route = createRootRoute({
   component: RootLayout,
 })
 
+/**
+ * The application shell rendered for every route.
+ *
+ * Provides the persistent navigation header (Home / Combat / Library) and
+ * wraps the route `<Outlet>` in a `CombatProvider` so that all routes share
+ * the same combat session state — navigating from `/app` to `/library` and
+ * back does not reset the encounter in progress.
+ *
+ * The `ErrorBoundary` around `<Outlet>` ensures that a runtime error in any
+ * route (e.g. a failed IndexedDB query) shows a recovery UI rather than
+ * crashing the entire shell including the navigation header.
+ */
 function RootLayout() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
@@ -50,7 +63,9 @@ function RootLayout() {
 
       <main className="mx-auto w-full max-w-6xl px-6 py-8">
         <CombatProvider>
-          <Outlet />
+          <ErrorBoundary>
+            <Outlet />
+          </ErrorBoundary>
         </CombatProvider>
       </main>
 

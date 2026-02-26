@@ -13,6 +13,25 @@ interface CreatureFormProps {
   onCancel: () => void;
 }
 
+/**
+ * Form for creating or editing a library creature.
+ *
+ * A creature is a reusable template that stores the name, initiative
+ * configuration, and category assignments. When added to combat it is
+ * converted to a `Combatant` instance (see `creaturesToCombatants`).
+ *
+ * Initiative has two modes:
+ * - **Fixed:** The displayed initiative value is used as-is at combat start.
+ * - **Roll:** The value is treated as a modifier; a d20 is rolled and added
+ *   when `START_COMBAT` fires.
+ *
+ * The label for the initiative field reads "Initiative Modifier" to hint
+ * that the value may be used as a roll modifier, not necessarily a final
+ * initiative score.
+ *
+ * When `creature` is provided the form is pre-populated for editing;
+ * otherwise it starts blank for creation.
+ */
 export function CreatureForm({
   creature,
   categories,
@@ -29,6 +48,15 @@ export function CreatureForm({
   );
   const [error, setError] = useState<string>('');
 
+  /**
+   * Validates and submits the creature data via `creatureValidator`.
+   *
+   * The `initiative` value is stored as a number in state but `parseInt` is
+   * still applied defensively because React number inputs can return NaN on
+   * empty string. `String(initiative)` normalises any edge-case types before
+   * parsing. As in `CategoryForm`, the existing `creature.id` is reused in
+   * edit mode to update the correct record.
+   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -49,6 +77,12 @@ export function CreatureForm({
     }
   };
 
+  /**
+   * Toggles a category id in the creature's selected category set.
+   *
+   * Uses a functional state update to avoid stale closure issues when
+   * multiple checkboxes are toggled in quick succession.
+   */
   const toggleCategory = (categoryId: string) => {
     setSelectedCategories((prev) =>
       prev.includes(categoryId)

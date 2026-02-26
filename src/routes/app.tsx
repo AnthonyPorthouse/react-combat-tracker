@@ -17,6 +17,16 @@ export const Route = createFileRoute('/app')({
   component: CombatAppPage,
 })
 
+/**
+ * The primary combat tracking page at `/app`.
+ *
+ * Owns the modal visibility state for all combat-related dialogs (create
+ * combatant, export, import, end combat, library browser) and wires their
+ * open/close callbacks to the shared `useCombat` context so every modal
+ * dispatches into the same reducer instance. Keeping modal state local to
+ * this page (rather than in the reducer) avoids polluting the serialisable
+ * combat state with transient UI flags.
+ */
 function CombatAppPage() {
   const { state, dispatch } = useCombat()
   const createModal = useModal()

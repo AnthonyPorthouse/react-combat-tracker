@@ -7,6 +7,14 @@ export const Route = createFileRoute('/library/')({
   component: LibraryPage,
 })
 
+/**
+ * The creature library management page at `/library`.
+ *
+ * Provides the main CRUD surface for creatures and categories, plus
+ * export/import controls for backup and sharing. The page-level export/import
+ * modals operate on the entire library at once, while individual creature
+ * and category edit/delete actions are available inline via the `LibraryPanel`.
+ */
 function LibraryPage() {
   const [isExportOpen, setIsExportOpen] = useState(false)
   const [isImportOpen, setIsImportOpen] = useState(false)

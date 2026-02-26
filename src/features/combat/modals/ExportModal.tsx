@@ -10,6 +10,21 @@ interface ExportModalProps {
   state: CombatState
 }
 
+/**
+ * Modal that serialises and displays the current combat state for export.
+ *
+ * The export string is formatted as `<hmac>.<base64json>`, where the HMAC
+ * allows the import flow to detect corruption or manual edits. The full
+ * pipeline is: `CombatState → JSON.stringify → btoa → HMAC sign → display`.
+ *
+ * The `useEffect` regenerates the export string every time `state` changes
+ * so the displayed string is always up-to-date if the modal is left open
+ * while the encounter progresses.
+ *
+ * A copy-to-clipboard button with a 2-second "Copied!" confirmation replaces
+ * the need to manually select the textarea content, which is impractical on
+ * mobile for long strings.
+ */
 export function ExportModal({ isOpen, onClose, state }: ExportModalProps) {
   const [copied, setCopied] = useState(false)
   const [exportData, setExportData] = useState<string>('')
@@ -26,6 +41,15 @@ export function ExportModal({ isOpen, onClose, state }: ExportModalProps) {
     generateExportData()
   }, [state])
 
+  /**
+   * Copies the export string to the clipboard and shows a brief confirmation.
+   *
+   * The 2-second timeout before reverting "Copied!" back to "Copy" gives
+   * enough feedback that the action succeeded without the UI permanently
+   * changing state. `console.error` is used (not thrown) because a clipboard
+   * failure is non-critical — the user can still manually select and copy the
+   * textarea text as a fallback.
+   */
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(exportData)

@@ -9,6 +9,23 @@ interface ExportLibraryModalProps {
   onClose: () => void
 }
 
+/**
+ * Exports the entire creature library (all categories and creatures) as a
+ * portable HMAC-protected string.
+ *
+ * The export pipeline mirrors the combat state export: categories and
+ * creatures are fetched directly from IndexedDB (not from a live query,
+ * since this is a one-shot async read), serialised as JSON, base64-encoded,
+ * and signed with an HMAC.
+ *
+ * The `useEffect` only triggers when `isOpen` changes to `true`, avoiding
+ * unnecessary database reads while the modal is closed. If the database read
+ * fails, `exportData` is cleared and the copy button is disabled rather than
+ * showing an error-state string.
+ *
+ * Useful for backup/restore workflows, sharing creature libraries between
+ * DMs, or migrating data to a new browser/device.
+ */
 export function ExportLibraryModal({ isOpen, onClose }: ExportLibraryModalProps) {
   const [copied, setCopied] = useState(false)
   const [exportData, setExportData] = useState('')
@@ -35,6 +52,10 @@ export function ExportLibraryModal({ isOpen, onClose }: ExportLibraryModalProps)
     generateExportData()
   }, [isOpen])
 
+  /**
+   * Copies the export string to the clipboard with a brief "Copied!" confirmation.
+   * Mirrors the same pattern used in `ExportModal` for combat state export.
+   */
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(exportData)
