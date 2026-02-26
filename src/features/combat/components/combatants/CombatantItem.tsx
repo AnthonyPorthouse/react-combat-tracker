@@ -1,8 +1,6 @@
 import { useState } from 'react'
-import { ChevronRight, GripVertical, Heart, MoreVertical, Swords, Trash2 } from 'lucide-react'
+import { ChevronRight, Heart, MoreVertical, Swords, Trash2 } from 'lucide-react'
 import type { Combatant } from '../../../../types/combatant'
-import { useSortable } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
 import { RemoveCombatantModal } from '../../modals/RemoveCombatantModal'
 import { UpdateHpModal } from '../../modals/UpdateHpModal'
 import { DropdownMenu } from '../../../../components/common'
@@ -11,56 +9,52 @@ interface CombatantItemProps {
   combatant: Combatant
   isCurrentTurn: boolean
   inCombat: boolean
-  onRemove: (combatantId: string) => void
-  onUpdate: (combatant: Combatant) => void
+  /** Controls which elements are rendered.
+   * - `'gm'` (default): full interface — drag handle, initiative, action menu.
+   * - `'player'`: read-only view — name, turn indicator, HP bar only. */
+  mode?: 'gm' | 'player'
+  onRemove?: (combatantId: string) => void
+  onUpdate?: (combatant: Combatant) => void
+  /** Ref callback injected by `SortableCombatantItem` for dnd-kit DOM tracking. */
+  dragRef?: (el: HTMLElement | null) => void
+  /** Transform/transition/opacity styles injected by `SortableCombatantItem`. */
+  dragStyle?: React.CSSProperties
+  /** The drag handle button element, rendered by `SortableCombatantItem`
+   *  so that dnd-kit listeners stay out of this component. */
+  dragHandle?: React.ReactNode
 }
 
 /**
  * Renders a single combatant row in the combat list.
  *
- * Each row shows the combatant's initiative, name, and a ⋮ action menu.
- * A `▶` chevron marks the currently active turn so the DM can instantly
- * see whose turn it is without reading initiative numbers.
+ * Supports two display modes via the `mode` prop:
+ * - **`'gm'`** (default): Full DM interface — initiative label, drag handle,
+ *   Heal/Harm/Remove action menu.
+ * - **`'player'`**: Read-only view — name, turn indicator, HP bar only.
+ *   All GM-only info is hidden so the component can be safely rendered in
+ *   the player-facing popout window without leaking sensitive data.
  *
- * The drag handle (`⋮⋮`) is only shown during active combat — before combat
- * starts, initiative order hasn't been locked in and reordering is handled
- * implicitly by the `START_COMBAT` sort. During combat the DM may want to
- * manually reorder combatants (e.g. for late arrivals or initiative ties).
+ * Drag-and-drop state (ref, transform, listeners) is injected by the parent
+ * `SortableCombatantItem` wrapper rather than called here. This keeps
+ * `CombatantItem` usable outside a `DndContext` (e.g. the player view).
  *
- * Initiative is displayed differently by type:
- * - `fixed` — shown as a plain number (e.g. "Init: 15")
- * - `roll` — shown with an explicit sign (e.g. "Init: +3") to clarify it is
- *   still a modifier, not a resolved roll
- *
- * When `inCombat` is true, a thin `h-1` health bar is rendered at the bottom
- * of the card spanning its full width. The bar smoothly transitions from green
- * (100% HP) through yellow (50%) to red (0%) via HSL hue interpolation. The
- * bar is hidden before combat starts since HP tracking is only relevant once
- * the encounter is under way. The bar carries `role="progressbar"` and full
- * `aria-value*` attributes for screen reader accessibility.
- *
- * The ⋮ action menu exposes Heal and Harm actions (shown only during combat)
- * which open `UpdateHpModal`. The caller handles dispatching `UPDATE_COMBATANT`
- * via `onUpdate` — HP clamping to `[0, maxHp]` is applied here before the call.
+ * The `▶` chevron marks the active turn. The HP bar (shown when `inCombat`)
+ * transitions green → yellow → red via HSL hue interpolation.
  */
-export function CombatantItem({ combatant, isCurrentTurn, inCombat, onRemove, onUpdate }: CombatantItemProps) {
+export function CombatantItem({
+  combatant,
+  isCurrentTurn,
+  inCombat,
+  mode = 'gm',
+  onRemove,
+  onUpdate,
+  dragRef,
+  dragStyle,
+  dragHandle,
+}: CombatantItemProps) {
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false)
   const [isHealModalOpen, setIsHealModalOpen] = useState(false)
   const [isHarmModalOpen, setIsHarmModalOpen] = useState(false)
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: combatant.id })
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  }
 
   /**
    * Builds the initiative display string for the combatant's sub-label.
@@ -82,107 +76,112 @@ export function CombatantItem({ combatant, isCurrentTurn, inCombat, onRemove, on
 
   return (
     <div
-      ref={setNodeRef}
-      style={style}
+      ref={dragRef}
+      style={dragStyle}
       className="bg-white border border-gray-200 rounded transition-shadow overflow-hidden"
     >
       <div className="p-3 flex items-center gap-4">
-        <div className="flex items-center gap-2 w-16 text-gray-600">
-          <div className="w-6 flex items-center justify-center">
-            {inCombat && (
-              <button
-                className="text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing"
-                {...attributes}
-                {...listeners}
-                aria-label="Drag combatant"
-              >
-                <GripVertical size={20} />
-              </button>
-            )}
+        {mode === 'gm' && (
+          <div className="flex items-center gap-2 w-16 text-gray-600">
+            <div className="w-6 flex items-center justify-center">
+              {dragHandle}
+            </div>
+            <div className="w-6 flex items-center justify-center font-bold">
+              {isCurrentTurn && <ChevronRight size={20} />}
+            </div>
           </div>
-          <div className="w-6 flex items-center justify-center font-bold">
+        )}
+
+        {mode === 'player' && (
+          <div className="w-6 flex items-center justify-center font-bold text-gray-600">
             {isCurrentTurn && <ChevronRight size={20} />}
           </div>
-        </div>
+        )}
 
         <div className="flex-1 min-w-0">
           <div className="font-semibold text-gray-900 truncate">{combatant.name}</div>
-          <div className="text-sm text-gray-500">{getInitiativeLabel()}</div>
+          {mode === 'gm' && (
+            <div className="text-sm text-gray-500">{getInitiativeLabel()}</div>
+          )}
         </div>
 
-        <DropdownMenu
-          triggerLabel="Combatant actions"
-          triggerContent={<MoreVertical size={18} />}
-          triggerClassName="text-gray-400 hover:text-gray-700 transition-colors flex-shrink-0"
-          menuClassName="max-w-64 min-w-46"
-        >
-          {(closeMenu) => (
-            <>
-              {inCombat && (
+        {mode === 'gm' && (
+          <>
+            <DropdownMenu
+              triggerLabel="Combatant actions"
+              triggerContent={<MoreVertical size={18} />}
+              triggerClassName="text-gray-400 hover:text-gray-700 transition-colors flex-shrink-0"
+              menuClassName="max-w-64 min-w-46"
+            >
+              {(closeMenu) => (
                 <>
+                  {inCombat && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => { closeMenu(); setIsHealModalOpen(true) }}
+                        className="w-full text-left px-3 py-2 text-sm text-green-600 hover:bg-green-50"
+                        role="menuitem"
+                      >
+                        <span className="inline-flex items-center gap-2">
+                          <Heart size={14} />
+                          Heal
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { closeMenu(); setIsHarmModalOpen(true) }}
+                        className="w-full text-left px-3 py-2 text-sm text-amber-600 hover:bg-amber-50"
+                        role="menuitem"
+                      >
+                        <span className="inline-flex items-center gap-2">
+                          <Swords size={14} />
+                          Harm
+                        </span>
+                      </button>
+                      <hr className="my-1 border-gray-200" />
+                    </>
+                  )}
                   <button
                     type="button"
-                    onClick={() => { closeMenu(); setIsHealModalOpen(true) }}
-                    className="w-full text-left px-3 py-2 text-sm text-green-600 hover:bg-green-50"
+                    onClick={() => {
+                      closeMenu()
+                      setIsRemoveModalOpen(true)
+                    }}
+                    className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50"
                     role="menuitem"
                   >
                     <span className="inline-flex items-center gap-2">
-                      <Heart size={14} />
-                      Heal
+                      <Trash2 size={14} />
+                      Remove combatant
                     </span>
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => { closeMenu(); setIsHarmModalOpen(true) }}
-                    className="w-full text-left px-3 py-2 text-sm text-amber-600 hover:bg-amber-50"
-                    role="menuitem"
-                  >
-                    <span className="inline-flex items-center gap-2">
-                      <Swords size={14} />
-                      Harm
-                    </span>
-                  </button>
-                  <hr className="my-1 border-gray-200" />
                 </>
               )}
-              <button
-                type="button"
-                onClick={() => {
-                  closeMenu()
-                  setIsRemoveModalOpen(true)
-                }}
-                className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50"
-                role="menuitem"
-              >
-                <span className="inline-flex items-center gap-2">
-                  <Trash2 size={14} />
-                  Remove combatant
-                </span>
-              </button>
-            </>
-          )}
-        </DropdownMenu>
+            </DropdownMenu>
 
-        <RemoveCombatantModal
-          isOpen={isRemoveModalOpen}
-          onClose={() => setIsRemoveModalOpen(false)}
-          onConfirm={() => onRemove(combatant.id)}
-          combatantName={combatant.name}
-        />
-        <UpdateHpModal
-          isOpen={isHealModalOpen}
-          onClose={() => setIsHealModalOpen(false)}
-          onConfirm={(amount) => onUpdate({ ...combatant, hp: Math.min(combatant.maxHp, combatant.hp + amount) })}
-          combatantName={combatant.name}
-          mode="heal"
-        />
-        <UpdateHpModal
-          isOpen={isHarmModalOpen}
-          onClose={() => setIsHarmModalOpen(false)}
-          onConfirm={(amount) => onUpdate({ ...combatant, hp: Math.max(0, combatant.hp - amount) })}
-          combatantName={combatant.name}
-          mode="harm"
-        />
+            <RemoveCombatantModal
+              isOpen={isRemoveModalOpen}
+              onClose={() => setIsRemoveModalOpen(false)}
+              onConfirm={() => onRemove?.(combatant.id)}
+              combatantName={combatant.name}
+            />
+            <UpdateHpModal
+              isOpen={isHealModalOpen}
+              onClose={() => setIsHealModalOpen(false)}
+              onConfirm={(amount) => onUpdate?.({ ...combatant, hp: Math.min(combatant.maxHp, combatant.hp + amount) })}
+              combatantName={combatant.name}
+              mode="heal"
+            />
+            <UpdateHpModal
+              isOpen={isHarmModalOpen}
+              onClose={() => setIsHarmModalOpen(false)}
+              onConfirm={(amount) => onUpdate?.({ ...combatant, hp: Math.max(0, combatant.hp - amount) })}
+              combatantName={combatant.name}
+              mode="harm"
+            />
+          </>
+        )}
       </div>
 
       {inCombat && (
@@ -206,3 +205,5 @@ export function CombatantItem({ combatant, isCurrentTurn, inCombat, onRemove, on
     </div>
   )
 }
+
+

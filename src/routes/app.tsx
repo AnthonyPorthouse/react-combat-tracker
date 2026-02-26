@@ -1,5 +1,6 @@
+import { useEffect, useRef } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { Plus, Share, Import, BookOpen } from 'lucide-react'
+import { Plus, Share, Import, BookOpen, Monitor } from 'lucide-react'
 import {
   CombatantList,
   CombatBar,
@@ -26,6 +27,14 @@ export const Route = createFileRoute('/app')({
  * dispatches into the same reducer instance. Keeping modal state local to
  * this page (rather than in the reducer) avoids polluting the serialisable
  * combat state with transient UI flags.
+ *
+ * Also manages the player-facing popout window (`/players`). A `useRef`
+ * stores the popup `Window` handle so it can be focused or re-used across
+ * renders. Two effects handle the `postMessage` sync:
+ * 1. On every state change, push the latest state to the popup if it's open.
+ * 2. Listen for `player-view:ready` from the popup (sent on its mount) and
+ *    respond immediately with the current state, ensuring the popup always
+ *    has data even if it opened before the first state change.
  */
 function CombatAppPage() {
   const { state, dispatch } = useCombat()
@@ -34,15 +43,72 @@ function CombatAppPage() {
   const importModal = useModal()
   const endCombatModal = useModal()
   const libraryModal = useModal()
+  const playerWindowRef = useRef<Window | null>(null)
+
+  /** Push the latest state to the player popup whenever combat state changes. */
+  useEffect(() => {
+    const win = playerWindowRef.current
+    if (win && !win.closed) {
+      win.postMessage({ type: 'player-view:state', state }, window.location.origin)
+    }
+  }, [state])
+
+  /** Respond to the popup's ready signal with the current state snapshot. */
+  useEffect(() => {
+    const handleMessage = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin) return
+      if (e.data?.type === 'player-view:ready') {
+        playerWindowRef.current?.postMessage(
+          { type: 'player-view:state', state },
+          window.location.origin
+        )
+      }
+    }
+    window.addEventListener('message', handleMessage)
+    return () => window.removeEventListener('message', handleMessage)
+  }, [state])
+
+  /**
+   * Opens the player view popup, or focuses it if already open.
+   *
+   * The named window (`'player-view'`) ensures only one popup exists at a
+   * time — subsequent calls with the same name re-use the existing window
+   * rather than spawning a new one. The fixed size (400×600) is appropriate
+   * for a narrow combat list displayed on a secondary screen.
+   */
+  const openPlayerView = () => {
+    const existing = playerWindowRef.current
+    if (existing && !existing.closed) {
+      existing.focus()
+      return
+    }
+    const w = 400, h = 600
+    const left = Math.round(screen.width / 2 - w / 2)
+    const top = Math.round(screen.height / 2 - h / 2)
+    playerWindowRef.current = window.open(
+      '/players',
+      'player-view',
+      `width=${w},height=${h},left=${left},top=${top},popup`
+    )
+  }
 
   return (
     <div className="flex flex-col min-h-[70vh] rounded-3xl border border-slate-200 bg-white shadow-sm">
+      <title>Combat Tracker | Combat</title>
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 px-6 py-4">
         <div>
           <h2 className="text-xl font-semibold text-slate-900">Combat Tracker</h2>
           <p className="text-sm text-slate-500">Manage the current encounter in one place.</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <button
+            onClick={openPlayerView}
+            className="text-slate-700 hover:text-slate-900 transition-colors px-3 py-2 hover:bg-slate-100 rounded-full flex items-center gap-2 text-sm font-medium"
+            aria-label="Open player view"
+          >
+            <Monitor size={18} />
+            Player View
+          </button>
           <button
             onClick={libraryModal.open}
             className="text-slate-700 hover:text-slate-900 transition-colors px-3 py-2 hover:bg-slate-100 rounded-full flex items-center gap-2 text-sm font-medium"

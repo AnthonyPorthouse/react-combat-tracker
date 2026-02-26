@@ -28,6 +28,7 @@ function CreateCreaturePage() {
 
   return (
     <div className="space-y-6">
+      <title>Combat Tracker | New Creature</title>
       <div className="flex items-center justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Library</p>

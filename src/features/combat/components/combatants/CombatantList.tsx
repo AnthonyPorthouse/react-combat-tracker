@@ -14,8 +14,11 @@ import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
+  useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import { GripVertical } from 'lucide-react'
 import type { CombatAction } from '../../../../state/combatState'
 import { CombatantItem } from './CombatantItem'
 
@@ -29,16 +32,47 @@ interface CombatantListProps {
 }
 
 /**
- * A thin wrapper that makes `CombatantItem` sortable via @dnd-kit.
+ * Wraps `CombatantItem` with dnd-kit sortable behaviour.
  *
- * Exists as a named component (rather than an inline element in the map)
- * because React requires a stable component reference at the JSX level for
- * the reconciler to correctly pair drag state to the right item during
- * the animated reorder. An anonymous inline component would cause every
- * item to remount on each drag update.
+ * Owns the `useSortable` hook call so that `CombatantItem` itself remains
+ * usable outside a `DndContext` (e.g. in the read-only player view). The
+ * drag handle button is constructed here (where the dnd-kit listeners live)
+ * and passed to `CombatantItem` via the `dragHandle` prop.
+ *
+ * Exists as a named component (not an inline arrow) because React requires a
+ * stable component reference for the reconciler to correctly pair drag state
+ * to the right item during animated reorders.
  */
 function SortableCombatantItem({ combatant, isCurrentTurn, inCombat, onRemove, onUpdate }: { combatant: Combatant; isCurrentTurn: boolean; inCombat: boolean; onRemove: (id: string) => void; onUpdate: (combatant: Combatant) => void }) {
-  return <CombatantItem combatant={combatant} isCurrentTurn={isCurrentTurn} inCombat={inCombat} onRemove={onRemove} onUpdate={onUpdate} />
+  const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({ id: combatant.id })
+  const dragStyle: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+  const dragHandle = inCombat ? (
+    <button
+      className="text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing"
+      {...attributes}
+      {...listeners}
+      aria-label="Drag combatant"
+    >
+      <GripVertical size={20} />
+    </button>
+  ) : undefined
+
+  return (
+    <CombatantItem
+      combatant={combatant}
+      isCurrentTurn={isCurrentTurn}
+      inCombat={inCombat}
+      onRemove={onRemove}
+      onUpdate={onUpdate}
+      dragRef={setNodeRef}
+      dragStyle={dragStyle}
+      dragHandle={dragHandle}
+    />
+  )
 }
 
 /**

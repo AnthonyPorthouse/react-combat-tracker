@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PlayersRouteImport } from './routes/players'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LibraryIndexRouteImport } from './routes/library/index'
@@ -17,6 +18,11 @@ import { Route as LibraryCreatureIdRouteImport } from './routes/library/creature
 import { Route as LibraryCategoryNewRouteImport } from './routes/library/category/new'
 import { Route as LibraryCategoryIdRouteImport } from './routes/library/category/$id'
 
+const PlayersRoute = PlayersRouteImport.update({
+  id: '/players',
+  path: '/players',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppRoute = AppRouteImport.update({
   id: '/app',
   path: '/app',
@@ -56,6 +62,7 @@ const LibraryCategoryIdRoute = LibraryCategoryIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/players': typeof PlayersRoute
   '/library/': typeof LibraryIndexRoute
   '/library/category/$id': typeof LibraryCategoryIdRoute
   '/library/category/new': typeof LibraryCategoryNewRoute
@@ -65,6 +72,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/players': typeof PlayersRoute
   '/library': typeof LibraryIndexRoute
   '/library/category/$id': typeof LibraryCategoryIdRoute
   '/library/category/new': typeof LibraryCategoryNewRoute
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/players': typeof PlayersRoute
   '/library/': typeof LibraryIndexRoute
   '/library/category/$id': typeof LibraryCategoryIdRoute
   '/library/category/new': typeof LibraryCategoryNewRoute
@@ -86,6 +95,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/app'
+    | '/players'
     | '/library/'
     | '/library/category/$id'
     | '/library/category/new'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/app'
+    | '/players'
     | '/library'
     | '/library/category/$id'
     | '/library/category/new'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/app'
+    | '/players'
     | '/library/'
     | '/library/category/$id'
     | '/library/category/new'
@@ -114,6 +126,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRoute
+  PlayersRoute: typeof PlayersRoute
   LibraryIndexRoute: typeof LibraryIndexRoute
   LibraryCategoryIdRoute: typeof LibraryCategoryIdRoute
   LibraryCategoryNewRoute: typeof LibraryCategoryNewRoute
@@ -123,6 +136,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/players': {
+      id: '/players'
+      path: '/players'
+      fullPath: '/players'
+      preLoaderRoute: typeof PlayersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app': {
       id: '/app'
       path: '/app'
@@ -178,6 +198,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRoute,
+  PlayersRoute: PlayersRoute,
   LibraryIndexRoute: LibraryIndexRoute,
   LibraryCategoryIdRoute: LibraryCategoryIdRoute,
   LibraryCategoryNewRoute: LibraryCategoryNewRoute,

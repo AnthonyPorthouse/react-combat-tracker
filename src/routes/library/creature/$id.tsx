@@ -35,6 +35,7 @@ function EditCreaturePage() {
   if (creature === undefined) {
     return (
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <title>Combat Tracker | Editing Creature</title>
         <p className="text-sm text-slate-500">Loading creature details...</p>
       </div>
     )
@@ -43,6 +44,7 @@ function EditCreaturePage() {
   if (!creature) {
     return (
       <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <title>Combat Tracker | Creature Not Found</title>
         <h2 className="text-xl font-semibold text-slate-900">Creature not found</h2>
         <Link
           to="/library"
@@ -56,6 +58,7 @@ function EditCreaturePage() {
 
   return (
     <div className="space-y-6">
+      <title>Combat Tracker | Editing {creature.name}</title>
       <div className="flex items-center justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Library</p>

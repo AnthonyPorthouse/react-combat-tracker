@@ -21,6 +21,8 @@ function LibraryPage() {
 
   return (
     <div className="space-y-6">
+      <title>Combat Tracker | Library</title>
+      <meta name="description" content="Manage your creature library. Create, edit, and organise creatures by category, then add them to combat." />
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-6 py-4 shadow-sm">
         <div>
           <h2 className="text-xl font-semibold text-slate-900">Creature Library</h2>
