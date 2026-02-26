@@ -18,3 +18,15 @@ db.version(1).stores({
     creatures: 'id, name, initiativeType, initiative, *categoryIds',
 });
 
+// v2: Add hp field to creatures (not indexed — no schema string change needed)
+db.version(2).stores({
+    categories: 'id, name',
+    creatures: 'id, name, initiativeType, initiative, *categoryIds',
+}).upgrade(tx => {
+    return tx.table('creatures').toCollection().modify(creature => {
+        if (creature.hp === undefined) {
+            creature.hp = 0;
+        }
+    });
+});
+

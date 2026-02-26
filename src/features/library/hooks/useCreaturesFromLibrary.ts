@@ -13,9 +13,11 @@ import type { Combatant } from '../../../types/combatant';
  * editing a library creature after combat has started should not retroactively
  * change the stats of combatants already in the encounter.
  *
- * HP fields default to 0 because the Creature schema does not yet include
- * baseline HP. They can be set manually via `CreateCombatant` or in a
- * future library schema version.
+ * HP fields are seeded from the creature template: both `hp` (current) and
+ * `maxHp` are set to `creature.hp` so the combatant starts the encounter at
+ * full health as defined in the library. Creatures created before HP tracking
+ * was added default to `hp: 0` in the schema, so those combatants simply start
+ * with no health bar fill until their HP is updated.
  *
  * @param creatures - The library creatures to instantiate. Pass the same
  *   creature multiple times to create multiple independent combatants of
@@ -31,8 +33,8 @@ export function creaturesToCombatants(creatures: Creature[]): Combatant[] {
       name: creature.name,
       initiativeType: creature.initiativeType,
       initiative: creature.initiative,
-      hp: 0,
-      maxHp: 0,
+      hp: creature.hp,
+      maxHp: creature.hp,
     };
   });
 }

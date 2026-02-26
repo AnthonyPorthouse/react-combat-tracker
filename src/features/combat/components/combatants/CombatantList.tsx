@@ -36,8 +36,8 @@ interface CombatantListProps {
  * the animated reorder. An anonymous inline component would cause every
  * item to remount on each drag update.
  */
-function SortableCombatantItem({ combatant, isCurrentTurn, inCombat, onRemove }: { combatant: Combatant; isCurrentTurn: boolean; inCombat: boolean; onRemove: (id: string) => void }) {
-  return <CombatantItem combatant={combatant} isCurrentTurn={isCurrentTurn} inCombat={inCombat} onRemove={onRemove} />
+function SortableCombatantItem({ combatant, isCurrentTurn, inCombat, onRemove, onUpdate }: { combatant: Combatant; isCurrentTurn: boolean; inCombat: boolean; onRemove: (id: string) => void; onUpdate: (combatant: Combatant) => void }) {
+  return <CombatantItem combatant={combatant} isCurrentTurn={isCurrentTurn} inCombat={inCombat} onRemove={onRemove} onUpdate={onUpdate} />
 }
 
 /**
@@ -134,6 +134,7 @@ export function CombatantList({
               isCurrentTurn={isCurrentTurn(index)}
               inCombat={inCombat}
               onRemove={(id) => dispatch({ type: 'REMOVE_COMBATANT', payload: id })}
+              onUpdate={(updated) => dispatch({ type: 'UPDATE_COMBATANT', payload: updated })}
             />
           ))}
         </SortableContext>

@@ -43,6 +43,7 @@ export function CreatureForm({
     creature?.initiativeType || 'fixed'
   ) as 'fixed' | 'roll');
   const [initiative, setInitiative] = useState(creature?.initiative || 0);
+  const [hp, setHp] = useState(creature?.hp ?? 0);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     creature?.categoryIds || []
   );
@@ -67,6 +68,7 @@ export function CreatureForm({
         name,
         initiativeType,
         initiative: parseInt(String(initiative), 10),
+        hp: Math.max(0, parseInt(String(hp), 10) || 0),
         categoryIds: selectedCategories,
       });
       onSubmit(newCreature);
@@ -131,6 +133,15 @@ export function CreatureForm({
           onChange={(e) => setInitiative(parseInt(e.target.value, 10))}
         />
       </div>
+
+      <FormField
+        id="hp"
+        label="Hit Points"
+        type="number"
+        value={hp}
+        onChange={(e) => setHp(Math.max(0, parseInt(e.target.value, 10) || 0))}
+        min={0}
+      />
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">

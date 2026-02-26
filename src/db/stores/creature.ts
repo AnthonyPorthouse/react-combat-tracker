@@ -16,6 +16,12 @@ import z from "zod";
  * `initiative` uses `z.number().int()` without `.nonnegative()` because
  * modifiers in D&D can be negative (e.g. -2 for a slow creature).
  *
+ * ### HP field
+ * `hp` stores the creature's maximum hit points as a template value. When a
+ * creature is added to combat, both `hp` and `maxHp` on the resulting
+ * `Combatant` are seeded from this value. A default of 0 means creatures
+ * created before HP tracking was added remain valid and can be updated later.
+ *
  * `categoryIds` defaults to an empty array so creatures can exist without
  * belonging to any category.
  */
@@ -24,6 +30,7 @@ export const creatureValidator = z.object({
   name: z.string().min(1),
   initiativeType: z.enum(["fixed", "roll"]),
   initiative: z.number().int(),
+  hp: z.number().int().nonnegative().default(0),
   categoryIds: z.array(z.string()).default([]),
 });
 
