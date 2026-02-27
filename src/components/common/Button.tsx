@@ -15,6 +15,7 @@ const getVariantClasses = (variant: ButtonVariant = 'primary'): string => {
     primary: 'bg-blue-600 hover:bg-blue-700 text-white',
     secondary: 'bg-gray-300 hover:bg-gray-400 text-gray-800',
     danger: 'bg-red-600 hover:bg-red-700 text-white',
+    'danger-icon': 'text-red-600 hover:text-red-700',
     success: 'bg-green-600 hover:bg-green-700 text-white',
     ghost: 'text-slate-700 hover:text-slate-900 hover:bg-slate-100',
   };
@@ -32,6 +33,7 @@ const getVariantClasses = (variant: ButtonVariant = 'primary'): string => {
  */
 const getSizeClasses = (size: ButtonSize = 'md'): string => {
   const sizes: Record<ButtonSize, string> = {
+    xs: 'p-1 text-xs',
     sm: 'px-2 py-1 text-sm',
     md: 'px-3 py-2 text-sm',
     lg: 'px-4 py-2 text-base',

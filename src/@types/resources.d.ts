@@ -99,6 +99,18 @@ interface Resources {
     "addCreaturesFromLibrary": "Add Creatures from Library",
     "allCategories": "All Categories",
     "back": "Back",
+    "bulkDeleteCategories": {
+      "message_one": "Are you sure you want to delete {{count}} category? Creatures in these categories will not be deleted.",
+      "message_other": "Are you sure you want to delete {{count}} categories? Creatures in these categories will not be deleted.",
+      "title_one": "Delete {{count}} category",
+      "title_other": "Delete {{count}} categories"
+    },
+    "bulkDeleteCreatures": {
+      "message_one": "Are you sure you want to delete {{count}} creature? This cannot be undone.",
+      "message_other": "Are you sure you want to delete {{count}} creatures? This cannot be undone.",
+      "title_one": "Delete {{count}} creature",
+      "title_other": "Delete {{count}} creatures"
+    },
     "categoriesLegend": "Categories",
     "category": "Category",
     "categoryNamePlaceholder": "Enter category name",
@@ -112,6 +124,8 @@ interface Resources {
     "creatureNotFoundPageTitle": "Combat Tracker | Creature Not Found",
     "creatures": "Creatures",
     "delete": "Delete {{entity}}",
+    "deleteSelected": "Delete selected ({{count}})",
+    "deselectAll": "Deselect all",
     "edit": "Edit {{entity}}",
     "editCategory": "Edit Category",
     "editCreature": "Edit Creature",
@@ -146,13 +160,18 @@ interface Resources {
     "noCreaturesSelected": "No creatures selected. Return to the library to choose creatures.",
     "noCreaturesYet": "No creatures yet. Create one to get started.",
     "quantityFor": "Quantity for {{name}}",
+    "selectAll": "Select all",
     "toast": {
+      "categoriesDeleted_one": "{{count}} category deleted",
+      "categoriesDeleted_other": "{{count}} categories deleted",
       "categoryCreated": "Category created",
       "categoryDeleted": "Category deleted",
       "categoryUpdated": "Category updated",
       "creatureCreated": "Creature created",
       "creatureDeleted": "Creature deleted",
       "creatureUpdated": "Creature updated",
+      "creaturesDeleted_one": "{{count}} creature deleted",
+      "creaturesDeleted_other": "{{count}} creatures deleted",
       "libraryImported": "Library imported successfully"
     },
     "update": "Update {{entity}}"

@@ -2,9 +2,11 @@
 Developer: Anthony Porthouse
 
 /* SITE */
-Last update: 2026/02/26
+Last update: 2026/02/27
 Standards: HTML5, ARIA
 Components: React, TypeScript
 Build tool: Vite
 Styling: Tailwind CSS
 Storage: Dexie (IndexedDB)
+Animations: Motion
+Icons: Lucide

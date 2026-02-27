@@ -4,6 +4,11 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { Link } from '@tanstack/react-router'
 import { db } from '../../../db/db'
 import { useToast } from '../../../state/toastContext'
+import { useModal } from '../../../hooks/useModal'
+import { useSelection } from '../../../hooks/useSelection'
+import { ConfirmDialog } from '../../../components/common/ConfirmDialog'
+import { SelectableIcon } from '../../../components/common/SelectableIcon'
+import { SelectionToolbar } from '../../../components/common/SelectionToolbar'
 import { Edit, Trash2 } from 'lucide-react'
 
 interface CreatureListProps {
@@ -30,6 +35,7 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const { t } = useTranslation('library')
   const { addToast } = useToast()
+  const bulkDeleteModal = useModal()
 
   const filteredCreatures = useMemo(() => {
     if (!creatures) return []
@@ -44,11 +50,44 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
     })
   }, [creatures, selectedCategoryId, searchTerm])
 
+  const visibleIds = useMemo(
+    () => filteredCreatures.map((c) => c.id),
+    [filteredCreatures],
+  )
+
+  const {
+    toggle,
+    selectAll,
+    deselectAll,
+    isSelected,
+    selectionState,
+    count: selectionCount,
+    selectedIds,
+  } = useSelection(visibleIds)
+
   /** Deletes a creature permanently from the library after a native confirmation prompt. */
   const handleDelete = async (id: string) => {
     if (confirm('Delete this creature?')) {
       await db.creatures.delete(id)
       addToast(t('toast.creatureDeleted'))
+    }
+  }
+
+  /** Deletes all currently selected creatures in bulk. */
+  const handleBulkDelete = async () => {
+    const ids = [...selectedIds]
+    await db.creatures.bulkDelete(ids)
+    deselectAll()
+    bulkDeleteModal.close()
+    addToast(t('toast.creaturesDeleted', { count: ids.length }))
+  }
+
+  /** Toggles the header checkbox between select-all and deselect-all. */
+  const handleToggleAll = () => {
+    if (selectionState === 'all') {
+      deselectAll()
+    } else {
+      selectAll()
     }
   }
 
@@ -72,7 +111,7 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
         <h3 className="text-lg font-semibold text-gray-900">{t('creatures')}</h3>
       </div>
 
-      <input
+      {creatures?.length !== 0 && <input
         type="text"
         id="creature-list-search"
         name="creature-list-search"
@@ -81,7 +120,7 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:border-blue-500"
-      />
+      />}
 
       {!creatures || filteredCreatures.length === 0 ? (
         <p className="text-gray-500 text-sm">
@@ -91,22 +130,37 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
         </p>
       ) : (
         <div className="space-y-2 overflow-y-auto">
+          <SelectionToolbar
+            selectionState={selectionState}
+            selectionCount={selectionCount}
+            onToggleAll={handleToggleAll}
+            onBulkDelete={bulkDeleteModal.open}
+          />
           {filteredCreatures.map((creature) => (
             <div
               key={creature.id}
               className="p-3 bg-white border border-gray-200 rounded hover:bg-gray-50 transition"
             >
               <div className="flex justify-between items-start mb-1">
-                <div>
-                  <h4 className="font-medium text-gray-900">{creature.name}</h4>
-                  <p className="text-xs text-gray-500">
-                    {t('initiativeSummary', { initiative: creature.initiative, type: creature.initiativeType === 'fixed' ? t('common:fixed') : t('common:roll') })}
-                  </p>
-                  {getCategoryNames(creature.categoryIds) && (
-                    <p className="text-xs text-gray-600 mt-1">
-                      {getCategoryNames(creature.categoryIds)}
+                <div className="flex items-start gap-2">
+                  <div className="pt-0.5">
+                    <SelectableIcon
+                      state={isSelected(creature.id) ? 'checked' : 'unchecked'}
+                      onClick={() => toggle(creature.id)}
+                      ariaLabel={creature.name}
+                    />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900">{creature.name}</h4>
+                    <p className="text-xs text-gray-500">
+                      {t('initiativeSummary', { initiative: creature.initiative, type: creature.initiativeType === 'fixed' ? t('common:fixed') : t('common:roll') })}
                     </p>
-                  )}
+                    {getCategoryNames(creature.categoryIds) && (
+                      <p className="text-xs text-gray-600 mt-1">
+                        {getCategoryNames(creature.categoryIds)}
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <Link
@@ -130,6 +184,17 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
           ))}
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={bulkDeleteModal.isOpen}
+        onClose={bulkDeleteModal.close}
+        title={t('bulkDeleteCreatures.title', { count: selectionCount })}
+        message={t('bulkDeleteCreatures.message', { count: selectionCount })}
+        icon={<Trash2 size={36} />}
+        actionLabel={t('deleteSelected', { count: selectionCount })}
+        actionVariant="danger"
+        onConfirm={handleBulkDelete}
+      />
     </div>
   )
 }

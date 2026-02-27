@@ -8,10 +8,10 @@
  */
 
 /** Semantic colour intent for the `Button` component. */
-export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'success' | 'ghost';
+export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'danger-icon' | 'success' | 'ghost';
 
 /** Visual size scale for the `Button` component. */
-export type ButtonSize = 'sm' | 'md' | 'lg';
+export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg';
 
 /**
  * Props for the `Button` component.

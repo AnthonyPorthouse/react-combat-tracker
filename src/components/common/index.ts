@@ -6,6 +6,8 @@ export { CheckboxItem } from './CheckboxItem'
 export { ModalActions } from './ModalActions'
 export { ConfirmDialog } from './ConfirmDialog'
 export { DropdownMenu } from './DropdownMenu'
+export { SelectableIcon } from './SelectableIcon'
+export { SelectionToolbar } from './SelectionToolbar'
 
 // Re-export types for convenience
 export type {
