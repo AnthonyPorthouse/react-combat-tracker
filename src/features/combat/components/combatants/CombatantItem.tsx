@@ -89,14 +89,18 @@ export function CombatantItem({
               {dragHandle}
             </div>
             <div className="w-6 flex items-center justify-center font-bold">
-              {isCurrentTurn && <ChevronRight size={20} />}
+              {isCurrentTurn && (
+                <ChevronRight size={20} aria-label={`${combatant.name}'s turn`} aria-current="true" />
+              )}
             </div>
           </div>
         )}
 
         {mode === 'player' && (
           <div className="w-6 flex items-center justify-center font-bold text-gray-600">
-            {isCurrentTurn && <ChevronRight size={20} />}
+            {isCurrentTurn && (
+              <ChevronRight size={20} aria-label={`${combatant.name}'s turn`} aria-current="true" />
+            )}
           </div>
         )}
 
@@ -110,7 +114,7 @@ export function CombatantItem({
         {mode === 'gm' && (
           <>
             <DropdownMenu
-              triggerLabel="Combatant actions"
+              triggerLabel={`Combatant actions for ${combatant.name}`}
               triggerContent={<MoreVertical size={18} />}
               triggerClassName="text-gray-400 hover:text-gray-700 transition-colors flex-shrink-0"
               menuClassName="max-w-64 min-w-46"

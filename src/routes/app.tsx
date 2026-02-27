@@ -92,9 +92,9 @@ function CombatAppPage() {
   return (
     <div className="flex flex-col min-h-[70vh] rounded-3xl border border-slate-200 bg-white shadow-sm overflow-clip">
       <title>Combat Tracker | Combat</title>
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 px-6 py-4">
+      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 px-6 py-4">
         <div>
-          <h2 className="text-xl font-semibold text-slate-900">Combat Tracker</h2>
+          <h1 className="text-xl font-semibold text-slate-900">Combat Tracker</h1>
           <p className="text-sm text-slate-500">Manage the current encounter in one place.</p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -135,9 +135,9 @@ function CombatAppPage() {
             Import
           </Button>
         </div>
-      </div>
+      </header>
 
-      <div className="flex flex-1 flex-col items-center justify-start gap-6 p-6">
+      <main className="flex flex-1 flex-col items-center justify-start gap-6 p-6">
         <CombatantList
           combatants={state.combatants}
           currentStep={state.step}
@@ -190,7 +190,7 @@ function CombatAppPage() {
             dispatch({ type: 'ADD_COMBATANTS', payload: combatants })
           }}
         />
-      </div>
+      </main>
 
       <footer className='justify-end'>
         <CombatBar

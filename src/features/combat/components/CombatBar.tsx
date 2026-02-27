@@ -68,7 +68,13 @@ export function CombatBar({
           </Button>
         ) : (
           <div className="flex items-center gap-3">
-            <span className="font-bold text-gray-700 text-lg">Round {round}</span>
+            <span
+              className="font-bold text-gray-700 text-lg"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              Round {round}
+            </span>
             <Button
               onClick={onEndCombat}
               variant="danger"

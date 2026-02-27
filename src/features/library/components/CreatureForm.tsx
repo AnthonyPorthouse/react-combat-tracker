@@ -139,10 +139,10 @@ export function CreatureForm({
         min={0}
       />
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+      <fieldset>
+        <legend className="block text-sm font-medium text-gray-700 mb-2">
           Categories
-        </label>
+        </legend>
         <div className="space-y-2 max-h-48 overflow-y-auto">
           {categories.length === 0 ? (
             <p className="text-gray-500 text-sm">No categories yet. Create one first.</p>
@@ -158,7 +158,7 @@ export function CreatureForm({
             ))
           )}
         </div>
-      </div>
+      </fieldset>
 
       <div className="flex gap-2 justify-end">
         <Button

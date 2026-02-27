@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 interface MenuPosition {
@@ -47,8 +47,10 @@ export function DropdownMenu({
 }: DropdownMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [menuPosition, setMenuPosition] = useState<MenuPosition | null>(null)
+  const triggerId = useId()
+  const menuId = useId()
   const triggerRef = useRef<HTMLButtonElement | null>(null)
-  const overlayRef = useRef<HTMLDivElement | null>(null)
+  const menuRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     const rootElement = document.getElementById('root')
@@ -71,7 +73,11 @@ export function DropdownMenu({
 
   useEffect(() => {
     if (isOpen) {
-      overlayRef.current?.focus()
+      // Move focus to the first menu item so keyboard users can navigate immediately
+      const firstItem = menuRef.current?.querySelector<HTMLElement>('[role="menuitem"]')
+      firstItem?.focus()
+    } else {
+      triggerRef.current?.focus()
     }
   }, [isOpen])
 
@@ -108,13 +114,27 @@ export function DropdownMenu({
   }
 
   /**
-   * Closes the menu on Escape key, matching native `<select>` and `<dialog>`
-   * keyboard behaviour so users have a predictable way to dismiss the menu
-   * without clicking outside it.
+   * Closes the menu on Escape key, and supports Up/Down arrow navigation
+   * between menu items per the ARIA menu keyboard interaction pattern.
    */
   const handleOverlayKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Escape') {
       closeMenu()
+      return
+    }
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault()
+      const items = Array.from(
+        menuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? []
+      )
+      if (items.length === 0) return
+      const focused = document.activeElement
+      const currentIndex = items.indexOf(focused as HTMLElement)
+      const nextIndex =
+        event.key === 'ArrowDown'
+          ? (currentIndex + 1) % items.length
+          : (currentIndex - 1 + items.length) % items.length
+      items[nextIndex]?.focus()
     }
   }
 
@@ -127,6 +147,8 @@ export function DropdownMenu({
         aria-label={triggerLabel}
         aria-expanded={isOpen}
         aria-haspopup="menu"
+        aria-controls={isOpen ? menuId : undefined}
+        id={triggerId}
         ref={triggerRef}
       >
         {triggerContent}
@@ -137,7 +159,6 @@ export function DropdownMenu({
               className="fixed inset-0 z-50 bg-transparent"
               onClick={closeMenu}
               onKeyDown={handleOverlayKeyDown}
-              ref={overlayRef}
               tabIndex={-1}
             >
               <div
@@ -148,6 +169,9 @@ export function DropdownMenu({
                   transform: menuPosition.transform,
                 }}
                 role="menu"
+                id={menuId}
+                aria-labelledby={triggerId}
+                ref={menuRef}
                 onClick={(event) => event.stopPropagation()}
               >
                 {children(closeMenu)}

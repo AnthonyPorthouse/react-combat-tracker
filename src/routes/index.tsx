@@ -15,11 +15,11 @@ export const Route = createFileRoute('/')({
  */
 function LandingPage() {
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-emerald-50 px-8 py-14 shadow-sm">
+    <main className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-emerald-50 px-8 py-14 shadow-sm">
       <title>Combat Tracker</title>
       <meta name="description" content="Track initiative, manage encounters, and keep your table moving with a streamlined D&D combat tracker." />
-      <div className="absolute -left-20 top-10 h-56 w-56 rounded-full bg-emerald-200/40 blur-3xl" />
-      <div className="absolute -right-24 bottom-6 h-64 w-64 rounded-full bg-sky-200/40 blur-3xl" />
+      <div aria-hidden="true" className="absolute -left-20 top-10 h-56 w-56 rounded-full bg-emerald-200/40 blur-3xl" />
+      <div aria-hidden="true" className="absolute -right-24 bottom-6 h-64 w-64 rounded-full bg-sky-200/40 blur-3xl" />
 
       <div className="relative flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
         <div className="max-w-xl">
@@ -76,6 +76,6 @@ function LandingPage() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   )
 }

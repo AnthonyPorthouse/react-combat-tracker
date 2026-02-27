@@ -173,16 +173,19 @@ export function CombatantList({
           strategy={verticalListSortingStrategy}
           disabled={!inCombat}
         >
-          {combatants.map((combatant, index) => (
-            <SortableCombatantItem
-              key={combatant.id}
-              combatant={combatant}
-              isCurrentTurn={isCurrentTurn(index)}
-              inCombat={inCombat}
-              onRemove={(id) => dispatch({ type: 'REMOVE_COMBATANT', payload: id })}
-              onUpdate={(updated) => dispatch({ type: 'UPDATE_COMBATANT', payload: updated })}
-            />
-          ))}
+          <ol className="flex flex-col gap-3 list-none">
+            {combatants.map((combatant, index) => (
+              <li key={combatant.id}>
+                <SortableCombatantItem
+                  combatant={combatant}
+                  isCurrentTurn={isCurrentTurn(index)}
+                  inCombat={inCombat}
+                  onRemove={(id) => dispatch({ type: 'REMOVE_COMBATANT', payload: id })}
+                  onUpdate={(updated) => dispatch({ type: 'UPDATE_COMBATANT', payload: updated })}
+                />
+              </li>
+            ))}
+          </ol>
         </SortableContext>
       </DndContext>
     </div>
