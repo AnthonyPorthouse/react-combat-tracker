@@ -2,6 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useTranslation } from 'react-i18next'
 import { Link } from '@tanstack/react-router'
 import { db } from '../../../db/db'
+import { useToast } from '../../../state/toastContext'
 import { Edit, Trash2 } from 'lucide-react'
 
 /**
@@ -19,6 +20,7 @@ import { Edit, Trash2 } from 'lucide-react'
 export function CategoryList() {
   const categories = useLiveQuery(() => db.categories.orderBy('name').toArray())
   const { t } = useTranslation('library')
+  const { addToast } = useToast()
 
   /**
    * Deletes a category and removes it from every creature that references it.
@@ -46,6 +48,7 @@ export function CategoryList() {
           categoryIds: creature.categoryIds.filter((cid) => cid !== id),
         })
       }
+      addToast(t('toast.categoryDeleted'))
     }
   }
 

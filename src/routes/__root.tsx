@@ -1,5 +1,6 @@
 import { createRootRoute, Link, Outlet, useLocation } from '@tanstack/react-router'
 import { CombatProvider } from '../state/combat.tsx'
+import { ToastProvider } from '../state/toast.tsx'
 import { ErrorBoundary } from '../components/ErrorBoundary'
 
 export const Route = createRootRoute({
@@ -71,11 +72,13 @@ function RootLayout() {
       )}
 
       <main className={isPlayerView ? 'w-full' : 'mx-auto w-full max-w-6xl px-6 py-8'}>
-        <CombatProvider>
-          <ErrorBoundary>
-            <Outlet />
-          </ErrorBoundary>
-        </CombatProvider>
+        <ToastProvider>
+          <CombatProvider>
+            <ErrorBoundary>
+              <Outlet />
+            </ErrorBoundary>
+          </CombatProvider>
+        </ToastProvider>
       </main>
 
     </div>

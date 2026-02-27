@@ -51,5 +51,14 @@
   "noCreaturesSelected": "No creatures selected. Return to the library to choose creatures.",
   "noCreaturesYet": "No creatures yet. Create one to get started.",
   "quantityFor": "Quantity for {{name}}",
+  "toast": {
+    "categoryCreated": "Category created",
+    "categoryDeleted": "Category deleted",
+    "categoryUpdated": "Category updated",
+    "creatureCreated": "Creature created",
+    "creatureDeleted": "Creature deleted",
+    "creatureUpdated": "Creature updated",
+    "libraryImported": "Library imported successfully"
+  },
   "update": "Update {{entity}}"
 }

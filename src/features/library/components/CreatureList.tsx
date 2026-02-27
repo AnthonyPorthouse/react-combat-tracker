@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Link } from '@tanstack/react-router'
 import { db } from '../../../db/db'
+import { useToast } from '../../../state/toastContext'
 import { Edit, Trash2 } from 'lucide-react'
 
 interface CreatureListProps {
@@ -28,6 +29,7 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
   const categories = useLiveQuery(() => db.categories.orderBy('name').toArray())
   const [searchTerm, setSearchTerm] = useState('')
   const { t } = useTranslation('library')
+  const { addToast } = useToast()
 
   const filteredCreatures = useMemo(() => {
     if (!creatures) return []
@@ -46,6 +48,7 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
   const handleDelete = async (id: string) => {
     if (confirm('Delete this creature?')) {
       await db.creatures.delete(id)
+      addToast(t('toast.creatureDeleted'))
     }
   }
 

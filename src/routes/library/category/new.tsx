@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { CategoryForm } from '../../../features/library'
 import { db } from '../../../db/db'
 import type { Category } from '../../../db/stores/categories'
+import { useToast } from '../../../state/toastContext'
 
 export const Route = createFileRoute('/library/category/new')({
   component: CreateCategoryPage,
@@ -18,9 +19,11 @@ export const Route = createFileRoute('/library/category/new')({
 function CreateCategoryPage() {
   const { t } = useTranslation('library')
   const navigate = useNavigate()
+  const { addToast } = useToast()
 
   const handleSubmit = async (category: Category) => {
     await db.categories.add(category)
+    addToast(t('toast.categoryCreated'))
     await navigate({ to: '/library' })
   }
 

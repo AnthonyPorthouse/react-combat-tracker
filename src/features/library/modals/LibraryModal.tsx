@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { BaseModal } from '../../../components/modals/BaseModal';
+import { useToast } from '../../../state/toastContext';
 import { db } from '../../../db/db';
 import type { Category } from '../../../db/stores/categories';
 import type { Creature } from '../../../db/stores/creature';
@@ -43,6 +44,7 @@ export function LibraryModal({
 }: LibraryModalProps) {
   const creatures = useLiveQuery(() => db.creatures.toArray());
   const categories = useLiveQuery(() => db.categories.toArray());
+  const { addToast } = useToast();
   const [nameFilter, setNameFilter] = useState('');
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const [selectedCreatureIds, setSelectedCreatureIds] = useState<string[]>([]);
@@ -104,6 +106,7 @@ export function LibraryModal({
    */
   const handleCreateCategory = async (category: Category) => {
     await db.categories.add(category);
+    addToast(t('toast.categoryCreated'));
     setIsAddingCategory(false);
   };
 
@@ -116,6 +119,7 @@ export function LibraryModal({
    */
   const handleCreateCreature = async (creature: Creature) => {
     await db.creatures.add(creature);
+    addToast(t('toast.creatureCreated'));
     setIsAddingCreature(false);
   };
 

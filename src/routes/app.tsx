@@ -14,6 +14,7 @@ import {
 import { Button } from '../components/common'
 import { useCombatModals } from '../hooks'
 import { useCombat } from '../state/combatContext'
+import { useToast } from '../state/toastContext'
 import { PLAYER_VIEW_WIDTH, PLAYER_VIEW_HEIGHT } from '../utils/constants'
 
 export const Route = createFileRoute('/app')({
@@ -43,6 +44,7 @@ function CombatAppPage() {
   const modals = useCombatModals()
   const playerWindowRef = useRef<Window | null>(null)
   const { t } = useTranslation('combat')
+  const { addToast } = useToast()
 
   /** Push the latest state to the player popup whenever combat state changes. */
   useEffect(() => {
@@ -175,6 +177,7 @@ function CombatAppPage() {
           onClose={modals.importState.close}
           onImport={(importedState) => {
             dispatch({ type: 'IMPORT_STATE', payload: importedState })
+            addToast(t('toast.stateImported'))
           }}
         />
 

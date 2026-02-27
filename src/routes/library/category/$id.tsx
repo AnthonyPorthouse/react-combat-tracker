@@ -4,6 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { CategoryForm } from '../../../features/library'
 import { db } from '../../../db/db'
 import type { Category } from '../../../db/stores/categories'
+import { useToast } from '../../../state/toastContext'
 
 export const Route = createFileRoute('/library/category/$id')({
   component: EditCategoryPage,
@@ -24,11 +25,13 @@ export const Route = createFileRoute('/library/category/$id')({
 function EditCategoryPage() {
   const { t } = useTranslation('library')
   const navigate = useNavigate()
+  const { addToast } = useToast()
   const { id } = Route.useParams()
   const category = useLiveQuery(() => db.categories.get(id), [id])
 
   const handleSubmit = async (updated: Category) => {
     await db.categories.update(updated.id, updated)
+    addToast(t('toast.categoryUpdated'))
     await navigate({ to: '/library' })
   }
 

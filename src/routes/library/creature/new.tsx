@@ -4,6 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { CreatureForm } from '../../../features/library'
 import { db } from '../../../db/db'
 import type { Creature } from '../../../db/stores/creature'
+import { useToast } from '../../../state/toastContext'
 
 export const Route = createFileRoute('/library/creature/new')({
   component: CreateCreaturePage,
@@ -21,10 +22,12 @@ export const Route = createFileRoute('/library/creature/new')({
 function CreateCreaturePage() {
   const { t } = useTranslation('library')
   const navigate = useNavigate()
+  const { addToast } = useToast()
   const categories = useLiveQuery(() => db.categories.toArray())
 
   const handleSubmit = async (creature: Creature) => {
     await db.creatures.add(creature)
+    addToast(t('toast.creatureCreated'))
     await navigate({ to: '/library' })
   }
 

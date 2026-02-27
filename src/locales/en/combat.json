@@ -47,5 +47,8 @@
   "round": "Round {{round}}",
   "saveChanges": "Save Changes",
   "startCombat": "Start Combat",
+  "toast": {
+    "stateImported": "Combat state imported"
+  },
   "waitingForCombat": "Waiting for combat to begin\u2026"
 }

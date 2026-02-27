@@ -49,6 +49,9 @@ interface Resources {
     "round": "Round {{round}}",
     "saveChanges": "Save Changes",
     "startCombat": "Start Combat",
+    "toast": {
+      "stateImported": "Combat state imported"
+    },
     "waitingForCombat": "Waiting for combat to begin…"
   },
   "common": {
@@ -143,6 +146,15 @@ interface Resources {
     "noCreaturesSelected": "No creatures selected. Return to the library to choose creatures.",
     "noCreaturesYet": "No creatures yet. Create one to get started.",
     "quantityFor": "Quantity for {{name}}",
+    "toast": {
+      "categoryCreated": "Category created",
+      "categoryDeleted": "Category deleted",
+      "categoryUpdated": "Category updated",
+      "creatureCreated": "Creature created",
+      "creatureDeleted": "Creature deleted",
+      "creatureUpdated": "Creature updated",
+      "libraryImported": "Library imported successfully"
+    },
     "update": "Update {{entity}}"
   }
 }

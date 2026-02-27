@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BaseModal } from '../../../components/modals/BaseModal'
 import { db } from '../../../db/db'
+import { useToast } from '../../../state/toastContext'
 import { parseImportString } from '../../../utils/importData'
 import { LibraryValidator, type LibraryState } from '../libraryState'
 
@@ -35,6 +36,7 @@ export function ImportLibraryModal({ isOpen, onClose, onImport }: ImportLibraryM
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const { t } = useTranslation('library')
+  const { addToast } = useToast()
 
   const handleSubmit = (event: React.SubmitEvent) => {
     event.preventDefault()
@@ -52,6 +54,7 @@ export function ImportLibraryModal({ isOpen, onClose, onImport }: ImportLibraryM
 
         onImport?.(data)
         setBase64Input('')
+        addToast(t('toast.libraryImported'))
         onClose()
       } catch (err) {
         const errorMessage =

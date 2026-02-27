@@ -23,6 +23,7 @@
     "i18next-cli": "^1.46.1",
     "immer": "^11.1.4",
     "lucide-react": "^0.563.0",
+    "motion": "^12.34.3",
     "nanoid": "^5.1.6",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
