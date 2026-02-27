@@ -1,0 +1,16 @@
+import { defineConfig } from 'i18next-cli';
+
+export default defineConfig({
+  locales: [
+    "en"
+  ],
+  namespaces: [
+    "common",
+    "combat",
+    "library"
+  ],
+  extract: {
+    input: "src/**/*.{js,jsx,ts,tsx}",
+    output: "src/locales/{{language}}/{{namespace}}.json"
+  }
+});

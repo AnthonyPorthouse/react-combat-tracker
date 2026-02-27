@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { createFileRoute } from '@tanstack/react-router'
 import { Plus, Share, Import, BookOpen, Monitor } from 'lucide-react'
 import {
@@ -41,6 +42,7 @@ function CombatAppPage() {
   const { state, dispatch } = useCombat()
   const modals = useCombatModals()
   const playerWindowRef = useRef<Window | null>(null)
+  const { t } = useTranslation('combat')
 
   /** Push the latest state to the player popup whenever combat state changes. */
   useEffect(() => {
@@ -94,45 +96,45 @@ function CombatAppPage() {
       <title>Combat Tracker | Combat</title>
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 px-6 py-4">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900">Combat Tracker</h1>
-          <p className="text-sm text-slate-500">Manage the current encounter in one place.</p>
+          <h1 className="text-xl font-semibold text-slate-900">{t('pageTitle')}</h1>
+          <p className="text-sm text-slate-500">{t('pageDescription')}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button
             variant="ghost"
             onClick={openPlayerView}
             icon={<Monitor size={18} />}
-            aria-label="Open player view"
+            aria-label={t('openPlayerView')}
             className="rounded-full"
           >
-            Player View
+            {t('playerView')}
           </Button>
           <Button
             variant="ghost"
             onClick={modals.library.open}
             icon={<BookOpen size={18} />}
-            aria-label="Open creature library"
+            aria-label={t('openLibrary')}
             className="rounded-full"
           >
-            Library
+            {t('library')}
           </Button>
           <Button
             variant="ghost"
             onClick={modals.exportState.open}
             icon={<Share size={18} />}
-            aria-label="Export combat state"
+            aria-label={t('exportCombat')}
             className="rounded-full"
           >
-            Export
+            {t('export')}
           </Button>
           <Button
             variant="ghost"
             onClick={modals.importState.open}
             icon={<Import size={18} />}
-            aria-label="Import combat state"
+            aria-label={t('importCombat')}
             className="rounded-full"
           >
-            Import
+            {t('import')}
           </Button>
         </div>
       </header>
@@ -150,7 +152,7 @@ function CombatAppPage() {
           onClick={modals.create.open}
           icon={<Plus size={18} />}
         >
-          Add Combatant
+          {t('addCombatant')}
         </Button>
 
         <CreateCombatant

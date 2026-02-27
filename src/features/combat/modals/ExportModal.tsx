@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Copy, Check } from 'lucide-react'
 import type { CombatState } from '../../../state/combatState'
 import { generateHmac } from '../../../utils/hmac'
@@ -30,6 +31,7 @@ interface ExportModalProps {
 export function ExportModal({ isOpen, onClose, state }: ExportModalProps) {
   const { copied, copyToClipboard } = useCopyToClipboard()
   const [exportData, setExportData] = useState<string>('')
+  const { t } = useTranslation('combat')
 
   // Serialize state to JSON, then encode to base64, and prepend HMAC
   useEffect(() => {
@@ -57,7 +59,7 @@ export function ExportModal({ isOpen, onClose, state }: ExportModalProps) {
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
-      title="Export Combat State"
+      title={t('exportTitle')}
       className="max-w-2xl"
       actions={
         <Button
@@ -66,18 +68,18 @@ export function ExportModal({ isOpen, onClose, state }: ExportModalProps) {
           icon={copied ? <Check size={18} /> : <Copy size={18} />}
           className="w-full justify-center"
         >
-          {copied ? 'Copied!' : 'Copy to Clipboard'}
+          {copied ? t('copied') : t('copyToClipboard')}
         </Button>
       }
     >
       <p className="text-sm text-gray-600">
-        Copy the HMAC-protected state below to save your combat data. You can import it later to restore the state. The integrity of your data is verified on import.
+        {t('exportDescription')}
       </p>
 
       <textarea
         value={exportData}
         readOnly
-        aria-label="Exported combat state JSON"
+        aria-label={t('exportedJson')}
         className="w-full h-48 p-3 border border-gray-300 rounded font-mono text-sm bg-gray-50 text-gray-700 focus:outline-none resize-none"
       />
     </BaseModal>

@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { ReactNode, SubmitEventHandler } from 'react'
 import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
@@ -45,6 +46,7 @@ export function BaseModal({
   className,
   onSubmit,
 }: BaseModalProps) {
+  const { t } = useTranslation('common')
   useEffect(() => {
     const rootElement = document.getElementById('root')
     if (!rootElement) return
@@ -91,7 +93,7 @@ export function BaseModal({
           <button
             className="text-gray-500 hover:text-gray-700"
             onClick={onClose}
-            aria-label="Close modal"
+            aria-label={t('closeModal')}
           >
             <X size={24} />
           </button>

@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../../db/db';
 import { BaseModal } from '../../../components/modals/BaseModal';
@@ -35,6 +36,7 @@ export function AddCreaturesModal({
   const [selectedCreatureIds, setSelectedCreatureIds] = useState<string[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const { t } = useTranslation('library');
 
   const filteredCreatures = useMemo(() => {
     if (!creatures) return [];
@@ -94,7 +96,7 @@ export function AddCreaturesModal({
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
-      title="Add Creatures from Library"
+      title={t('addCreaturesFromLibrary')}
       onSubmit={selectedCreatureIds.length > 0 ? (e) => {
         e.preventDefault();
         handleAddCreatures();
@@ -107,13 +109,13 @@ export function AddCreaturesModal({
               onClick={onClose}
               className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition"
             >
-              Cancel
+              {t('cancel')}
             </button>
             <button
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
             >
-              Add {selectedCreatureIds.length} Creature{selectedCreatureIds.length !== 1 ? 's' : ''}
+              {t('addCreaturesCount', { count: selectedCreatureIds.length })}
             </button>
           </div>
         ) : null
@@ -126,7 +128,7 @@ export function AddCreaturesModal({
               htmlFor="category-filter"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Filter by Category
+              {t('filterByCategory')}
             </label>
             <select
               id="category-filter"
@@ -134,7 +136,7 @@ export function AddCreaturesModal({
               onChange={(e) => setSelectedCategoryId(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:border-blue-500"
             >
-              <option value="all">All Categories</option>
+              <option value="all">{t('allCategories')}</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
@@ -146,7 +148,7 @@ export function AddCreaturesModal({
 
         <input
           type="text"
-          placeholder="Search creatures..."
+          placeholder={t('searchCreatures')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:border-blue-500"
@@ -155,8 +157,8 @@ export function AddCreaturesModal({
         {!creatures || filteredCreatures.length === 0 ? (
           <p className="text-gray-500 text-sm text-center py-4">
             {creatures?.length === 0
-              ? 'No creatures in library yet.'
-              : 'No creatures match your filter.'}
+              ? t('noCreaturesInLibraryShort')
+              : t('noCreaturesMatchFilterShort')}
           </p>
         ) : (
           <div className="space-y-2 max-h-64 overflow-y-auto border border-gray-200 rounded p-3 bg-gray-50">

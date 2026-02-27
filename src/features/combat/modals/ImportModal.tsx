@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import z from 'zod'
 import { CombatValidator, type CombatState } from '../../../state/combatState'
 import { verifyHmac } from '../../../utils/hmac'
@@ -34,6 +35,7 @@ export function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
   const [base64Input, setBase64Input] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const { t } = useTranslation('combat')
 
   const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault()
@@ -100,7 +102,7 @@ export function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
-      title="Import Combat State"
+      title={t('importTitle')}
       className="max-w-2xl"
       onSubmit={handleSubmit}
       actions={
@@ -110,20 +112,20 @@ export function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
             disabled={!base64Input.trim() || isLoading}
             className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors"
           >
-            {isLoading ? 'Importing...' : 'Import'}
+            {isLoading ? t('importing') : t('importAction')}
           </button>
           <button
             type="button"
             onClick={onClose}
             className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 px-4 py-2 rounded font-medium transition-colors"
           >
-            Cancel
+            {t('cancel')}
           </button>
         </div>
       }
     >
       <p className="text-sm text-gray-600">
-        Paste the HMAC-protected state from an export to restore your combat data. The integrity of the data will be verified before import.
+        {t('importDescription')}
       </p>
 
       <textarea
@@ -132,7 +134,7 @@ export function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
           setBase64Input(e.target.value)
           if (error) setError(null)
         }}
-        placeholder="Paste your base64-encoded state here..."
+        placeholder={t('importPlaceholder')}
         className="w-full h-48 p-3 border border-gray-300 rounded font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
       />
 

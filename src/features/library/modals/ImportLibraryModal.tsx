@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import z from 'zod'
 import { BaseModal } from '../../../components/modals/BaseModal'
 import { db } from '../../../db/db'
@@ -34,6 +35,7 @@ export function ImportLibraryModal({ isOpen, onClose, onImport }: ImportLibraryM
   const [base64Input, setBase64Input] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const { t } = useTranslation('library')
 
   const handleSubmit = (event: React.SubmitEvent) => {
     event.preventDefault()
@@ -97,7 +99,7 @@ export function ImportLibraryModal({ isOpen, onClose, onImport }: ImportLibraryM
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
-      title="Import Library"
+      title={t('importLibraryTitle')}
       className="max-w-2xl"
       onSubmit={handleSubmit}
       actions={
@@ -107,20 +109,20 @@ export function ImportLibraryModal({ isOpen, onClose, onImport }: ImportLibraryM
             disabled={!base64Input.trim() || isLoading}
             className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors"
           >
-            {isLoading ? 'Importing...' : 'Import'}
+            {isLoading ? t('importing') : t('importAction')}
           </button>
           <button
             type="button"
             onClick={onClose}
             className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 px-4 py-2 rounded font-medium transition-colors"
           >
-            Cancel
+            {t('cancel', { ns: 'common' })}
           </button>
         </div>
       }
     >
       <p className="text-sm text-gray-600">
-        Paste the HMAC-protected library state from an export to restore your creatures and categories. The integrity of the data will be verified before import.
+        {t('importDescription')}
       </p>
 
       <textarea
@@ -129,7 +131,7 @@ export function ImportLibraryModal({ isOpen, onClose, onImport }: ImportLibraryM
           setBase64Input(e.target.value)
           if (error) setError(null)
         }}
-        placeholder="Paste your base64-encoded library state here..."
+        placeholder={t('importPlaceholder')}
         className="w-full h-48 p-3 border border-gray-300 rounded font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
       />
 

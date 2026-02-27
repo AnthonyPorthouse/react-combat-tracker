@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Plus } from 'lucide-react'
 import { BaseModal } from '../../../components/modals/BaseModal'
@@ -134,13 +135,14 @@ export function CombatLibraryModal({
 
   const hasSelectedCreatures = selectedCreatureIds.length > 0
   const showLibraryModal = isOpen && !isConfirmOpen
+  const { t } = useTranslation('combat')
 
   return (
     <>
       <BaseModal
         isOpen={showLibraryModal}
         onClose={handleCloseModal}
-        title="Creature Library"
+        title={t('creatureLibraryTitle')}
         className="max-w-5xl"
         actions={
           <div className="flex justify-end gap-2">
@@ -149,7 +151,7 @@ export function CombatLibraryModal({
               onClick={handleCloseModal}
               className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition"
             >
-              Close
+              {t('close')}
             </button>
             <button
               type="button"
@@ -162,7 +164,7 @@ export function CombatLibraryModal({
               }`}
             >
               <Plus size={18} />
-              Add to Combat
+              {t('addToCombat')}
             </button>
           </div>
         }
@@ -174,23 +176,23 @@ export function CombatLibraryModal({
                 htmlFor="creature-name-filter"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Filter by Name
+                {t('filterByName')}
               </label>
               <input
                 id="creature-name-filter"
                 type="text"
                 value={nameFilter}
                 onChange={(e) => setNameFilter(e.target.value)}
-                placeholder="Search creatures..."
+                placeholder={t('searchCreatures')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:border-blue-500"
               />
             </div>
 
             <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Categories</p>
+              <p className="text-sm font-medium text-gray-700 mb-2">{t('categories')}</p>
               {!categories || categories.length === 0 ? (
                 <p className="text-sm text-gray-500">
-                  No categories yet. Create one in the library.
+                  {t('noCategoriesYet')}
                 </p>
               ) : (
                 <div className="space-y-2 max-h-64 overflow-y-auto border border-gray-200 rounded-md p-3 bg-white">
@@ -217,8 +219,8 @@ export function CombatLibraryModal({
             {!creatures || filteredCreatures.length === 0 ? (
               <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center text-sm text-gray-500">
                 {creatures?.length === 0
-                  ? 'No creatures in the library yet.'
-                  : 'No creatures match your current filters.'}
+                  ? t('noCreaturesInLibrary')
+                  : t('noCreaturesMatchFilter')}
               </div>
             ) : (
               <div className="space-y-2 max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-white">

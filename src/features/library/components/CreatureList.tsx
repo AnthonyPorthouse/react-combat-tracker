@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Link } from '@tanstack/react-router'
 import { db } from '../../../db/db'
@@ -26,6 +27,7 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
   const creatures = useLiveQuery(() => db.creatures.toArray())
   const categories = useLiveQuery(() => db.categories.toArray())
   const [searchTerm, setSearchTerm] = useState('')
+  const { t } = useTranslation('library')
 
   const filteredCreatures = useMemo(() => {
     if (!creatures) return []
@@ -64,13 +66,13 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-900">Creatures</h3>
+        <h3 className="text-lg font-semibold text-gray-900">{t('creatures')}</h3>
       </div>
 
       <input
         type="text"
-        aria-label="Search creatures"
-        placeholder="Search creatures..."
+        aria-label={t('searchCreatures')}
+        placeholder={t('searchCreatures')}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:border-blue-500"
@@ -79,8 +81,8 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
       {!creatures || filteredCreatures.length === 0 ? (
         <p className="text-gray-500 text-sm">
           {creatures?.length === 0
-            ? 'No creatures yet. Create one to get started.'
-            : 'No creatures match your search.'}
+            ? t('noCreaturesYet')
+            : t('noCreaturesMatch')}
         </p>
       ) : (
         <div className="space-y-2 max-h-96 overflow-y-auto">
@@ -106,14 +108,14 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
                     to="/library/creature/$id"
                     params={{ id: creature.id }}
                     className="text-blue-600 hover:text-blue-700 p-1 transition"
-                    aria-label="Edit creature"
+                    aria-label={t('editCreature')}
                   >
                     <Edit size={16} />
                   </Link>
                   <button
                     onClick={() => handleDelete(creature.id)}
                     className="text-red-600 hover:text-red-700 p-1 transition"
-                    aria-label="Delete creature"
+                    aria-label={t('deleteCreature')}
                   >
                     <Trash2 size={16} />
                   </button>

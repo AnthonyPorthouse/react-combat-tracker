@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { nanoid } from 'nanoid';
 import { categoryValidator, type Category } from '../../../db/stores/categories';
 import { FormField } from '../../../components/common/FormField';
@@ -26,6 +27,7 @@ interface CategoryFormProps {
 export function CategoryForm({ category, onSubmit, onCancel }: CategoryFormProps) {
   const [name, setName] = useState(category?.name || '');
   const [error, setError] = useState<string>('');
+  const { t } = useTranslation('library');
 
   /**
    * Validates and submits the category name via the Zod validator.
@@ -56,7 +58,7 @@ export function CategoryForm({ category, onSubmit, onCancel }: CategoryFormProps
     <form onSubmit={handleSubmit} className="space-y-4">
       <FormField
         id="category-name"
-        label="Category Name"
+        label={t('categoryName')}
         type="text"
         value={name}
         onChange={(e) => {
@@ -74,13 +76,13 @@ export function CategoryForm({ category, onSubmit, onCancel }: CategoryFormProps
           variant="secondary"
           onClick={onCancel}
         >
-          Cancel
+          {t('cancel')}
         </Button>
         <Button
           type="submit"
           variant="primary"
         >
-          {category ? 'Update' : 'Create'} Category
+          {category ? t('updateCategory') : t('createCategory')}
         </Button>
       </div>
     </form>

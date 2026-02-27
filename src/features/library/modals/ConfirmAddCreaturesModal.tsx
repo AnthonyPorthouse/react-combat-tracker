@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BaseModal } from '../../../components/modals/BaseModal';
 import type { Creature } from '../../../db/stores/creature';
 import { Minus, Plus, Trash2 } from 'lucide-react';
@@ -38,6 +39,7 @@ export function ConfirmAddCreaturesModal({
 }: ConfirmAddCreaturesModalProps) {
   const [quantityOverrides, setQuantityOverrides] = useState<Record<string, number>>({});
   const [removedCreatureIds, setRemovedCreatureIds] = useState<string[]>([]);
+  const { t } = useTranslation('library');
 
   const items = useMemo<ConfirmItem[]>(() => {
     return creatures
@@ -101,7 +103,7 @@ export function ConfirmAddCreaturesModal({
     <BaseModal
       isOpen={isOpen}
       onClose={handleClose}
-      title="Confirm Add to Combat"
+      title={t('confirmAddToCombat')}
       className="max-w-3xl"
       actions={
         <div className="flex justify-end gap-2">
@@ -110,7 +112,7 @@ export function ConfirmAddCreaturesModal({
             onClick={handleClose}
             className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition"
           >
-            Back
+            {t('back')}
           </button>
           <button
             type="button"
@@ -122,14 +124,14 @@ export function ConfirmAddCreaturesModal({
                 : 'bg-gray-200 text-gray-500 cursor-not-allowed'
             }`}
           >
-            Add to Combat
+            {t('addToCombat')}
           </button>
         </div>
       }
     >
       {items.length === 0 ? (
         <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center text-sm text-gray-500">
-          No creatures selected. Return to the library to choose creatures.
+          {t('noCreaturesSelected')}
         </div>
       ) : (
         <div className="space-y-3 max-h-80 overflow-y-auto">
@@ -151,7 +153,7 @@ export function ConfirmAddCreaturesModal({
                   type="button"
                   onClick={() => updateQuantity(item.creature.id, item.quantity - 1)}
                   className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50"
-                  aria-label={`Decrease ${item.creature.name} quantity`}
+                  aria-label={t('decreaseQuantity', { name: item.creature.name })}
                 >
                   <Minus size={16} />
                 </button>
@@ -168,7 +170,7 @@ export function ConfirmAddCreaturesModal({
                   type="button"
                   onClick={() => updateQuantity(item.creature.id, item.quantity + 1)}
                   className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50"
-                  aria-label={`Increase ${item.creature.name} quantity`}
+                  aria-label={t('increaseQuantity', { name: item.creature.name })}
                 >
                   <Plus size={16} />
                 </button>

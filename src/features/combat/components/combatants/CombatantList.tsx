@@ -1,4 +1,5 @@
 import { useMemo, type Dispatch } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { Combatant } from '../../../../types/combatant'
 import {
   DndContext,
@@ -45,6 +46,7 @@ interface CombatantListProps {
  */
 function SortableCombatantItem({ combatant, isCurrentTurn, inCombat, onRemove, onUpdate }: { combatant: Combatant; isCurrentTurn: boolean; inCombat: boolean; onRemove: (id: string) => void; onUpdate: (combatant: Combatant) => void }) {
   const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({ id: combatant.id })
+  const { t } = useTranslation('combat')
   const dragStyle: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -55,7 +57,7 @@ function SortableCombatantItem({ combatant, isCurrentTurn, inCombat, onRemove, o
       className="text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing"
       {...attributes}
       {...listeners}
-      aria-label="Drag combatant"
+      aria-label={t('dragCombatant')}
     >
       <GripVertical size={20} />
     </button>

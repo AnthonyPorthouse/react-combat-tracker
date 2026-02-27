@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Check, Copy } from 'lucide-react'
 import { BaseModal } from '../../../components/modals/BaseModal'
 import { Button } from '../../../components/common'
@@ -31,6 +32,7 @@ interface ExportLibraryModalProps {
 export function ExportLibraryModal({ isOpen, onClose }: ExportLibraryModalProps) {
   const { copied, copyToClipboard } = useCopyToClipboard()
   const [exportData, setExportData] = useState('')
+  const { t } = useTranslation('library')
 
   useEffect(() => {
     if (!isOpen) return
@@ -65,7 +67,7 @@ export function ExportLibraryModal({ isOpen, onClose }: ExportLibraryModalProps)
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
-      title="Export Library"
+      title={t('exportLibraryTitle')}
       className="max-w-2xl"
       actions={
         <Button
@@ -75,18 +77,18 @@ export function ExportLibraryModal({ isOpen, onClose }: ExportLibraryModalProps)
           icon={copied ? <Check size={18} /> : <Copy size={18} />}
           className="w-full justify-center"
         >
-          {copied ? 'Copied!' : 'Copy to Clipboard'}
+          {copied ? t('copied') : t('copyToClipboard')}
         </Button>
       }
     >
       <p className="text-sm text-gray-600">
-        Copy the HMAC-protected library state below to save your creatures and categories. You can import it later to restore the library. The integrity of your data is verified on import.
+        {t('exportDescription')}
       </p>
 
       <textarea
         value={exportData}
         readOnly
-        aria-label="Exported library JSON"
+        aria-label={t('exportedLibraryJson')}
         className="w-full h-48 p-3 border border-gray-300 rounded font-mono text-sm bg-gray-50 text-gray-700 focus:outline-none resize-none"
       />
     </BaseModal>

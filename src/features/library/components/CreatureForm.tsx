@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { nanoid } from 'nanoid';
 import { creatureValidator, type Creature } from '../../../db/stores/creature';
 import { type Category } from '../../../db/stores/categories';
@@ -49,6 +50,7 @@ export function CreatureForm({
     creature?.categoryIds || []
   );
   const [error, setError] = useState<string>('');
+  const { t } = useTranslation('library');
 
   /**
    * Validates and submits the creature data via `creatureValidator`.
@@ -98,7 +100,7 @@ export function CreatureForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <FormField
         id="creature-name"
-        label="Creature Name"
+        label={t('creatureName')}
         type="text"
         value={name}
         onChange={(e) => {
@@ -113,17 +115,17 @@ export function CreatureForm({
       <div className="grid grid-cols-2 gap-4">
         <SelectField
           id="initiative-type"
-          label="Initiative Type"
+          label={t('initiativeType')}
           value={initiativeType}
           onChange={(e) => setInitiativeType(e.target.value as 'fixed' | 'roll')}
         >
-          <option value="fixed">Fixed</option>
-          <option value="roll">Roll</option>
+          <option value="fixed">{t('fixed')}</option>
+          <option value="roll">{t('roll')}</option>
         </SelectField>
 
         <FormField
           id="initiative"
-          label="Initiative Modifier"
+          label={t('initiativeModifier')}
           type="number"
           value={initiative}
           onChange={(e) => setInitiative(parseInt(e.target.value, 10))}
@@ -132,7 +134,7 @@ export function CreatureForm({
 
       <FormField
         id="hp"
-        label="Hit Points"
+        label={t('hitPoints')}
         type="number"
         value={hp}
         onChange={(e) => setHp(Math.max(0, parseInt(e.target.value, 10) || 0))}
@@ -141,11 +143,11 @@ export function CreatureForm({
 
       <fieldset>
         <legend className="block text-sm font-medium text-gray-700 mb-2">
-          Categories
+          {t('categoriesLegend')}
         </legend>
         <div className="space-y-2 max-h-48 overflow-y-auto">
           {categories.length === 0 ? (
-            <p className="text-gray-500 text-sm">No categories yet. Create one first.</p>
+            <p className="text-gray-500 text-sm">{t('noCategoriesInForm')}</p>
           ) : (
             categories.map((category) => (
               <CheckboxItem
@@ -166,13 +168,13 @@ export function CreatureForm({
           variant="secondary"
           onClick={onCancel}
         >
-          Cancel
+          {t('cancel')}
         </Button>
         <Button
           type="submit"
           variant="primary"
         >
-          {creature ? 'Update' : 'Create'} Creature
+          {creature ? t('updateCreature') : t('createCreature')}
         </Button>
       </div>
     </form>

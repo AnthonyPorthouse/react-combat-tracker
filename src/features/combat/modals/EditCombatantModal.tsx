@@ -1,4 +1,5 @@
 import { Pencil } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import type { Combatant } from '../../../types/combatant'
 import { BaseModal } from '../../../components/modals/BaseModal'
 import { FormField, SelectField, Button } from '../../../components/common'
@@ -42,6 +43,7 @@ export function EditCombatantModal({
     hp: String(combatant.hp),
     maxHp: String(combatant.maxHp),
   })
+  const { t } = useTranslation('combat')
 
   /**
    * Validates and submits the edited combatant, preserving the original `id`
@@ -62,7 +64,7 @@ export function EditCombatantModal({
       title={
         <span className="inline-flex items-center gap-2">
           <Pencil size={16} />
-          Edit {combatant.name}
+          {t('editCombatantTitle', { name: combatant.name })}
         </span>
       }
       className="max-w-md rounded-none h-screen md:h-auto md:rounded-lg m-0"
@@ -70,17 +72,17 @@ export function EditCombatantModal({
       actions={
         <div className="flex gap-3 pt-4">
           <Button type="submit" variant="primary" className="flex-1">
-            Save Changes
+            {t('saveChanges')}
           </Button>
           <Button type="button" variant="secondary" onClick={onClose} className="flex-1">
-            Cancel
+            {t('cancel')}
           </Button>
         </div>
       }
     >
       <FormField
         id="edit-name"
-        label="Name"
+        label={t('name')}
         type="text"
         name="name"
         value={formData.name}
@@ -92,20 +94,20 @@ export function EditCombatantModal({
       <div className="grid grid-cols-2 gap-4">
         <SelectField
           id="edit-initiativeType"
-          label="Initiative Type"
+          label={t('initiativeType')}
           name="initiativeType"
           value={formData.initiativeType}
           onChange={handleChange}
           error={formErrors.initiativeType}
           required
         >
-          <option value="fixed">Fixed</option>
-          <option value="roll">Roll</option>
+          <option value="fixed">{t('fixed')}</option>
+          <option value="roll">{t('roll')}</option>
         </SelectField>
 
         <FormField
           id="edit-initiative"
-          label="Initiative"
+          label={t('initiative')}
           type="number"
           name="initiative"
           value={formData.initiative}
@@ -117,7 +119,7 @@ export function EditCombatantModal({
       <div className="grid grid-cols-2 gap-4">
         <FormField
           id="edit-hp"
-          label="HP"
+          label={t('hp')}
           type="number"
           name="hp"
           value={formData.hp}
@@ -127,7 +129,7 @@ export function EditCombatantModal({
 
         <FormField
           id="edit-maxHp"
-          label="Max HP"
+          label={t('maxHp')}
           type="number"
           name="maxHp"
           value={formData.maxHp}

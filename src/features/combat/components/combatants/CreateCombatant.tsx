@@ -1,4 +1,5 @@
 import { nanoid } from 'nanoid'
+import { useTranslation } from 'react-i18next'
 import type { Combatant } from '../../../../types/combatant'
 import { BaseModal } from '../../../../components/modals/BaseModal'
 import { FormField, SelectField, Button } from '../../../../components/common'
@@ -31,6 +32,7 @@ export function CreateCombatant({
   onSubmit,
 }: CreateCombatantProps) {
   const { formData, formErrors, handleChange, validate, reset } = useCombatantForm()
+  const { t } = useTranslation('combat')
 
   /**
    * Validates and submits the form data as a new `Combatant`.
@@ -51,23 +53,23 @@ export function CreateCombatant({
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
-      title="Add New Combatant"
+      title={t('addNewCombatantTitle')}
       className="max-w-md rounded-none h-screen md:h-auto md:rounded-lg m-0"
       onSubmit={handleSubmit}
       actions={
         <div className="flex gap-3 pt-4">
           <Button type="submit" variant="primary" className="flex-1">
-            Add Combatant
+            {t('addCombatant')}
           </Button>
           <Button type="button" variant="secondary" onClick={onClose} className="flex-1">
-            Cancel
+            {t('cancel')}
           </Button>
         </div>
       }
     >
       <FormField
         id="name"
-        label="Name"
+        label={t('name')}
         type="text"
         name="name"
         value={formData.name}
@@ -79,20 +81,20 @@ export function CreateCombatant({
       <div className="grid grid-cols-2 gap-4">
         <SelectField
           id="initiativeType"
-          label="Initiative Type"
+          label={t('initiativeType')}
           name="initiativeType"
           value={formData.initiativeType}
           onChange={handleChange}
           error={formErrors.initiativeType}
           required
         >
-          <option value="fixed">Fixed</option>
-          <option value="roll">Roll</option>
+          <option value="fixed">{t('fixed')}</option>
+          <option value="roll">{t('roll')}</option>
         </SelectField>
 
         <FormField
           id="initiative"
-          label="Initiative"
+          label={t('initiative')}
           type="number"
           name="initiative"
           value={formData.initiative}
@@ -104,7 +106,7 @@ export function CreateCombatant({
       <div className="grid grid-cols-2 gap-4">
         <FormField
           id="hp"
-          label="HP"
+          label={t('hp')}
           type="number"
           name="hp"
           value={formData.hp}
@@ -114,7 +116,7 @@ export function CreateCombatant({
 
         <FormField
           id="maxHp"
-          label="Max HP"
+          label={t('maxHp')}
           type="number"
           name="maxHp"
           value={formData.maxHp}

@@ -1,4 +1,5 @@
 import { AlertTriangle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { ConfirmDialog } from '../../../components/common/ConfirmDialog'
 
 interface EndCombatModalProps {
@@ -20,6 +21,8 @@ export function EndCombatModal({
   onClose,
   onConfirm,
 }: EndCombatModalProps) {
+  const { t } = useTranslation('combat')
+
   const handleConfirm = () => {
     onConfirm()
     onClose()
@@ -29,10 +32,10 @@ export function EndCombatModal({
     <ConfirmDialog
       isOpen={isOpen}
       onClose={onClose}
-      title="End Combat"
-      message="End combat? This will remove all combatants."
+      title={t('endCombatTitle')}
+      message={t('endCombatMessage')}
       icon={<AlertTriangle size={24} />}
-      actionLabel="End Combat"
+      actionLabel={t('endCombatTitle')}
       actionVariant="danger"
       onConfirm={handleConfirm}
     />

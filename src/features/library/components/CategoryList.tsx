@@ -1,4 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
+import { useTranslation } from 'react-i18next'
 import { Link } from '@tanstack/react-router'
 import { db } from '../../../db/db'
 import { Edit, Trash2 } from 'lucide-react'
@@ -17,6 +18,7 @@ import { Edit, Trash2 } from 'lucide-react'
  */
 export function CategoryList() {
   const categories = useLiveQuery(() => db.categories.toArray())
+  const { t } = useTranslation('library')
 
   /**
    * Deletes a category and removes it from every creature that references it.
@@ -50,11 +52,11 @@ export function CategoryList() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-900">Categories</h3>
+        <h3 className="text-lg font-semibold text-gray-900">{t('categories')}</h3>
       </div>
 
       {!categories || categories.length === 0 ? (
-        <p className="text-gray-500 text-sm">No categories yet. Create one to organize creatures.</p>
+        <p className="text-gray-500 text-sm">{t('noCategoriesYet')}</p>
       ) : (
         <div className="space-y-2">
           {categories.map((category) => (
@@ -68,14 +70,14 @@ export function CategoryList() {
                   to="/library/category/$id"
                   params={{ id: category.id }}
                   className="text-blue-600 hover:text-blue-700 p-1 transition"
-                  aria-label="Edit category"
+                  aria-label={t('editCategory')}
                 >
                   <Edit size={16} />
                 </Link>
                 <button
                   onClick={() => handleDelete(category.id)}
                   className="text-red-600 hover:text-red-700 p-1 transition"
-                  aria-label="Delete category"
+                  aria-label={t('deleteCategory')}
                 >
                   <Trash2 size={16} />
                 </button>

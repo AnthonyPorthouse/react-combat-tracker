@@ -1,5 +1,6 @@
 import { Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { BaseModal } from '../../../components/modals/BaseModal';
 import { db } from '../../../db/db';
@@ -161,13 +162,14 @@ export function LibraryModal({
 
   const hasSelectedCreatures = selectedCreatureIds.length > 0;
   const showLibraryModal = isOpen && !isConfirmOpen;
+  const { t } = useTranslation('library');
 
   return (
     <>
       <BaseModal
         isOpen={showLibraryModal}
         onClose={handleCloseModal}
-        title="Creature Library"
+        title={t('creatureLibraryTitle')}
         className="max-w-5xl"
         actions={
           <div className="flex justify-end gap-2">
@@ -176,7 +178,7 @@ export function LibraryModal({
               onClick={handleCloseModal}
               className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition"
             >
-              Close
+              {t('close')}
             </button>
             <button
               type="button"
@@ -189,7 +191,7 @@ export function LibraryModal({
               }`}
             >
               <Plus size={18} />
-              Add to Combat
+              {t('addToCombat')}
             </button>
           </div>
         }
@@ -204,7 +206,7 @@ export function LibraryModal({
             className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm font-medium transition flex items-center gap-2"
           >
             <Plus size={16} />
-            Add Category
+            {t('addCategory')}
           </button>
           <button
             type="button"
@@ -215,13 +217,13 @@ export function LibraryModal({
             className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm font-medium transition flex items-center gap-2"
           >
             <Plus size={16} />
-            <span>Add Creature</span>
+            <span>{t('addCreature')}</span>
           </button>
         </div>
 
         {isAddingCategory && (
           <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-            <h3 className="text-lg font-semibold text-gray-900">Create Category</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('createCategoryTitle')}</h3>
             <CategoryForm
               onSubmit={handleCreateCategory}
               onCancel={() => setIsAddingCategory(false)}
@@ -231,7 +233,7 @@ export function LibraryModal({
 
         {isAddingCreature && (
           <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-            <h3 className="text-lg font-semibold text-gray-900">Create Creature</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('createCreatureTitle')}</h3>
             <CreatureForm
               categories={categories || []}
               onSubmit={handleCreateCreature}
@@ -247,7 +249,7 @@ export function LibraryModal({
                 htmlFor="creature-name-filter"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Filter by Name
+                {t('filterByName')}
               </label>
               <input
                 id="creature-name-filter"
@@ -260,10 +262,10 @@ export function LibraryModal({
             </div>
 
             <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Categories</p>
+              <p className="text-sm font-medium text-gray-700 mb-2">{t('categories')}</p>
               {!categories || categories.length === 0 ? (
                 <p className="text-sm text-gray-500">
-                  No categories yet. Add one to organize creatures.
+                  {t('noCategoriesForFilter')}
                 </p>
               ) : (
                 <div className="space-y-2 max-h-64 overflow-y-auto border border-gray-200 rounded-md p-3 bg-white">
@@ -290,8 +292,8 @@ export function LibraryModal({
             {!creatures || filteredCreatures.length === 0 ? (
               <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center text-sm text-gray-500">
                 {creatures?.length === 0
-                  ? 'No creatures in the library yet.'
-                  : 'No creatures match your current filters.'}
+                  ? t('noCreaturesInLibrary')
+                  : t('noCreaturesMatchFilter')}
               </div>
             ) : (
               <div className="space-y-2 max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-white">

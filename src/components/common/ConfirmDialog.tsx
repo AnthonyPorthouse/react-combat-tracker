@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { ConfirmDialogProps } from '../../types/common'
 import { BaseModal } from '../modals/BaseModal';
 import { Button } from './Button';
@@ -27,6 +28,7 @@ export function ConfirmDialog({
   disabled = false,
   loading = false,
 }: ConfirmDialogProps) {
+  const { t } = useTranslation('common')
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} title="">
       <div className="space-y-4">
@@ -46,7 +48,7 @@ export function ConfirmDialog({
             disabled={disabled || loading}
             className="flex-1"
           >
-            {loading ? 'Loading...' : actionLabel}
+            {loading ? t('loading') : actionLabel}
           </Button>
           <Button
             variant="secondary"
@@ -54,7 +56,7 @@ export function ConfirmDialog({
             disabled={loading}
             className="flex-1"
           >
-            Cancel
+            {t('cancel')}
           </Button>
         </div>
       </div>

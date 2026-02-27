@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Heart, Swords } from 'lucide-react'
 import { BaseModal } from '../../../components/modals/BaseModal'
 import { Button } from '../../../components/common'
@@ -38,9 +39,10 @@ export function UpdateHpModal({
   mode,
 }: UpdateHpModalProps) {
   const [amount, setAmount] = useState(1)
+  const { t } = useTranslation('combat')
 
   const isHeal = mode === 'heal'
-  const title = isHeal ? `Heal ${combatantName}` : `Harm ${combatantName}`
+  const title = t(isHeal ? 'healTitle' : 'harmTitle', { name: combatantName })
   const icon = isHeal ? <Heart size={16} /> : <Swords size={16} />
 
   const handleClose = () => {
@@ -71,17 +73,17 @@ export function UpdateHpModal({
       actions={
         <div className="flex gap-3 pt-2">
           <Button type="submit" variant={isHeal ? 'primary' : 'danger'} className="flex-1">
-            {isHeal ? 'Heal' : 'Harm'}
+            {isHeal ? t('heal') : t('harm')}
           </Button>
           <Button type="button" variant="secondary" onClick={handleClose} className="flex-1">
-            Cancel
+            {t('cancel')}
           </Button>
         </div>
       }
     >
       <div className="flex flex-col gap-2">
         <label htmlFor="hp-amount" className="text-sm font-medium text-gray-700">
-          Amount
+          {t('amount')}
         </label>
         <input
           id="hp-amount"

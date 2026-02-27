@@ -1,4 +1,5 @@
 import { Trash2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { ConfirmDialog } from '../../../components/common/ConfirmDialog'
 
 interface RemoveCombatantModalProps {
@@ -22,6 +23,8 @@ export function RemoveCombatantModal({
   onConfirm,
   combatantName,
 }: RemoveCombatantModalProps) {
+  const { t } = useTranslation('combat')
+
   const handleConfirm = () => {
     onConfirm()
     onClose()
@@ -31,10 +34,10 @@ export function RemoveCombatantModal({
     <ConfirmDialog
       isOpen={isOpen}
       onClose={onClose}
-      title="Remove Combatant"
-      message={`Remove ${combatantName} from combat?`}
+      title={t('removeCombatantTitle')}
+      message={t('removeCombatantMessage', { name: combatantName })}
       icon={<Trash2 size={24} />}
-      actionLabel="Remove"
+      actionLabel={t('remove')}
       actionVariant="danger"
       onConfirm={handleConfirm}
     />

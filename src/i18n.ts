@@ -1,0 +1,25 @@
+import i18n from 'i18next'
+import { initReactI18next } from 'react-i18next'
+
+import enCommon from './locales/en/common.json'
+import enCombat from './locales/en/combat.json'
+import enLibrary from './locales/en/library.json'
+
+i18n.use(initReactI18next).init({
+  lng: 'en',
+  fallbackLng: 'en',
+  ns: ['common', 'combat', 'library'],
+  defaultNS: 'common',
+  resources: {
+    en: {
+      common: enCommon,
+      combat: enCombat,
+      library: enLibrary,
+    },
+  },
+  interpolation: {
+    escapeValue: false,
+  },
+})
+
+export default i18n
