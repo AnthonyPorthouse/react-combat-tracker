@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { ChevronRight, Heart, MoreVertical, Swords, Trash2 } from 'lucide-react'
+import { ChevronRight, Heart, MoreVertical, Pencil, Swords, Trash2 } from 'lucide-react'
 import type { Combatant } from '../../../../types/combatant'
 import { RemoveCombatantModal } from '../../modals/RemoveCombatantModal'
 import { UpdateHpModal } from '../../modals/UpdateHpModal'
+import { EditCombatantModal } from '../../modals/EditCombatantModal'
 import { DropdownMenu } from '../../../../components/common'
 
 interface CombatantItemProps {
@@ -55,6 +56,7 @@ export function CombatantItem({
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false)
   const [isHealModalOpen, setIsHealModalOpen] = useState(false)
   const [isHarmModalOpen, setIsHarmModalOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
   /**
    * Builds the initiative display string for the combatant's sub-label.
@@ -144,6 +146,18 @@ export function CombatantItem({
                   )}
                   <button
                     type="button"
+                    onClick={() => { closeMenu(); setIsEditModalOpen(true) }}
+                    className="w-full text-left px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
+                    role="menuitem"
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <Pencil size={14} />
+                      Edit combatant
+                    </span>
+                  </button>
+                  <hr className="my-1 border-gray-200" />
+                  <button
+                    type="button"
                     onClick={() => {
                       closeMenu()
                       setIsRemoveModalOpen(true)
@@ -179,6 +193,13 @@ export function CombatantItem({
               onConfirm={(amount) => onUpdate?.({ ...combatant, hp: Math.max(0, combatant.hp - amount) })}
               combatantName={combatant.name}
               mode="harm"
+            />
+            <EditCombatantModal
+              key={String(isEditModalOpen)}
+              isOpen={isEditModalOpen}
+              onClose={() => setIsEditModalOpen(false)}
+              onConfirm={(updated) => onUpdate?.(updated)}
+              combatant={combatant}
             />
           </>
         )}

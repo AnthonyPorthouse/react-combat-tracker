@@ -8,7 +8,7 @@
  */
 
 /** Semantic colour intent for the `Button` component. */
-export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'success';
+export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'success' | 'ghost';
 
 /** Visual size scale for the `Button` component. */
 export type ButtonSize = 'sm' | 'md' | 'lg';

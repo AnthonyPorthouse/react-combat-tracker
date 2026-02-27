@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Check, Copy } from 'lucide-react'
 import { BaseModal } from '../../../components/modals/BaseModal'
+import { Button } from '../../../components/common'
 import { db } from '../../../db/db'
 import { generateHmac } from '../../../utils/hmac'
+import { useCopyToClipboard } from '../../../hooks'
 
 interface ExportLibraryModalProps {
   isOpen: boolean
@@ -27,7 +29,7 @@ interface ExportLibraryModalProps {
  * DMs, or migrating data to a new browser/device.
  */
 export function ExportLibraryModal({ isOpen, onClose }: ExportLibraryModalProps) {
-  const [copied, setCopied] = useState(false)
+  const { copied, copyToClipboard } = useCopyToClipboard()
   const [exportData, setExportData] = useState('')
 
   useEffect(() => {
@@ -54,17 +56,10 @@ export function ExportLibraryModal({ isOpen, onClose }: ExportLibraryModalProps)
 
   /**
    * Copies the export string to the clipboard with a brief "Copied!" confirmation.
-   * Mirrors the same pattern used in `ExportModal` for combat state export.
+   * Delegates to the `useCopyToClipboard` hook, which mirrors the same pattern
+   * used in `ExportModal` for combat state export.
    */
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(exportData)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch (err) {
-      console.error('Failed to copy:', err)
-    }
-  }
+  const handleCopy = () => copyToClipboard(exportData)
 
   return (
     <BaseModal
@@ -73,23 +68,15 @@ export function ExportLibraryModal({ isOpen, onClose }: ExportLibraryModalProps)
       title="Export Library"
       className="max-w-2xl"
       actions={
-        <button
+        <Button
+          variant="primary"
           onClick={handleCopy}
           disabled={!exportData}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors flex items-center justify-center gap-2"
+          icon={copied ? <Check size={18} /> : <Copy size={18} />}
+          className="w-full justify-center"
         >
-          {copied ? (
-            <>
-              <Check size={18} />
-              Copied!
-            </>
-          ) : (
-            <>
-              <Copy size={18} />
-              Copy to Clipboard
-            </>
-          )}
-        </button>
+          {copied ? 'Copied!' : 'Copy to Clipboard'}
+        </Button>
       }
     >
       <p className="text-sm text-gray-600">

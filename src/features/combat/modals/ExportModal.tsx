@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Copy, Check } from 'lucide-react'
 import type { CombatState } from '../../../state/combatState'
 import { generateHmac } from '../../../utils/hmac'
 import { BaseModal } from '../../../components/modals/BaseModal'
+import { Button } from '../../../components/common'
+import { useCopyToClipboard } from '../../../hooks'
 
 interface ExportModalProps {
   isOpen: boolean
@@ -26,7 +28,7 @@ interface ExportModalProps {
  * mobile for long strings.
  */
 export function ExportModal({ isOpen, onClose, state }: ExportModalProps) {
-  const [copied, setCopied] = useState(false)
+  const { copied, copyToClipboard } = useCopyToClipboard()
   const [exportData, setExportData] = useState<string>('')
 
   // Serialize state to JSON, then encode to base64, and prepend HMAC
@@ -44,21 +46,12 @@ export function ExportModal({ isOpen, onClose, state }: ExportModalProps) {
   /**
    * Copies the export string to the clipboard and shows a brief confirmation.
    *
-   * The 2-second timeout before reverting "Copied!" back to "Copy" gives
-   * enough feedback that the action succeeded without the UI permanently
-   * changing state. `console.error` is used (not thrown) because a clipboard
+   * The `useCopyToClipboard` hook manages the timed "Copied!" feedback and
+   * error handling. `console.error` is used (not thrown) because a clipboard
    * failure is non-critical — the user can still manually select and copy the
    * textarea text as a fallback.
    */
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(exportData)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch (err) {
-      console.error('Failed to copy:', err)
-    }
-  }
+  const handleCopy = () => copyToClipboard(exportData)
 
   return (
     <BaseModal
@@ -67,22 +60,14 @@ export function ExportModal({ isOpen, onClose, state }: ExportModalProps) {
       title="Export Combat State"
       className="max-w-2xl"
       actions={
-        <button
+        <Button
+          variant="primary"
           onClick={handleCopy}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-medium transition-colors flex items-center justify-center gap-2"
+          icon={copied ? <Check size={18} /> : <Copy size={18} />}
+          className="w-full justify-center"
         >
-          {copied ? (
-            <>
-              <Check size={18} />
-              Copied!
-            </>
-          ) : (
-            <>
-              <Copy size={18} />
-              Copy to Clipboard
-            </>
-          )}
-        </button>
+          {copied ? 'Copied!' : 'Copy to Clipboard'}
+        </Button>
       }
     >
       <p className="text-sm text-gray-600">

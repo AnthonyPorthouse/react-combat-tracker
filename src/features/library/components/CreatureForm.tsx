@@ -3,6 +3,7 @@ import { nanoid } from 'nanoid';
 import { creatureValidator, type Creature } from '../../../db/stores/creature';
 import { type Category } from '../../../db/stores/categories';
 import { FormField } from '../../../components/common/FormField';
+import { SelectField } from '../../../components/common/SelectField';
 import { CheckboxItem } from '../../../components/common/CheckboxItem';
 import { Button } from '../../../components/common/Button';
 
@@ -110,20 +111,15 @@ export function CreatureForm({
       />
 
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label htmlFor="initiative-type" className="block text-sm font-medium text-gray-700 mb-1">
-            Initiative Type
-          </label>
-          <select
-            id="initiative-type"
-            value={initiativeType}
-            onChange={(e) => setInitiativeType(e.target.value as 'fixed' | 'roll')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:border-blue-500"
-          >
-            <option value="fixed">Fixed</option>
-            <option value="roll">Roll</option>
-          </select>
-        </div>
+        <SelectField
+          id="initiative-type"
+          label="Initiative Type"
+          value={initiativeType}
+          onChange={(e) => setInitiativeType(e.target.value as 'fixed' | 'roll')}
+        >
+          <option value="fixed">Fixed</option>
+          <option value="roll">Roll</option>
+        </SelectField>
 
         <FormField
           id="initiative"

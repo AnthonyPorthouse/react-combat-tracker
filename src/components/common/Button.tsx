@@ -16,6 +16,7 @@ const getVariantClasses = (variant: ButtonVariant = 'primary'): string => {
     secondary: 'bg-gray-300 hover:bg-gray-400 text-gray-800',
     danger: 'bg-red-600 hover:bg-red-700 text-white',
     success: 'bg-green-600 hover:bg-green-700 text-white',
+    ghost: 'text-slate-700 hover:text-slate-900 hover:bg-slate-100',
   };
   return variants[variant];
 };

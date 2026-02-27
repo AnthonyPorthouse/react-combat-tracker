@@ -1,6 +1,7 @@
 // Common UI components
 export { Button } from './Button'
 export { FormField } from './FormField'
+export { SelectField } from './SelectField'
 export { CheckboxItem } from './CheckboxItem'
 export { ModalActions } from './ModalActions'
 export { ConfirmDialog } from './ConfirmDialog'
