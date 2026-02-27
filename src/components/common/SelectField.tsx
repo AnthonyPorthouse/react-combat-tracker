@@ -17,6 +17,8 @@ export function SelectField({
 }: React.SelectHTMLAttributes<HTMLSelectElement> & {
   label: string
   id: string
+  /** The `name` attribute for the select, required for native form data and accessibility. */
+  name: string
   error?: string
   required?: boolean
   children: React.ReactNode

@@ -36,8 +36,8 @@ export function CombatLibraryModal({
   onClose,
   onAddCombatants,
 }: CombatLibraryModalProps) {
-  const creatures = useLiveQuery(() => db.creatures.toArray())
-  const categories = useLiveQuery(() => db.categories.toArray())
+  const creatures = useLiveQuery(() => db.creatures.orderBy('name').toArray())
+  const categories = useLiveQuery(() => db.categories.orderBy('name').toArray())
   const [nameFilter, setNameFilter] = useState('')
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([])
   const [selectedCreatureIds, setSelectedCreatureIds] = useState<string[]>([])
@@ -180,6 +180,7 @@ export function CombatLibraryModal({
               </label>
               <input
                 id="creature-name-filter"
+                name="creature-name-filter"
                 type="text"
                 value={nameFilter}
                 onChange={(e) => setNameFilter(e.target.value)}
@@ -203,6 +204,8 @@ export function CombatLibraryModal({
                     >
                       <input
                         type="checkbox"
+                        id={`combat-cat-${category.id}`}
+                        name="combat-categories"
                         checked={selectedCategoryIds.includes(category.id)}
                         onChange={() => toggleCategory(category.id)}
                         className="w-4 h-4 rounded border-gray-300"
@@ -231,6 +234,8 @@ export function CombatLibraryModal({
                   >
                     <input
                       type="checkbox"
+                      id={`combat-creature-${creature.id}`}
+                      name="combat-creatures"
                       checked={selectedCreatureIds.includes(creature.id)}
                       onChange={() => toggleCreature(creature.id)}
                       className="w-4 h-4 rounded border-gray-300 mt-1"
@@ -238,7 +243,7 @@ export function CombatLibraryModal({
                     <div className="flex-1">
                       <p className="font-medium text-gray-900 text-sm">{creature.name}</p>
                       <p className="text-xs text-gray-500">
-                        Init: {creature.initiative} ({creature.initiativeType})
+                        {t('common:initSummaryWithType', { initiative: creature.initiative, type: creature.initiativeType })}
                       </p>
                     </div>
                   </label>

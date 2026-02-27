@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import z from 'zod'
 import { BaseModal } from '../../../components/modals/BaseModal'
 import { db } from '../../../db/db'
-import { verifyHmac } from '../../../utils/hmac'
+import { parseImportString } from '../../../utils/importData'
 import { LibraryValidator, type LibraryState } from '../libraryState'
 
 interface ImportLibraryModalProps {
@@ -44,43 +43,14 @@ export function ImportLibraryModal({ isOpen, onClose, onImport }: ImportLibraryM
 
     const performImport = async () => {
       try {
-        const input = base64Input.trim()
-
-        const parts = input.split('.')
-        if (parts.length !== 2 || !parts[0] || !parts[1]) {
-          throw new Error(
-            'Invalid format: missing HMAC or data. Please ensure you pasted the complete export string.'
-          )
-        }
-
-        const [providedHmac, base64String] = parts
-
-        const isValid = await verifyHmac(base64String, providedHmac)
-        if (!isValid) {
-          throw new Error(
-            'Data integrity check failed. The data may have been modified.'
-          )
-        }
-
-        const jsonString = atob(base64String)
-        const importedData = JSON.parse(jsonString)
-
-        const result = LibraryValidator.safeParse(importedData)
-
-        if (!result.success) {
-          const { fieldErrors } = z.flattenError(result.error)
-          const errorMessages = Object.entries(fieldErrors)
-            .flatMap(([, messages]) => messages || [])
-            .join('; ')
-          throw new Error(errorMessages || 'Invalid library state format.')
-        }
+        const data = await parseImportString(base64Input, LibraryValidator)
 
         await db.transaction('rw', db.categories, db.creatures, async () => {
-          await db.categories.bulkPut(result.data.categories)
-          await db.creatures.bulkPut(result.data.creatures)
+          await db.categories.bulkPut(data.categories)
+          await db.creatures.bulkPut(data.creatures)
         })
 
-        onImport?.(result.data)
+        onImport?.(data)
         setBase64Input('')
         onClose()
       } catch (err) {
@@ -126,6 +96,9 @@ export function ImportLibraryModal({ isOpen, onClose, onImport }: ImportLibraryM
       </p>
 
       <textarea
+        id="import-library-data"
+        name="import-library-data"
+        aria-label={t('importPlaceholder')}
         value={base64Input}
         onChange={(e) => {
           setBase64Input(e.target.value)

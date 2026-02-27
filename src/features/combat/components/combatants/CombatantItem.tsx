@@ -72,7 +72,7 @@ export function CombatantItem({
       combatant.initiativeType === 'fixed'
         ? `${combatant.initiative}`
         : `${combatant.initiative >= 0 ? '+' : ''}${combatant.initiative}`
-    return `Init: ${initiativeValue}`
+    return t('common:initSummary', { value: initiativeValue })
   }
 
   const hpPct = combatant.maxHp > 0 ? Math.min(combatant.hp / combatant.maxHp, 1) : 0
@@ -133,7 +133,7 @@ export function CombatantItem({
                       >
                         <span className="inline-flex items-center gap-2">
                           <Heart size={14} />
-                          Heal
+                          {t('heal')}
                         </span>
                       </button>
                       <button
@@ -144,7 +144,7 @@ export function CombatantItem({
                       >
                         <span className="inline-flex items-center gap-2">
                           <Swords size={14} />
-                          Harm
+                          {t('harm')}
                         </span>
                       </button>
                       <hr className="my-1 border-gray-200" />
@@ -158,7 +158,7 @@ export function CombatantItem({
                   >
                     <span className="inline-flex items-center gap-2">
                       <Pencil size={14} />
-                      Edit combatant
+                      {t('editCombatant')}
                     </span>
                   </button>
                   <hr className="my-1 border-gray-200" />
@@ -173,7 +173,7 @@ export function CombatantItem({
                   >
                     <span className="inline-flex items-center gap-2">
                       <Trash2 size={14} />
-                      Remove combatant
+                      {t('removeCombatant')}
                     </span>
                   </button>
                 </>

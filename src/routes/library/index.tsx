@@ -1,4 +1,5 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import { Download, Upload } from 'lucide-react'
 import { useState } from 'react'
 import { ExportLibraryModal, ImportLibraryModal, LibraryPanel } from '../../features/library'
@@ -16,18 +17,19 @@ export const Route = createFileRoute('/library/')({
  * and category edit/delete actions are available inline via the `LibraryPanel`.
  */
 function LibraryPage() {
+  const { t } = useTranslation('library')
   const [isExportOpen, setIsExportOpen] = useState(false)
   const [isImportOpen, setIsImportOpen] = useState(false)
 
   return (
     <div className="space-y-6">
-      <title>Combat Tracker | Library</title>
+      <title>{t('libraryPageTitle')}</title>
       <meta name="description" content="Manage your creature library. Create, edit, and organise creatures by category, then add them to combat." />
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-6 py-4 shadow-sm">
         <div>
-          <h2 className="text-xl font-semibold text-slate-900">Creature Library</h2>
+          <h2 className="text-xl font-semibold text-slate-900">{t('common:creatureLibraryTitle')}</h2>
           <p className="text-sm text-slate-500">
-            Manage creatures and categories. Add them to combat from the combat view.
+            {t('libraryPageDescription')}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -37,7 +39,7 @@ function LibraryPage() {
             className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 inline-flex items-center gap-2"
           >
             <Download size={16} />
-            Export Library
+            {t('exportLibrary')}
           </button>
           <button
             type="button"
@@ -45,19 +47,19 @@ function LibraryPage() {
             className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 inline-flex items-center gap-2"
           >
             <Upload size={16} />
-            Import Library
+            {t('importLibrary')}
           </button>
           <Link
             to="/library/creature/new"
             className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
           >
-            New Creature
+            {t('newCreature')}
           </Link>
           <Link
             to="/library/category/new"
             className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400"
           >
-            New Category
+            {t('newCategory')}
           </Link>
         </div>
       </div>

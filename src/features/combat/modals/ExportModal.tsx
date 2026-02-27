@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Copy, Check } from 'lucide-react'
 import type { CombatState } from '../../../state/combatState'
-import { generateHmac } from '../../../utils/hmac'
+import { createExportString } from '../../../utils/exportData'
 import { BaseModal } from '../../../components/modals/BaseModal'
 import { Button } from '../../../components/common'
 import { useCopyToClipboard } from '../../../hooks'
@@ -33,16 +33,8 @@ export function ExportModal({ isOpen, onClose, state }: ExportModalProps) {
   const [exportData, setExportData] = useState<string>('')
   const { t } = useTranslation('combat')
 
-  // Serialize state to JSON, then encode to base64, and prepend HMAC
   useEffect(() => {
-    const generateExportData = async () => {
-      const jsonString = JSON.stringify(state)
-      const base64String = btoa(jsonString)
-      const hmac = await generateHmac(base64String)
-      setExportData(`${hmac}.${base64String}`)
-    }
-
-    generateExportData()
+    createExportString(state).then(setExportData)
   }, [state])
 
   /**
@@ -77,6 +69,8 @@ export function ExportModal({ isOpen, onClose, state }: ExportModalProps) {
       </p>
 
       <textarea
+        id="export-data"
+        name="export-data"
         value={exportData}
         readOnly
         aria-label={t('exportedJson')}

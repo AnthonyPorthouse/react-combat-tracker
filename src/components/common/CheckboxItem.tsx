@@ -12,6 +12,7 @@ import type { CheckboxItemProps } from '../../types/common';
 export function CheckboxItem({
   id,
   label,
+  name,
   checked,
   onChange,
   secondaryText,
@@ -21,6 +22,7 @@ export function CheckboxItem({
       <input
         type="checkbox"
         id={id}
+        name={name}
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
         className="w-4 h-4 rounded border-gray-300"

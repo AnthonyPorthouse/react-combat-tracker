@@ -35,6 +35,8 @@ export interface ButtonProps
 export interface FormFieldProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
+  /** The `name` attribute for the input, required for native form data and accessibility. */
+  name: string;
   /** Validation error message shown below the input. Triggers a red border when set. */
   error?: string;
   required?: boolean;
@@ -44,6 +46,8 @@ export interface FormFieldProps
 export interface CheckboxItemProps {
   id: string;
   label: string;
+  /** The `name` attribute for the checkbox input, used for grouping and native form data. */
+  name?: string;
   checked: boolean;
   /** Called with the new checked boolean when the user toggles the checkbox. */
   onChange: (checked: boolean) => void;

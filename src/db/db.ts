@@ -2,6 +2,7 @@ import { Dexie, type EntityTable } from 'dexie';
 import type { Category } from './stores/categories';
 import type { Creature } from './stores/creature';
 import { DEFAULT_CATEGORIES } from './seeds/categories';
+import { SRD_CREATURES } from './seeds/creatures';
 
 export const db = new Dexie('combatTracker') as Dexie & {
     categories: EntityTable<Category, 'id'>;
@@ -42,6 +43,9 @@ db.version(2).stores({
  * any component from reading an empty categories table during the same tick.
  */
 db.on('populate', () => {
-    return db.categories.bulkAdd(DEFAULT_CATEGORIES);
+    return Promise.allSettled([
+        db.categories.bulkAdd(DEFAULT_CATEGORIES),
+        db.creatures.bulkAdd(SRD_CREATURES),
+    ])
 });
 

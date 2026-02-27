@@ -132,6 +132,7 @@ export function AddCreaturesModal({
             </label>
             <select
               id="category-filter"
+              name="category-filter"
               value={selectedCategoryId}
               onChange={(e) => setSelectedCategoryId(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:border-blue-500"
@@ -148,6 +149,9 @@ export function AddCreaturesModal({
 
         <input
           type="text"
+          id="creature-search"
+          name="creature-search"
+          aria-label={t('searchCreatures')}
           placeholder={t('searchCreatures')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -169,6 +173,8 @@ export function AddCreaturesModal({
               >
                 <input
                   type="checkbox"
+                  id={`add-creature-${creature.id}`}
+                  name="selected-creatures"
                   checked={selectedCreatureIds.includes(creature.id)}
                   onChange={() => toggleCreature(creature.id)}
                   className="w-4 h-4 rounded border-gray-300 mt-0.5"
@@ -178,7 +184,7 @@ export function AddCreaturesModal({
                     {creature.name}
                   </h4>
                   <p className="text-xs text-gray-600">
-                    Init: {creature.initiative} ({creature.initiativeType})
+                    {t('common:initSummaryWithType', { initiative: creature.initiative, type: creature.initiativeType })}
                   </p>
                   {getCategoryNames(creature.categoryIds) && (
                     <p className="text-xs text-gray-500 mt-1">

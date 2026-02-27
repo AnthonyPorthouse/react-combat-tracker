@@ -17,7 +17,7 @@ import { Edit, Trash2 } from 'lucide-react'
  * without a full table scan.
  */
 export function CategoryList() {
-  const categories = useLiveQuery(() => db.categories.toArray())
+  const categories = useLiveQuery(() => db.categories.orderBy('name').toArray())
   const { t } = useTranslation('library')
 
   /**

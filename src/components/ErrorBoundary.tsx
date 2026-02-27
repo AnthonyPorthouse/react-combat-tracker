@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
+import i18n from '../i18n'
 
 interface ErrorBoundaryProps {
   children: ReactNode
@@ -64,7 +65,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
       return (
         <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4 text-center px-6">
-          <h2 className="text-xl font-semibold text-slate-900">Something went wrong</h2>
+          <h2 className="text-xl font-semibold text-slate-900">{i18n.t('somethingWentWrong')}</h2>
           <p className="text-sm text-slate-500 max-w-md">
             {this.state.error?.message ?? 'An unexpected error occurred.'}
           </p>
@@ -72,7 +73,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             onClick={() => this.setState({ hasError: false, error: null })}
             className="px-4 py-2 text-sm font-medium bg-slate-900 text-white rounded-full hover:bg-slate-700 transition-colors"
           >
-            Try again
+            {i18n.t('tryAgain')}
           </button>
         </div>
       )

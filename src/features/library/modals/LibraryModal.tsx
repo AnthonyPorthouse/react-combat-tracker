@@ -253,6 +253,7 @@ export function LibraryModal({
               </label>
               <input
                 id="creature-name-filter"
+                name="creature-name-filter"
                 type="text"
                 value={nameFilter}
                 onChange={(e) => setNameFilter(e.target.value)}
@@ -276,6 +277,8 @@ export function LibraryModal({
                     >
                       <input
                         type="checkbox"
+                        id={`lib-cat-${category.id}`}
+                        name="library-categories"
                         checked={selectedCategoryIds.includes(category.id)}
                         onChange={() => toggleCategory(category.id)}
                         className="w-4 h-4 rounded border-gray-300"
@@ -304,6 +307,8 @@ export function LibraryModal({
                   >
                     <input
                       type="checkbox"
+                      id={`lib-creature-${creature.id}`}
+                      name="library-creatures"
                       checked={selectedCreatureIds.includes(creature.id)}
                       onChange={() => toggleCreature(creature.id)}
                       className="w-4 h-4 rounded border-gray-300 mt-1"
@@ -311,7 +316,7 @@ export function LibraryModal({
                     <div className="flex-1">
                       <p className="font-medium text-gray-900 text-sm">{creature.name}</p>
                       <p className="text-xs text-gray-500">
-                        Init: {creature.initiative} ({creature.initiativeType})
+                        {t('common:initSummaryWithType', { initiative: creature.initiative, type: creature.initiativeType })}
                       </p>
                     </div>
                   </label>

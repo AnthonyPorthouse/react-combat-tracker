@@ -93,7 +93,7 @@ function CombatAppPage() {
 
   return (
     <div className="flex flex-col min-h-[70vh] rounded-3xl border border-slate-200 bg-white shadow-sm overflow-clip">
-      <title>Combat Tracker | Combat</title>
+      <title>{t('appPageTitle')}</title>
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 px-6 py-4">
         <div>
           <h1 className="text-xl font-semibold text-slate-900">{t('pageTitle')}</h1>

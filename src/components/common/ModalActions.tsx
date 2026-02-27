@@ -1,4 +1,5 @@
 import type { ModalActionsProps } from '../../types/common'
+import { useTranslation } from 'react-i18next'
 import { Button } from './Button';
 
 /**
@@ -20,6 +21,8 @@ export function ModalActions({
   disabled = false,
   loading = false,
 }: ModalActionsProps) {
+  const { t } = useTranslation('common')
+
   return (
     <div className="flex gap-3">
       <Button
@@ -28,7 +31,7 @@ export function ModalActions({
         disabled={disabled || loading}
         className="flex-1"
       >
-        {loading ? 'Loading...' : primaryLabel}
+        {loading ? t('loading') : primaryLabel}
       </Button>
       <Button
         type="button"
@@ -37,7 +40,7 @@ export function ModalActions({
         disabled={loading}
         className="flex-1"
       >
-        Cancel
+        {t('cancel')}
       </Button>
     </div>
   );

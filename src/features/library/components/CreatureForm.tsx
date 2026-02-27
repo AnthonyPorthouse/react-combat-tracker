@@ -100,6 +100,7 @@ export function CreatureForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <FormField
         id="creature-name"
+        name="creature-name"
         label={t('entityName', { entity: t('creature') })}
         type="text"
         value={name}
@@ -115,6 +116,7 @@ export function CreatureForm({
       <div className="grid grid-cols-2 gap-4">
         <SelectField
           id="initiative-type"
+          name="initiative-type"
           label={t('initiativeType')}
           value={initiativeType}
           onChange={(e) => setInitiativeType(e.target.value as 'fixed' | 'roll')}
@@ -125,6 +127,7 @@ export function CreatureForm({
 
         <FormField
           id="initiative"
+          name="initiative"
           label={t('initiativeModifier')}
           type="number"
           value={initiative}
@@ -134,6 +137,7 @@ export function CreatureForm({
 
       <FormField
         id="hp"
+        name="hp"
         label={t('hitPoints')}
         type="number"
         value={hp}

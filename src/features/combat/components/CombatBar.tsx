@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '../../../components/common/Button'
 
 interface CombatBarProps {
@@ -38,6 +39,7 @@ export function CombatBar({
   onNextStep,
   onPreviousStep,
 }: CombatBarProps) {
+  const { t } = useTranslation('combat')
   const isPreviousDisabled = !inCombat || (round === 1 && step === 1);
 
   return (
@@ -51,7 +53,7 @@ export function CombatBar({
             size="sm"
             icon={<ChevronLeft size={16} />}
           >
-            Previous Step
+            {t('previousStep')}
           </Button>
         )}
       </div>
@@ -64,7 +66,7 @@ export function CombatBar({
             variant="success"
             size="sm"
           >
-            Start Combat
+            {t('startCombat')}
           </Button>
         ) : (
           <div className="flex items-center gap-3">
@@ -73,14 +75,14 @@ export function CombatBar({
               aria-live="polite"
               aria-atomic="true"
             >
-              Round {round}
+              {t('round', { round })}
             </span>
             <Button
               onClick={onEndCombat}
               variant="danger"
               size="sm"
             >
-              End Combat
+              {t('endCombat')}
             </Button>
           </div>
         )}
@@ -94,7 +96,7 @@ export function CombatBar({
             size="sm"
             icon={<ChevronRight size={16} />}
           >
-            Next Step
+            {t('nextStep')}
           </Button>
         )}
       </div>

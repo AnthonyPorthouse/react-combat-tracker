@@ -1,4 +1,5 @@
 import { Link, useNavigate, createFileRoute } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { CreatureForm } from '../../../features/library'
 import { db } from '../../../db/db'
@@ -18,6 +19,7 @@ export const Route = createFileRoute('/library/creature/new')({
  * appears in the list immediately.
  */
 function CreateCreaturePage() {
+  const { t } = useTranslation('library')
   const navigate = useNavigate()
   const categories = useLiveQuery(() => db.categories.toArray())
 
@@ -28,17 +30,17 @@ function CreateCreaturePage() {
 
   return (
     <div className="space-y-6">
-      <title>Combat Tracker | New Creature</title>
+      <title>{t('newCreaturePageTitle')}</title>
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Library</p>
-          <h2 className="text-2xl font-semibold text-slate-900">Create Creature</h2>
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">{t('library')}</p>
+          <h2 className="text-2xl font-semibold text-slate-900">{t('create', { entity: t('creature') })}</h2>
         </div>
         <Link
           to="/library"
           className="text-sm font-medium text-slate-600 transition hover:text-slate-900"
         >
-          Back to Library
+          {t('common:backToLibrary')}
         </Link>
       </div>
 

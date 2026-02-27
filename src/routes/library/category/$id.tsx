@@ -1,4 +1,5 @@
 import { Link, useNavigate, createFileRoute } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { CategoryForm } from '../../../features/library'
 import { db } from '../../../db/db'
@@ -21,6 +22,7 @@ export const Route = createFileRoute('/library/category/$id')({
  * reflected everywhere without any cascade update.
  */
 function EditCategoryPage() {
+  const { t } = useTranslation('library')
   const navigate = useNavigate()
   const { id } = Route.useParams()
   const category = useLiveQuery(() => db.categories.get(id), [id])
@@ -33,8 +35,8 @@ function EditCategoryPage() {
   if (category === undefined) {
     return (
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <title>Combat Tracker | Editing Category</title>
-        <p className="text-sm text-slate-500">Loading category details...</p>
+        <title>{t('editingPageTitle')}</title>
+        <p className="text-sm text-slate-500">{t('loadingCategoryDetails')}</p>
       </div>
     )
   }
@@ -42,13 +44,13 @@ function EditCategoryPage() {
   if (!category) {
     return (
       <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <title>Combat Tracker | Category Not Found</title>
-        <h2 className="text-xl font-semibold text-slate-900">Category not found</h2>
+        <title>{t('categoryNotFoundPageTitle')}</title>
+        <h2 className="text-xl font-semibold text-slate-900">{t('categoryNotFound')}</h2>
         <Link
           to="/library"
           className="text-sm font-medium text-slate-600 transition hover:text-slate-900"
         >
-          Back to Library
+          {t('common:backToLibrary')}
         </Link>
       </div>
     )
@@ -56,17 +58,17 @@ function EditCategoryPage() {
 
   return (
     <div className="space-y-6">
-      <title>Combat Tracker | Editing {category.name}</title>
+      <title>{t('editingEntityPageTitle', { name: category.name })}</title>
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Library</p>
-          <h2 className="text-2xl font-semibold text-slate-900">Edit Category</h2>
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">{t('library')}</p>
+          <h2 className="text-2xl font-semibold text-slate-900">{t('editCategory')}</h2>
         </div>
         <Link
           to="/library"
           className="text-sm font-medium text-slate-600 transition hover:text-slate-900"
         >
-          Back to Library
+          {t('common:backToLibrary')}
         </Link>
       </div>
 

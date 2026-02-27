@@ -87,6 +87,7 @@ export function UpdateHpModal({
         </label>
         <input
           id="hp-amount"
+          name="hp-amount"
           type="number"
           min={1}
           step={1}

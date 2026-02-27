@@ -24,8 +24,8 @@ interface CreatureListProps {
  * re-renders when data changes.
  */
 export function CreatureList({ selectedCategoryId }: CreatureListProps) {
-  const creatures = useLiveQuery(() => db.creatures.toArray())
-  const categories = useLiveQuery(() => db.categories.toArray())
+  const creatures = useLiveQuery(() => db.creatures.orderBy('name').toArray())
+  const categories = useLiveQuery(() => db.categories.orderBy('name').toArray())
   const [searchTerm, setSearchTerm] = useState('')
   const { t } = useTranslation('library')
 
@@ -71,6 +71,8 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
 
       <input
         type="text"
+        id="creature-list-search"
+        name="creature-list-search"
         aria-label={t('searchCreatures')}
         placeholder={t('searchCreatures')}
         value={searchTerm}
@@ -85,7 +87,7 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
             : t('noCreaturesMatch')}
         </p>
       ) : (
-        <div className="space-y-2 max-h-96 overflow-y-auto">
+        <div className="space-y-2 overflow-y-auto">
           {filteredCreatures.map((creature) => (
             <div
               key={creature.id}
@@ -95,7 +97,7 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
                 <div>
                   <h4 className="font-medium text-gray-900">{creature.name}</h4>
                   <p className="text-xs text-gray-500">
-                    Initiative: {creature.initiative} ({creature.initiativeType === 'fixed' ? 'Fixed' : 'Roll'})
+                    {t('initiativeSummary', { initiative: creature.initiative, type: creature.initiativeType === 'fixed' ? t('common:fixed') : t('common:roll') })}
                   </p>
                   {getCategoryNames(creature.categoryIds) && (
                     <p className="text-xs text-gray-600 mt-1">

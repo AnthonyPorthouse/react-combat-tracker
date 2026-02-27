@@ -58,6 +58,7 @@ export function CategoryForm({ category, onSubmit, onCancel }: CategoryFormProps
     <form onSubmit={handleSubmit} className="space-y-4">
       <FormField
         id="category-name"
+        name="category-name"
         label={t('entityName', { entity: t('category') })}
         type="text"
         value={name}

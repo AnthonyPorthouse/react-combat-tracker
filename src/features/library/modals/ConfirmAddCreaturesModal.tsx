@@ -145,7 +145,7 @@ export function ConfirmAddCreaturesModal({
                   {item.creature.name}
                 </p>
                 <p className="text-xs text-gray-500">
-                  Init: {item.creature.initiative} ({item.creature.initiativeType})
+                  {t('common:initSummaryWithType', { initiative: item.creature.initiative, type: item.creature.initiativeType })}
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -159,6 +159,9 @@ export function ConfirmAddCreaturesModal({
                 </button>
                 <input
                   type="number"
+                  id={`quantity-${item.creature.id}`}
+                  name={`quantity-${item.creature.id}`}
+                  aria-label={t('quantityFor', { name: item.creature.name })}
                   min={1}
                   value={item.quantity}
                   onChange={(e) =>

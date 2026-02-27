@@ -1,4 +1,5 @@
 import { Link, useNavigate, createFileRoute } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { CreatureForm } from '../../../features/library'
 import { db } from '../../../db/db'
@@ -22,6 +23,7 @@ export const Route = createFileRoute('/library/creature/$id')({
  * to `/library`.
  */
 function EditCreaturePage() {
+  const { t } = useTranslation('library')
   const navigate = useNavigate()
   const { id } = Route.useParams()
   const categories = useLiveQuery(() => db.categories.toArray())
@@ -35,8 +37,8 @@ function EditCreaturePage() {
   if (creature === undefined) {
     return (
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <title>Combat Tracker | Editing Creature</title>
-        <p className="text-sm text-slate-500">Loading creature details...</p>
+        <title>{t('editingPageTitle')}</title>
+        <p className="text-sm text-slate-500">{t('loadingCreatureDetails')}</p>
       </div>
     )
   }
@@ -44,13 +46,13 @@ function EditCreaturePage() {
   if (!creature) {
     return (
       <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <title>Combat Tracker | Creature Not Found</title>
-        <h2 className="text-xl font-semibold text-slate-900">Creature not found</h2>
+        <title>{t('creatureNotFoundPageTitle')}</title>
+        <h2 className="text-xl font-semibold text-slate-900">{t('creatureNotFound')}</h2>
         <Link
           to="/library"
           className="text-sm font-medium text-slate-600 transition hover:text-slate-900"
         >
-          Back to Library
+          {t('common:backToLibrary')}
         </Link>
       </div>
     )
@@ -58,17 +60,17 @@ function EditCreaturePage() {
 
   return (
     <div className="space-y-6">
-      <title>Combat Tracker | Editing {creature.name}</title>
+      <title>{t('editingEntityPageTitle', { name: creature.name })}</title>
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Library</p>
-          <h2 className="text-2xl font-semibold text-slate-900">Edit Creature</h2>
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">{t('library')}</p>
+          <h2 className="text-2xl font-semibold text-slate-900">{t('editCreature')}</h2>
         </div>
         <Link
           to="/library"
           className="text-sm font-medium text-slate-600 transition hover:text-slate-900"
         >
-          Back to Library
+          {t('common:backToLibrary')}
         </Link>
       </div>
 

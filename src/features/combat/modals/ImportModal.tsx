@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import z from 'zod'
 import { CombatValidator, type CombatState } from '../../../state/combatState'
-import { verifyHmac } from '../../../utils/hmac'
+import { parseImportString } from '../../../utils/importData'
 import { BaseModal } from '../../../components/modals/BaseModal'
 
 interface ImportModalProps {
@@ -44,46 +43,8 @@ export function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
 
     const performImport = async () => {
       try {
-        const input = base64Input.trim()
-
-        // Split by . to separate HMAC and base64 data
-        const parts = input.split('.')
-        if (parts.length !== 2 || !parts[0] || !parts[1]) {
-          throw new Error(
-            'Invalid format: missing HMAC or data. Please ensure you pasted the complete export string.'
-          )
-        }
-
-        const [providedHmac, base64String] = parts
-
-        // Verify HMAC before decoding
-        const isValid = await verifyHmac(base64String, providedHmac)
-        if (!isValid) {
-          throw new Error(
-            'Data integrity check failed. The data may have been modified.'
-          )
-        }
-
-        // Decode base64
-        const jsonString = atob(base64String)
-
-        // Parse JSON
-        const importedData = JSON.parse(jsonString)
-
-        // Validate using CombatValidator
-        const result = CombatValidator.safeParse(importedData)
-
-        if (!result.success) {
-          // Use z.flattenError() for human-readable error messages
-          const { fieldErrors } = z.flattenError(result.error)
-          const errorMessages = Object.entries(fieldErrors)
-            .flatMap(([, messages]) => messages || [])
-            .join('; ')
-          throw new Error(errorMessages || 'Invalid combat state format.')
-        }
-
-        // Success - import the state
-        onImport(result.data)
+        const data = await parseImportString(base64Input, CombatValidator)
+        onImport(data)
         setBase64Input('')
         onClose()
       } catch (err) {
@@ -129,6 +90,9 @@ export function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
       </p>
 
       <textarea
+        id="import-data"
+        name="import-data"
+        aria-label={t('importPlaceholder')}
         value={base64Input}
         onChange={(e) => {
           setBase64Input(e.target.value)

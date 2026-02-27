@@ -1,4 +1,5 @@
 import { Link, useNavigate, createFileRoute } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import { CategoryForm } from '../../../features/library'
 import { db } from '../../../db/db'
 import type { Category } from '../../../db/stores/categories'
@@ -15,6 +16,7 @@ export const Route = createFileRoute('/library/category/new')({
  * in the list immediately via the live query.
  */
 function CreateCategoryPage() {
+  const { t } = useTranslation('library')
   const navigate = useNavigate()
 
   const handleSubmit = async (category: Category) => {
@@ -24,17 +26,17 @@ function CreateCategoryPage() {
 
   return (
     <div className="space-y-6">
-      <title>Combat Tracker | New Category</title>
+      <title>{t('newCategoryPageTitle')}</title>
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Library</p>
-          <h2 className="text-2xl font-semibold text-slate-900">Create Category</h2>
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">{t('library')}</p>
+          <h2 className="text-2xl font-semibold text-slate-900">{t('create', { entity: t('category') })}</h2>
         </div>
         <Link
           to="/library"
           className="text-sm font-medium text-slate-600 transition hover:text-slate-900"
         >
-          Back to Library
+          {t('common:backToLibrary')}
         </Link>
       </div>
 

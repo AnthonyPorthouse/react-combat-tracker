@@ -4,7 +4,7 @@ import { Check, Copy } from 'lucide-react'
 import { BaseModal } from '../../../components/modals/BaseModal'
 import { Button } from '../../../components/common'
 import { db } from '../../../db/db'
-import { generateHmac } from '../../../utils/hmac'
+import { createExportString } from '../../../utils/exportData'
 import { useCopyToClipboard } from '../../../hooks'
 
 interface ExportLibraryModalProps {
@@ -43,10 +43,8 @@ export function ExportLibraryModal({ isOpen, onClose }: ExportLibraryModalProps)
           db.categories.toArray(),
           db.creatures.toArray(),
         ])
-        const jsonString = JSON.stringify({ categories, creatures })
-        const base64String = btoa(jsonString)
-        const hmac = await generateHmac(base64String)
-        setExportData(`${hmac}.${base64String}`)
+        const result = await createExportString({ categories, creatures })
+        setExportData(result)
       } catch (err) {
         console.error('Failed to generate library export:', err)
         setExportData('')
@@ -86,6 +84,8 @@ export function ExportLibraryModal({ isOpen, onClose }: ExportLibraryModalProps)
       </p>
 
       <textarea
+        id="export-library-data"
+        name="export-library-data"
         value={exportData}
         readOnly
         aria-label={t('exportedLibraryJson')}

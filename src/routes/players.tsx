@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { createFileRoute } from '@tanstack/react-router'
 import { Swords } from 'lucide-react'
 import type { CombatState } from '../state/combatState'
@@ -25,6 +26,7 @@ export const Route = createFileRoute('/players')({
  * suppresses initiative numbers, drag handles, and the action menu.
  */
 function PlayerViewPage() {
+  const { t } = useTranslation('combat')
   const [state, setState] = useState<CombatState | null>(null)
 
   useEffect(() => {
@@ -49,15 +51,15 @@ function PlayerViewPage() {
 
   return (
     <div className="flex flex-col gap-4 p-6">
-      <title>Combat Tracker | Player View</title>
+      <title>{t('playerViewPageTitle')}</title>
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
           <Swords size={20} />
-          Combat
+          {t('combat')}
         </h1>
         {state?.inCombat && (
           <span className="text-sm font-medium text-slate-500">
-            Round {state.round}
+            {t('round', { round: state.round })}
           </span>
         )}
       </div>
@@ -65,7 +67,7 @@ function PlayerViewPage() {
       {isWaiting ? (
         <div className="flex flex-col items-center justify-center gap-3 py-16 text-slate-400">
           <Swords size={40} strokeWidth={1} />
-          <p className="text-sm font-medium">Waiting for combat to begin…</p>
+          <p className="text-sm font-medium">{t('waitingForCombat')}</p>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
