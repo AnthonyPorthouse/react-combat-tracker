@@ -176,7 +176,7 @@ export function CombatLibraryModal({
                 htmlFor="creature-name-filter"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                {t('filterByName')}
+                {t('filterBy', { field: t('name') })}
               </label>
               <input
                 id="creature-name-filter"

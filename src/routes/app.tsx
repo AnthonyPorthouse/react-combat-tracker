@@ -152,7 +152,7 @@ function CombatAppPage() {
           onClick={modals.create.open}
           icon={<Plus size={18} />}
         >
-          {t('addCombatant')}
+          {t('add', { entity: t('combatant') })}
         </Button>
 
         <CreateCombatant

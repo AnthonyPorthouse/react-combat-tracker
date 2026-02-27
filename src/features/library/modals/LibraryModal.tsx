@@ -206,7 +206,7 @@ export function LibraryModal({
             className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm font-medium transition flex items-center gap-2"
           >
             <Plus size={16} />
-            {t('addCategory')}
+            {t('add', { entity: t('category') })}
           </button>
           <button
             type="button"
@@ -217,13 +217,13 @@ export function LibraryModal({
             className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm font-medium transition flex items-center gap-2"
           >
             <Plus size={16} />
-            <span>{t('addCreature')}</span>
+            <span>{t('add', { entity: t('creature') })}</span>
           </button>
         </div>
 
         {isAddingCategory && (
           <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-            <h3 className="text-lg font-semibold text-gray-900">{t('createCategoryTitle')}</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('create', { entity: t('category') })}</h3>
             <CategoryForm
               onSubmit={handleCreateCategory}
               onCancel={() => setIsAddingCategory(false)}
@@ -233,7 +233,7 @@ export function LibraryModal({
 
         {isAddingCreature && (
           <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-            <h3 className="text-lg font-semibold text-gray-900">{t('createCreatureTitle')}</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('create', { entity: t('creature') })}</h3>
             <CreatureForm
               categories={categories || []}
               onSubmit={handleCreateCreature}
@@ -249,14 +249,14 @@ export function LibraryModal({
                 htmlFor="creature-name-filter"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                {t('filterByName')}
+                {t('filterBy', { field: t('name') })}
               </label>
               <input
                 id="creature-name-filter"
                 type="text"
                 value={nameFilter}
                 onChange={(e) => setNameFilter(e.target.value)}
-                placeholder="Search creatures..."
+                placeholder={t('searchCreatures')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:border-blue-500"
               />
             </div>

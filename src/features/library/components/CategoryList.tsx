@@ -70,14 +70,14 @@ export function CategoryList() {
                   to="/library/category/$id"
                   params={{ id: category.id }}
                   className="text-blue-600 hover:text-blue-700 p-1 transition"
-                  aria-label={t('editCategory')}
+                  aria-label={t('edit', { entity: t('category') })}
                 >
                   <Edit size={16} />
                 </Link>
                 <button
                   onClick={() => handleDelete(category.id)}
                   className="text-red-600 hover:text-red-700 p-1 transition"
-                  aria-label={t('deleteCategory')}
+                  aria-label={t('delete', { entity: t('category') })}
                 >
                   <Trash2 size={16} />
                 </button>

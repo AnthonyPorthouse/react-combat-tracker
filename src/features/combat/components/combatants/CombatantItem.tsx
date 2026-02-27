@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ChevronRight, Heart, MoreVertical, Pencil, Swords, Trash2 } from 'lucide-react'
 import type { Combatant } from '../../../../types/combatant'
 import { RemoveCombatantModal } from '../../modals/RemoveCombatantModal'
@@ -57,6 +58,7 @@ export function CombatantItem({
   const [isHealModalOpen, setIsHealModalOpen] = useState(false)
   const [isHarmModalOpen, setIsHarmModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const { t } = useTranslation('combat')
 
   /**
    * Builds the initiative display string for the combatant's sub-label.
@@ -90,7 +92,7 @@ export function CombatantItem({
             </div>
             <div className="w-6 flex items-center justify-center font-bold">
               {isCurrentTurn && (
-                <ChevronRight size={20} aria-label={`${combatant.name}'s turn`} aria-current="true" />
+                <ChevronRight size={20} aria-label={t('combatantsTurn', { name: combatant.name })} aria-current="true" />
               )}
             </div>
           </div>
@@ -99,7 +101,7 @@ export function CombatantItem({
         {mode === 'player' && (
           <div className="w-6 flex items-center justify-center font-bold text-gray-600">
             {isCurrentTurn && (
-              <ChevronRight size={20} aria-label={`${combatant.name}'s turn`} aria-current="true" />
+              <ChevronRight size={20} aria-label={t('combatantsTurn', { name: combatant.name })} aria-current="true" />
             )}
           </div>
         )}
@@ -114,7 +116,7 @@ export function CombatantItem({
         {mode === 'gm' && (
           <>
             <DropdownMenu
-              triggerLabel={`Combatant actions for ${combatant.name}`}
+              triggerLabel={t('combatantActions', { name: combatant.name })}
               triggerContent={<MoreVertical size={18} />}
               triggerClassName="text-gray-400 hover:text-gray-700 transition-colors flex-shrink-0"
               menuClassName="max-w-64 min-w-46"
@@ -215,7 +217,7 @@ export function CombatantItem({
           aria-valuenow={combatant.hp}
           aria-valuemin={0}
           aria-valuemax={combatant.maxHp}
-          aria-label={`${combatant.name} hit points: ${combatant.hp} of ${combatant.maxHp}`}
+          aria-label={t('combatantHitPoints', { name: combatant.name, hp: combatant.hp, maxHp: combatant.maxHp })}
           className="h-1 w-full bg-gray-100"
         >
           <div

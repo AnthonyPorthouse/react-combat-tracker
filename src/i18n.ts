@@ -10,6 +10,7 @@ i18n.use(initReactI18next).init({
   fallbackLng: 'en',
   ns: ['common', 'combat', 'library'],
   defaultNS: 'common',
+  fallbackNS: 'common',
   resources: {
     en: {
       common: enCommon,

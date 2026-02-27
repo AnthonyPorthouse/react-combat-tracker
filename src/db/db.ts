@@ -1,6 +1,7 @@
 import { Dexie, type EntityTable } from 'dexie';
 import type { Category } from './stores/categories';
 import type { Creature } from './stores/creature';
+import { DEFAULT_CATEGORIES } from './seeds/categories';
 
 export const db = new Dexie('combatTracker') as Dexie & {
     categories: EntityTable<Category, 'id'>;
@@ -28,5 +29,19 @@ db.version(2).stores({
             creature.hp = 0;
         }
     });
+});
+
+/**
+ * Seeds the default creature-type categories the first time the database is
+ * created on a device.
+ *
+ * Dexie fires `populate` exactly once — immediately after the initial schema
+ * is applied — so this handler runs only for brand-new installations. Users
+ * who already have data are never affected. Returning the Promise ensures
+ * Dexie awaits the bulk write before resolving the `open()` call, preventing
+ * any component from reading an empty categories table during the same tick.
+ */
+db.on('populate', () => {
+    return db.categories.bulkAdd(DEFAULT_CATEGORIES);
 });
 

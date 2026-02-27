@@ -100,14 +100,14 @@ export function CreatureForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <FormField
         id="creature-name"
-        label={t('creatureName')}
+        label={t('entityName', { entity: t('creature') })}
         type="text"
         value={name}
         onChange={(e) => {
           setName(e.target.value);
           setError('');
         }}
-        placeholder="Enter creature name"
+        placeholder={t('creatureNamePlaceholder')}
         error={error}
         required
       />
@@ -174,7 +174,7 @@ export function CreatureForm({
           type="submit"
           variant="primary"
         >
-          {creature ? t('updateCreature') : t('createCreature')}
+          {creature ? t('update', { entity: t('creature') }) : t('create', { entity: t('creature') })}
         </Button>
       </div>
     </form>

@@ -59,7 +59,7 @@ export function CreateCombatant({
       actions={
         <div className="flex gap-3 pt-4">
           <Button type="submit" variant="primary" className="flex-1">
-            {t('addCombatant')}
+            {t('add', { entity: t('combatant') })}
           </Button>
           <Button type="button" variant="secondary" onClick={onClose} className="flex-1">
             {t('cancel')}

@@ -58,14 +58,14 @@ export function CategoryForm({ category, onSubmit, onCancel }: CategoryFormProps
     <form onSubmit={handleSubmit} className="space-y-4">
       <FormField
         id="category-name"
-        label={t('categoryName')}
+        label={t('entityName', { entity: t('category') })}
         type="text"
         value={name}
         onChange={(e) => {
           setName(e.target.value);
           setError('');
         }}
-        placeholder="Enter category name"
+        placeholder={t('categoryNamePlaceholder')}
         error={error}
         required
       />
@@ -82,7 +82,7 @@ export function CategoryForm({ category, onSubmit, onCancel }: CategoryFormProps
           type="submit"
           variant="primary"
         >
-          {category ? t('updateCategory') : t('createCategory')}
+          {category ? t('update', { entity: t('category') }) : t('create', { entity: t('category') })}
         </Button>
       </div>
     </form>

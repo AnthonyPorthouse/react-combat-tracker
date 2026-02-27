@@ -108,14 +108,14 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
                     to="/library/creature/$id"
                     params={{ id: creature.id }}
                     className="text-blue-600 hover:text-blue-700 p-1 transition"
-                    aria-label={t('editCreature')}
+                    aria-label={t('edit', { entity: t('creature') })}
                   >
                     <Edit size={16} />
                   </Link>
                   <button
                     onClick={() => handleDelete(creature.id)}
                     className="text-red-600 hover:text-red-700 p-1 transition"
-                    aria-label={t('deleteCreature')}
+                    aria-label={t('delete', { entity: t('creature') })}
                   >
                     <Trash2 size={16} />
                   </button>

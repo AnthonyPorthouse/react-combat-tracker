@@ -128,7 +128,7 @@ export function AddCreaturesModal({
               htmlFor="category-filter"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              {t('filterByCategory')}
+              {t('filterBy', { field: t('category') })}
             </label>
             <select
               id="category-filter"
