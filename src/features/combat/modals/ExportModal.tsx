@@ -32,6 +32,7 @@ export function ExportModal({ isOpen, onClose, state }: ExportModalProps) {
   const { copied, copyToClipboard } = useCopyToClipboard()
   const [exportData, setExportData] = useState<string>('')
   const { t } = useTranslation('combat')
+  const { t: tCommon } = useTranslation('common')
 
   useEffect(() => {
     createExportString(state).then(setExportData)
@@ -60,7 +61,7 @@ export function ExportModal({ isOpen, onClose, state }: ExportModalProps) {
           icon={copied ? <Check size={18} /> : <Copy size={18} />}
           className="w-full justify-center"
         >
-          {copied ? t('copied') : t('copyToClipboard')}
+          {copied ? tCommon('copied') : tCommon('copyToClipboard')}
         </Button>
       }
     >

@@ -136,13 +136,14 @@ export function CombatLibraryModal({
   const hasSelectedCreatures = selectedCreatureIds.length > 0
   const showLibraryModal = isOpen && !isConfirmOpen
   const { t } = useTranslation('combat')
+  const { t: tCommon } = useTranslation('common')
 
   return (
     <>
       <BaseModal
         isOpen={showLibraryModal}
         onClose={handleCloseModal}
-        title={t('creatureLibraryTitle')}
+        title={tCommon('creatureLibraryTitle')}
         className="max-w-5xl"
         actions={
           <div className="flex justify-end gap-2">
@@ -151,7 +152,7 @@ export function CombatLibraryModal({
               onClick={handleCloseModal}
               className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition"
             >
-              {t('close')}
+              {tCommon('close')}
             </button>
             <button
               type="button"
@@ -164,7 +165,7 @@ export function CombatLibraryModal({
               }`}
             >
               <Plus size={18} />
-              {t('addToCombat')}
+              {tCommon('addToCombat')}
             </button>
           </div>
         }
@@ -176,7 +177,7 @@ export function CombatLibraryModal({
                 htmlFor="creature-name-filter"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                {t('filterBy', { field: t('name') })}
+                {tCommon('filterBy', { field: tCommon('name') })}
               </label>
               <input
                 id="creature-name-filter"
@@ -184,13 +185,13 @@ export function CombatLibraryModal({
                 type="text"
                 value={nameFilter}
                 onChange={(e) => setNameFilter(e.target.value)}
-                placeholder={t('searchCreatures')}
+                placeholder={tCommon('searchCreatures')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:border-blue-500"
               />
             </div>
 
             <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">{t('categories')}</p>
+              <p className="text-sm font-medium text-gray-700 mb-2">{tCommon('categories')}</p>
               {!categories || categories.length === 0 ? (
                 <p className="text-sm text-gray-500">
                   {t('noCategoriesYet')}
@@ -222,8 +223,8 @@ export function CombatLibraryModal({
             {!creatures || filteredCreatures.length === 0 ? (
               <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center text-sm text-gray-500">
                 {creatures?.length === 0
-                  ? t('noCreaturesInLibrary')
-                  : t('noCreaturesMatchFilter')}
+                  ? tCommon('noCreaturesInLibrary')
+                  : tCommon('noCreaturesMatchFilter')}
               </div>
             ) : (
               <div className="space-y-2 max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-white">
@@ -243,7 +244,7 @@ export function CombatLibraryModal({
                     <div className="flex-1">
                       <p className="font-medium text-gray-900 text-sm">{creature.name}</p>
                       <p className="text-xs text-gray-500">
-                        {t('common:initSummaryWithType', { initiative: creature.initiative, type: creature.initiativeType })}
+                        {tCommon('initSummaryWithType', { initiative: creature.initiative, type: creature.initiativeType })}
                       </p>
                     </div>
                   </label>

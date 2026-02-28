@@ -50,6 +50,8 @@
   "noCreaturesMatchFilterShort": "No creatures match your filter.",
   "noCreaturesSelected": "No creatures selected. Return to the library to choose creatures.",
   "noCreaturesYet": "No creatures yet. Create one to get started.",
+  "decreaseQuantity": "Decrease quantity for {{name}}",
+  "increaseQuantity": "Increase quantity for {{name}}",
   "quantityFor": "Quantity for {{name}}",
   "bulkDeleteCategories": {
     "message_one": "Are you sure you want to delete {{count}} category? Creatures in these categories will not be deleted.",

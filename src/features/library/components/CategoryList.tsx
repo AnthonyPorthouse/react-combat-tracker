@@ -117,7 +117,7 @@ export function CategoryList() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-900">{t('categories')}</h3>
+        <h3 className="text-lg font-semibold text-gray-900">{t('categoriesLegend')}</h3>
       </div>
 
       {!categories || categories.length === 0 ? (

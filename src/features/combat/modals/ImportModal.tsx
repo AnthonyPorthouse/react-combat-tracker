@@ -35,6 +35,7 @@ export function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const { t } = useTranslation('combat')
+  const { t: tCommon } = useTranslation('common')
 
   const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault()
@@ -73,14 +74,14 @@ export function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
             disabled={!base64Input.trim() || isLoading}
             className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors"
           >
-            {isLoading ? t('importing') : t('importAction')}
+            {isLoading ? tCommon('importing') : tCommon('importAction')}
           </button>
           <button
             type="button"
             onClick={onClose}
             className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 px-4 py-2 rounded font-medium transition-colors"
           >
-            {t('cancel')}
+            {tCommon('cancel')}
           </button>
         </div>
       }

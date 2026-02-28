@@ -36,6 +36,7 @@ export function ImportLibraryModal({ isOpen, onClose, onImport }: ImportLibraryM
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const { t } = useTranslation('library')
+  const { t: tCommon } = useTranslation('common')
   const { addToast } = useToast()
 
   const handleSubmit = (event: React.SubmitEvent) => {
@@ -82,14 +83,14 @@ export function ImportLibraryModal({ isOpen, onClose, onImport }: ImportLibraryM
             disabled={!base64Input.trim() || isLoading}
             className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors"
           >
-            {isLoading ? t('importing') : t('importAction')}
+            {isLoading ? tCommon('importing') : tCommon('importAction')}
           </button>
           <button
             type="button"
             onClick={onClose}
             className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 px-4 py-2 rounded font-medium transition-colors"
           >
-            {t('cancel')}
+            {tCommon('cancel')}
           </button>
         </div>
       }

@@ -37,6 +37,7 @@ export function AddCreaturesModal({
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const { t } = useTranslation('library');
+  const { t: tCommon } = useTranslation('common');
 
   const filteredCreatures = useMemo(() => {
     if (!creatures) return [];
@@ -109,7 +110,7 @@ export function AddCreaturesModal({
               onClick={onClose}
               className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition"
             >
-              {t('cancel')}
+              {tCommon('cancel')}
             </button>
             <button
               type="submit"
@@ -128,7 +129,7 @@ export function AddCreaturesModal({
               htmlFor="category-filter"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              {t('filterBy', { field: t('category') })}
+              {tCommon('filterBy', { field: t('category') })}
             </label>
             <select
               id="category-filter"
@@ -151,8 +152,8 @@ export function AddCreaturesModal({
           type="text"
           id="creature-search"
           name="creature-search"
-          aria-label={t('searchCreatures')}
-          placeholder={t('searchCreatures')}
+          aria-label={tCommon('searchCreatures')}
+          placeholder={tCommon('searchCreatures')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:border-blue-500"
@@ -184,7 +185,7 @@ export function AddCreaturesModal({
                     {creature.name}
                   </h4>
                   <p className="text-xs text-gray-600">
-                    {t('common:initSummaryWithType', { initiative: creature.initiative, type: creature.initiativeType })}
+                    {tCommon('initSummaryWithType', { initiative: creature.initiative, type: creature.initiativeType })}
                   </p>
                   {getCategoryNames(creature.categoryIds) && (
                     <p className="text-xs text-gray-500 mt-1">

@@ -167,13 +167,14 @@ export function LibraryModal({
   const hasSelectedCreatures = selectedCreatureIds.length > 0;
   const showLibraryModal = isOpen && !isConfirmOpen;
   const { t } = useTranslation('library');
+  const { t: tCommon } = useTranslation('common');
 
   return (
     <>
       <BaseModal
         isOpen={showLibraryModal}
         onClose={handleCloseModal}
-        title={t('creatureLibraryTitle')}
+        title={tCommon('creatureLibraryTitle')}
         className="max-w-5xl"
         actions={
           <div className="flex justify-end gap-2">
@@ -182,7 +183,7 @@ export function LibraryModal({
               onClick={handleCloseModal}
               className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition"
             >
-              {t('close')}
+              {tCommon('close')}
             </button>
             <button
               type="button"
@@ -195,7 +196,7 @@ export function LibraryModal({
               }`}
             >
               <Plus size={18} />
-              {t('addToCombat')}
+              {tCommon('addToCombat')}
             </button>
           </div>
         }
@@ -210,7 +211,7 @@ export function LibraryModal({
             className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm font-medium transition flex items-center gap-2"
           >
             <Plus size={16} />
-            {t('add', { entity: t('category') })}
+            {tCommon('add', { entity: t('category') })}
           </button>
           <button
             type="button"
@@ -221,7 +222,7 @@ export function LibraryModal({
             className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm font-medium transition flex items-center gap-2"
           >
             <Plus size={16} />
-            <span>{t('add', { entity: t('creature') })}</span>
+            <span>{tCommon('add', { entity: t('creature') })}</span>
           </button>
         </div>
 
@@ -253,7 +254,7 @@ export function LibraryModal({
                 htmlFor="creature-name-filter"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                {t('filterBy', { field: t('name') })}
+                {tCommon('filterBy', { field: tCommon('name') })}
               </label>
               <input
                 id="creature-name-filter"
@@ -261,13 +262,13 @@ export function LibraryModal({
                 type="text"
                 value={nameFilter}
                 onChange={(e) => setNameFilter(e.target.value)}
-                placeholder={t('searchCreatures')}
+                placeholder={tCommon('searchCreatures')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:border-blue-500"
               />
             </div>
 
             <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">{t('categories')}</p>
+              <p className="text-sm font-medium text-gray-700 mb-2">{tCommon('categories')}</p>
               {!categories || categories.length === 0 ? (
                 <p className="text-sm text-gray-500">
                   {t('noCategoriesForFilter')}
@@ -299,8 +300,8 @@ export function LibraryModal({
             {!creatures || filteredCreatures.length === 0 ? (
               <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center text-sm text-gray-500">
                 {creatures?.length === 0
-                  ? t('noCreaturesInLibrary')
-                  : t('noCreaturesMatchFilter')}
+                  ? tCommon('noCreaturesInLibrary')
+                  : tCommon('noCreaturesMatchFilter')}
               </div>
             ) : (
               <div className="space-y-2 max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-white">
@@ -320,7 +321,7 @@ export function LibraryModal({
                     <div className="flex-1">
                       <p className="font-medium text-gray-900 text-sm">{creature.name}</p>
                       <p className="text-xs text-gray-500">
-                        {t('common:initSummaryWithType', { initiative: creature.initiative, type: creature.initiativeType })}
+                        {tCommon('initSummaryWithType', { initiative: creature.initiative, type: creature.initiativeType })}
                       </p>
                     </div>
                   </label>

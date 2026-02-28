@@ -60,6 +60,7 @@ export function CombatantItem({
   const [isHarmModalOpen, setIsHarmModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const { t } = useTranslation('combat')
+  const { t: tCommon } = useTranslation('common')
 
   /**
    * Builds the initiative display string for the combatant's sub-label.
@@ -73,7 +74,7 @@ export function CombatantItem({
       combatant.initiativeType === 'fixed'
         ? `${combatant.initiative}`
         : `${combatant.initiative >= 0 ? '+' : ''}${combatant.initiative}`
-    return t('common:initSummary', { value: initiativeValue })
+    return tCommon('initSummary', { value: initiativeValue })
   }
 
   const hpPct = combatant.maxHp > 0 ? Math.min(combatant.hp / combatant.maxHp, 1) : 0

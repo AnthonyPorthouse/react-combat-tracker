@@ -21,6 +21,7 @@ export const Route = createFileRoute('/library/creature/new')({
  */
 function CreateCreaturePage() {
   const { t } = useTranslation('library')
+  const { t: tCommon } = useTranslation('common')
   const navigate = useNavigate()
   const { addToast } = useToast()
   const categories = useLiveQuery(() => db.categories.toArray())
@@ -43,7 +44,7 @@ function CreateCreaturePage() {
           to="/library"
           className="text-sm font-medium text-slate-600 transition hover:text-slate-900"
         >
-          {t('common:backToLibrary')}
+          {tCommon('backToLibrary')}
         </Link>
       </div>
 

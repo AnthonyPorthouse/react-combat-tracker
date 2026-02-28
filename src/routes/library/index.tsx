@@ -18,6 +18,7 @@ export const Route = createFileRoute('/library/')({
  */
 function LibraryPage() {
   const { t } = useTranslation('library')
+  const { t: tCommon } = useTranslation('common')
   const [isExportOpen, setIsExportOpen] = useState(false)
   const [isImportOpen, setIsImportOpen] = useState(false)
 
@@ -27,7 +28,7 @@ function LibraryPage() {
       <meta name="description" content="Manage your creature library. Create, edit, and organise creatures by category, then add them to combat." />
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-6 py-4 shadow-sm">
         <div>
-          <h2 className="text-xl font-semibold text-slate-900">{t('common:creatureLibraryTitle')}</h2>
+          <h2 className="text-xl font-semibold text-slate-900">{tCommon('creatureLibraryTitle')}</h2>
           <p className="text-sm text-slate-500">
             {t('libraryPageDescription')}
           </p>

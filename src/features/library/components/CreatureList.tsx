@@ -36,6 +36,7 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
   const categories = useLiveQuery(() => db.categories.orderBy('name').toArray())
   const [searchTerm, setSearchTerm] = useState('')
   const { t } = useTranslation('library')
+  const { t: tCommon } = useTranslation('common')
   const { addToast } = useToast()
   const bulkDeleteModal = useModal()
 
@@ -117,8 +118,8 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
         type="text"
         id="creature-list-search"
         name="creature-list-search"
-        aria-label={t('searchCreatures')}
-        placeholder={t('searchCreatures')}
+        aria-label={tCommon('searchCreatures')}
+        placeholder={tCommon('searchCreatures')}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:border-blue-500"
@@ -161,7 +162,7 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
                   <div>
                     <h4 className="font-medium text-gray-900">{creature.name}</h4>
                     <p className="text-xs text-gray-500">
-                      {t('initiativeSummary', { initiative: creature.initiative, type: creature.initiativeType === 'fixed' ? t('common:fixed') : t('common:roll') })}
+                      {t('initiativeSummary', { initiative: creature.initiative, type: creature.initiativeType === 'fixed' ? tCommon('fixed') : tCommon('roll') })}
                     </p>
                     {getCategoryNames(creature.categoryIds) && (
                       <p className="text-xs text-gray-600 mt-1">

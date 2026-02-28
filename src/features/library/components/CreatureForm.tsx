@@ -51,6 +51,7 @@ export function CreatureForm({
   );
   const [error, setError] = useState<string>('');
   const { t } = useTranslation('library');
+  const { t: tCommon } = useTranslation('common');
 
   /**
    * Validates and submits the creature data via `creatureValidator`.
@@ -101,7 +102,7 @@ export function CreatureForm({
       <FormField
         id="creature-name"
         name="creature-name"
-        label={t('entityName', { entity: t('creature') })}
+        label={tCommon('entityName', { entity: t('creature') })}
         type="text"
         value={name}
         onChange={(e) => {
@@ -117,12 +118,12 @@ export function CreatureForm({
         <SelectField
           id="initiative-type"
           name="initiative-type"
-          label={t('initiativeType')}
+          label={tCommon('initiativeType')}
           value={initiativeType}
           onChange={(e) => setInitiativeType(e.target.value as 'fixed' | 'roll')}
         >
-          <option value="fixed">{t('fixed')}</option>
-          <option value="roll">{t('roll')}</option>
+          <option value="fixed">{tCommon('fixed')}</option>
+          <option value="roll">{tCommon('roll')}</option>
         </SelectField>
 
         <FormField
@@ -172,7 +173,7 @@ export function CreatureForm({
           variant="secondary"
           onClick={onCancel}
         >
-          {t('cancel')}
+          {tCommon('cancel')}
         </Button>
         <Button
           type="submit"

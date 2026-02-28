@@ -28,6 +28,7 @@ export function CategoryForm({ category, onSubmit, onCancel }: CategoryFormProps
   const [name, setName] = useState(category?.name || '');
   const [error, setError] = useState<string>('');
   const { t } = useTranslation('library');
+  const { t: tCommon } = useTranslation('common');
 
   /**
    * Validates and submits the category name via the Zod validator.
@@ -59,7 +60,7 @@ export function CategoryForm({ category, onSubmit, onCancel }: CategoryFormProps
       <FormField
         id="category-name"
         name="category-name"
-        label={t('entityName', { entity: t('category') })}
+        label={tCommon('entityName', { entity: t('category') })}
         type="text"
         value={name}
         onChange={(e) => {
@@ -77,7 +78,7 @@ export function CategoryForm({ category, onSubmit, onCancel }: CategoryFormProps
           variant="secondary"
           onClick={onCancel}
         >
-          {t('cancel')}
+          {tCommon('cancel')}
         </Button>
         <Button
           type="submit"

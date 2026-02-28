@@ -33,6 +33,7 @@ export function CreateCombatant({
 }: CreateCombatantProps) {
   const { formData, formErrors, handleChange, validate, reset } = useCombatantForm()
   const { t } = useTranslation('combat')
+  const { t: tCommon } = useTranslation('common')
 
   /**
    * Validates and submits the form data as a new `Combatant`.
@@ -59,17 +60,17 @@ export function CreateCombatant({
       actions={
         <div className="flex gap-3 pt-4">
           <Button type="submit" variant="primary" className="flex-1">
-            {t('add', { entity: t('combatant') })}
+            {tCommon('add', { entity: t('combatant') })}
           </Button>
           <Button type="button" variant="secondary" onClick={onClose} className="flex-1">
-            {t('cancel')}
+            {tCommon('cancel')}
           </Button>
         </div>
       }
     >
       <FormField
         id="name"
-        label={t('name')}
+        label={tCommon('name')}
         type="text"
         name="name"
         value={formData.name}
@@ -81,15 +82,15 @@ export function CreateCombatant({
       <div className="grid grid-cols-2 gap-4">
         <SelectField
           id="initiativeType"
-          label={t('initiativeType')}
+          label={tCommon('initiativeType')}
           name="initiativeType"
           value={formData.initiativeType}
           onChange={handleChange}
           error={formErrors.initiativeType}
           required
         >
-          <option value="fixed">{t('fixed')}</option>
-          <option value="roll">{t('roll')}</option>
+          <option value="fixed">{tCommon('fixed')}</option>
+          <option value="roll">{tCommon('roll')}</option>
         </SelectField>
 
         <FormField

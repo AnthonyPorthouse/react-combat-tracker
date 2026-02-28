@@ -40,6 +40,7 @@ export function ConfirmAddCreaturesModal({
   const [quantityOverrides, setQuantityOverrides] = useState<Record<string, number>>({});
   const [removedCreatureIds, setRemovedCreatureIds] = useState<string[]>([]);
   const { t } = useTranslation('library');
+  const { t: tCommon } = useTranslation('common');
 
   const items = useMemo<ConfirmItem[]>(() => {
     return creatures
@@ -124,7 +125,7 @@ export function ConfirmAddCreaturesModal({
                 : 'bg-gray-200 text-gray-500 cursor-not-allowed'
             }`}
           >
-            {t('addToCombat')}
+            {tCommon('addToCombat')}
           </button>
         </div>
       }
@@ -145,7 +146,7 @@ export function ConfirmAddCreaturesModal({
                   {item.creature.name}
                 </p>
                 <p className="text-xs text-gray-500">
-                  {t('common:initSummaryWithType', { initiative: item.creature.initiative, type: item.creature.initiativeType })}
+                  {tCommon('initSummaryWithType', { initiative: item.creature.initiative, type: item.creature.initiativeType })}
                 </p>
               </div>
               <div className="flex items-center gap-2">

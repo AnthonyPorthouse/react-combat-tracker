@@ -44,6 +44,7 @@ function CombatAppPage() {
   const modals = useCombatModals()
   const playerWindowRef = useRef<Window | null>(null)
   const { t } = useTranslation('combat')
+  const { t: tCommon } = useTranslation('common')
   const { addToast } = useToast()
 
   /** Push the latest state to the player popup whenever combat state changes. */
@@ -154,7 +155,7 @@ function CombatAppPage() {
           onClick={modals.create.open}
           icon={<Plus size={18} />}
         >
-          {t('add', { entity: t('combatant') })}
+          {tCommon('add', { entity: t('combatant') })}
         </Button>
 
         <CreateCombatant

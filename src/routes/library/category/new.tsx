@@ -18,6 +18,7 @@ export const Route = createFileRoute('/library/category/new')({
  */
 function CreateCategoryPage() {
   const { t } = useTranslation('library')
+  const { t: tCommon } = useTranslation('common')
   const navigate = useNavigate()
   const { addToast } = useToast()
 
@@ -39,7 +40,7 @@ function CreateCategoryPage() {
           to="/library"
           className="text-sm font-medium text-slate-600 transition hover:text-slate-900"
         >
-          {t('common:backToLibrary')}
+          {tCommon('backToLibrary')}
         </Link>
       </div>
 

@@ -44,6 +44,7 @@ export function EditCombatantModal({
     maxHp: String(combatant.maxHp),
   })
   const { t } = useTranslation('combat')
+  const { t: tCommon } = useTranslation('common')
 
   /**
    * Validates and submits the edited combatant, preserving the original `id`
@@ -75,14 +76,14 @@ export function EditCombatantModal({
             {t('saveChanges')}
           </Button>
           <Button type="button" variant="secondary" onClick={onClose} className="flex-1">
-            {t('cancel')}
+            {tCommon('cancel')}
           </Button>
         </div>
       }
     >
       <FormField
         id="edit-name"
-        label={t('name')}
+        label={tCommon('name')}
         type="text"
         name="name"
         value={formData.name}
@@ -94,15 +95,15 @@ export function EditCombatantModal({
       <div className="grid grid-cols-2 gap-4">
         <SelectField
           id="edit-initiativeType"
-          label={t('initiativeType')}
+          label={tCommon('initiativeType')}
           name="initiativeType"
           value={formData.initiativeType}
           onChange={handleChange}
           error={formErrors.initiativeType}
           required
         >
-          <option value="fixed">{t('fixed')}</option>
-          <option value="roll">{t('roll')}</option>
+          <option value="fixed">{tCommon('fixed')}</option>
+          <option value="roll">{tCommon('roll')}</option>
         </SelectField>
 
         <FormField

@@ -40,6 +40,7 @@ export function UpdateHpModal({
 }: UpdateHpModalProps) {
   const [amount, setAmount] = useState(1)
   const { t } = useTranslation('combat')
+  const { t: tCommon } = useTranslation('common')
 
   const isHeal = mode === 'heal'
   const title = t(isHeal ? 'healTitle' : 'harmTitle', { name: combatantName })
@@ -76,7 +77,7 @@ export function UpdateHpModal({
             {isHeal ? t('heal') : t('harm')}
           </Button>
           <Button type="button" variant="secondary" onClick={handleClose} className="flex-1">
-            {t('cancel')}
+            {tCommon('cancel')}
           </Button>
         </div>
       }
