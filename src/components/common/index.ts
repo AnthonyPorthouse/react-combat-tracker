@@ -9,6 +9,7 @@ export { ConfirmDialog } from './ConfirmDialog'
 export { DropdownMenu } from './DropdownMenu'
 export { SelectableIcon } from './SelectableIcon'
 export { SelectionToolbar } from './SelectionToolbar'
+export { ImportFormBody } from './ImportFormBody'
 
 // Re-export types for convenience
 export type {

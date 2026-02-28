@@ -1,11 +1,10 @@
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BaseModal } from '../../../components/modals/BaseModal'
-import { Button, FileDropzone } from '../../../components/common'
+import { Button, ImportFormBody } from '../../../components/common'
 import { db } from '../../../db/db'
 import { useToast } from '../../../state/toastContext'
-import { parseImportString, parseImportBytes } from '../../../utils/importData'
 import { LibraryValidator, type LibraryState } from '../libraryState'
+import { useImportForm } from '../../../hooks/useImportForm'
 
 interface ImportLibraryModalProps {
   isOpen: boolean
@@ -32,58 +31,39 @@ interface ImportLibraryModalProps {
  * Data is merged via `bulkPut`: existing records with matching IDs are
  * overwritten; creatures and categories absent from the import are left
  * untouched.
+ *
+ * Shared import state and pipeline logic live in `useImportForm`; shared
+ * form markup lives in `ImportFormBody`.
  */
 export function ImportLibraryModal({ isOpen, onClose, onImport }: ImportLibraryModalProps) {
-  const [fileInput, setFileInput] = useState<File | null>(null)
-  const [textInput, setTextInput] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
   const { t } = useTranslation('library')
   const { t: tCommon } = useTranslation('common')
   const { addToast } = useToast()
 
-  const hasInput = fileInput !== null || textInput.trim().length > 0
-
-  const handleClose = () => {
-    setFileInput(null)
-    setTextInput('')
-    setError(null)
-    onClose()
-  }
-
-  const handleSubmit = (event: React.SubmitEvent) => {
-    event.preventDefault()
-    setError(null)
-    setIsLoading(true)
-
-    const performImport = async () => {
-      try {
-        let data: LibraryState
-
-        if (fileInput) {
-          const buffer = await fileInput.arrayBuffer()
-          data = await parseImportBytes(buffer, 'library', LibraryValidator)
-        } else {
-          data = await parseImportString(textInput, 'library', LibraryValidator)
-        }
-
-        await db.transaction('rw', db.categories, db.creatures, async () => {
-          await db.categories.bulkPut(data.categories)
-          await db.creatures.bulkPut(data.creatures)
-        })
-
-        onImport?.(data)
-        addToast(t('toast.libraryImported'))
-        handleClose()
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to import library')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    performImport()
-  }
+  const {
+    fileInput,
+    setFileInput,
+    textInput,
+    setTextInput,
+    error,
+    setError,
+    isLoading,
+    hasInput,
+    handleClose,
+    handleSubmit,
+  } = useImportForm({
+    source: 'library',
+    validator: LibraryValidator,
+    onSuccess: async (data) => {
+      await db.transaction('rw', db.categories, db.creatures, async () => {
+        await db.categories.bulkPut(data.categories)
+        await db.creatures.bulkPut(data.creatures)
+      })
+      onImport?.(data)
+      addToast(t('toast.libraryImported'))
+    },
+    onClose,
+  })
 
   return (
     <BaseModal
@@ -117,36 +97,16 @@ export function ImportLibraryModal({ isOpen, onClose, onImport }: ImportLibraryM
         {t('importDescription')}
       </p>
 
-      <FileDropzone
-        file={fileInput}
-        accept={{ 'application/octet-stream': ['.ctdata'] }}
-        onFile={(f) => { setFileInput(f); setError(null) }}
+      <ImportFormBody
+        fileInput={fileInput}
+        onFile={setFileInput}
+        textInput={textInput}
+        onTextChange={setTextInput}
+        error={error}
+        onErrorClear={() => setError(null)}
+        inputName="import-library-data"
+        textareaLabel={t('importPlaceholder')}
       />
-
-      <div className="relative flex items-center gap-3 py-1">
-        <div className="flex-1 border-t border-gray-200" />
-        <span className="text-xs text-gray-400 shrink-0">{tCommon('orPasteString')}</span>
-        <div className="flex-1 border-t border-gray-200" />
-      </div>
-
-      <textarea
-        id="import-library-data"
-        name="import-library-data"
-        aria-label={t('importPlaceholder')}
-        value={textInput}
-        onChange={(e) => {
-          setTextInput(e.target.value)
-          if (error) setError(null)
-        }}
-        placeholder={t('importPlaceholder')}
-        className="w-full h-32 p-3 border border-gray-300 rounded font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-      />
-
-      {error && (
-        <div role="alert" className="p-3 bg-red-50 border border-red-300 rounded text-sm text-red-700">
-          {error}
-        </div>
-      )}
     </BaseModal>
   )
 }

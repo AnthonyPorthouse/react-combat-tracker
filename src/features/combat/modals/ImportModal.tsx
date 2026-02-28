@@ -1,9 +1,8 @@
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CombatValidator, type CombatState } from '../../../state/combatState'
-import { parseImportString, parseImportBytes } from '../../../utils/importData'
 import { BaseModal } from '../../../components/modals/BaseModal'
-import { Button, FileDropzone } from '../../../components/common'
+import { Button, ImportFormBody } from '../../../components/common'
+import { useImportForm } from '../../../hooks/useImportForm'
 
 interface ImportModalProps {
   isOpen: boolean
@@ -27,51 +26,31 @@ interface ImportModalProps {
  *
  * The submit button is enabled as soon as either a file is selected or the
  * textarea contains text. If both are present, the file takes precedence.
+ *
+ * Shared import state and pipeline logic live in `useImportForm`; shared
+ * form markup lives in `ImportFormBody`.
  */
 export function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
-  const [fileInput, setFileInput] = useState<File | null>(null)
-  const [textInput, setTextInput] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
   const { t } = useTranslation('combat')
   const { t: tCommon } = useTranslation('common')
 
-  const hasInput = fileInput !== null || textInput.trim().length > 0
-
-  const handleClose = () => {
-    setFileInput(null)
-    setTextInput('')
-    setError(null)
-    onClose()
-  }
-
-  const handleSubmit = (e: React.SubmitEvent) => {
-    e.preventDefault()
-    setError(null)
-    setIsLoading(true)
-
-    const performImport = async () => {
-      try {
-        let data: CombatState
-
-        if (fileInput) {
-          const buffer = await fileInput.arrayBuffer()
-          data = await parseImportBytes(buffer, 'combat', CombatValidator)
-        } else {
-          data = await parseImportString(textInput, 'combat', CombatValidator)
-        }
-
-        onImport(data)
-        handleClose()
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to import state')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    performImport()
-  }
+  const {
+    fileInput,
+    setFileInput,
+    textInput,
+    setTextInput,
+    error,
+    setError,
+    isLoading,
+    hasInput,
+    handleClose,
+    handleSubmit,
+  } = useImportForm({
+    source: 'combat',
+    validator: CombatValidator,
+    onSuccess: onImport,
+    onClose,
+  })
 
   return (
     <BaseModal
@@ -105,36 +84,16 @@ export function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
         {t('importDescription')}
       </p>
 
-      <FileDropzone
-        file={fileInput}
-        accept={{ 'application/octet-stream': ['.ctdata'] }}
-        onFile={(f) => { setFileInput(f); setError(null) }}
+      <ImportFormBody
+        fileInput={fileInput}
+        onFile={setFileInput}
+        textInput={textInput}
+        onTextChange={setTextInput}
+        error={error}
+        onErrorClear={() => setError(null)}
+        inputName="import-data"
+        textareaLabel={t('importPlaceholder')}
       />
-
-      <div className="relative flex items-center gap-3 py-1">
-        <div className="flex-1 border-t border-gray-200" />
-        <span className="text-xs text-gray-400 shrink-0">{tCommon('orPasteString')}</span>
-        <div className="flex-1 border-t border-gray-200" />
-      </div>
-
-      <textarea
-        id="import-data"
-        name="import-data"
-        aria-label={t('importPlaceholder')}
-        value={textInput}
-        onChange={(e) => {
-          setTextInput(e.target.value)
-          if (error) setError(null)
-        }}
-        placeholder={t('importPlaceholder')}
-        className="w-full h-32 p-3 border border-gray-300 rounded font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-      />
-
-      {error && (
-        <div role="alert" className="p-3 bg-red-50 border border-red-300 rounded text-sm text-red-700">
-          {error}
-        </div>
-      )}
     </BaseModal>
   )
 }

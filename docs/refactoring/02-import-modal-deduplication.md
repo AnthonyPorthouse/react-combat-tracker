@@ -1,7 +1,7 @@
 # Plan 2: Deduplicate ImportModal + ImportLibraryModal
 
 **Priority:** Critical  
-**Status:** Not started
+**Status:** Complete
 
 ## Problem
 
@@ -44,14 +44,14 @@ Extract the shared logic into a generic hook and a shared form body component, l
 
 ## Verification
 
-- [ ] File-upload import works in both combat and library contexts
-- [ ] Paste-text import works in both contexts
-- [ ] File takes precedence over text when both are present
-- [ ] Error state displays correctly on invalid input
-- [ ] Form resets on close/cancel
-- [ ] `npx tsc --noEmit` passes
-- [ ] `npm run lint` passes
-- [ ] `npx i18next-cli lint` passes
+- [x] File-upload import works in both combat and library contexts
+- [x] Paste-text import works in both contexts
+- [x] File takes precedence over text when both are present
+- [x] Error state displays correctly on invalid input
+- [x] Form resets on close/cancel
+- [x] `npx tsc --noEmit` passes
+- [x] `npm run lint` passes
+- [x] `npx i18next-cli lint` passes
 
 ## Notes
 
