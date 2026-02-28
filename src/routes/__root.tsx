@@ -1,7 +1,9 @@
 import { createRootRoute, Link, Outlet, useLocation } from '@tanstack/react-router'
+import { AnimatePresence, MotionConfig, motion } from 'motion/react'
 import { CombatProvider } from '../state/combat.tsx'
 import { ToastProvider } from '../state/toast.tsx'
 import { ErrorBoundary } from '../components/ErrorBoundary'
+import { fadeVariants, transitions } from '../utils/motion'
 
 export const Route = createRootRoute({
   component: RootLayout,
@@ -28,6 +30,7 @@ function RootLayout() {
   const isPlayerView = pathname === '/players'
 
   return (
+    <MotionConfig reducedMotion="user">
     <div className="min-h-screen bg-slate-50 text-slate-900">
       {!isPlayerView && (
         <header className="border-b border-slate-200 bg-white/80 backdrop-blur">
@@ -75,12 +78,24 @@ function RootLayout() {
         <ToastProvider>
           <CombatProvider>
             <ErrorBoundary>
-              <Outlet />
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={pathname}
+                  variants={fadeVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  transition={transitions.route}
+                >
+                  <Outlet />
+                </motion.div>
+              </AnimatePresence>
             </ErrorBoundary>
           </CombatProvider>
         </ToastProvider>
       </main>
 
     </div>
+    </MotionConfig>
   )
 }

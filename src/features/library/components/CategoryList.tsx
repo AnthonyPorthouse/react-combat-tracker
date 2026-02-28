@@ -2,7 +2,9 @@ import { useMemo } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useTranslation } from 'react-i18next'
 import { Link } from '@tanstack/react-router'
+import { AnimatePresence, motion } from 'motion/react'
 import { db } from '../../../db/db'
+import { slideUpVariants, transitions } from '../../../utils/motion'
 import { useToast } from '../../../state/toastContext'
 import { useModal } from '../../../hooks/useModal'
 import { useSelection } from '../../../hooks/useSelection'
@@ -128,10 +130,16 @@ export function CategoryList() {
             onToggleAll={handleToggleAll}
             onBulkDelete={bulkDeleteModal.open}
           />
+          <AnimatePresence initial={false}>
           {categories.map((category) => (
-            <div
+            <motion.div
               key={category.id}
-              className="flex justify-between items-center p-3 bg-white border border-gray-200 rounded hover:bg-gray-50 transition"
+              variants={slideUpVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={transitions.item}
+              className="flex justify-between items-center p-3 bg-white border border-gray-200 rounded hover:bg-gray-50 transition mb-2"
             >
               <div className="flex items-center gap-2">
                 <SelectableIcon
@@ -158,8 +166,9 @@ export function CategoryList() {
                   <Trash2 size={16} />
                 </button>
               </div>
-            </div>
+            </motion.div>
           ))}
+          </AnimatePresence>
         </div>
       )}
 

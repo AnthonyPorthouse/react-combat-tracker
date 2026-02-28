@@ -1,6 +1,8 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { AnimatePresence, motion } from 'motion/react'
 import { Button } from '../../../components/common/Button'
+import { fadeVariants, transitions } from '../../../utils/motion'
 
 interface CombatBarProps {
   inCombat: boolean;
@@ -45,60 +47,99 @@ export function CombatBar({
   return (
     <div className="flex justify-between items-center gap-4 px-8 py-4 bg-gray-100 border-t border-gray-200">
       <div className="flex items-center gap-4">
-        {inCombat && (
-          <Button
-            onClick={onPreviousStep}
-            disabled={isPreviousDisabled}
-            variant="success"
-            size="sm"
-            icon={<ChevronLeft size={16} />}
-          >
-            {t('previousStep')}
-          </Button>
-        )}
+        <AnimatePresence>
+          {inCombat && (
+            <motion.div
+              variants={fadeVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={transitions.swap}
+            >
+              <Button
+                onClick={onPreviousStep}
+                disabled={isPreviousDisabled}
+                variant="success"
+                size="sm"
+                icon={<ChevronLeft size={16} />}
+              >
+                {t('previousStep')}
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <div className="flex items-center gap-4">
-        {!inCombat ? (
-          <Button 
-            onClick={onStartCombat} 
-            disabled={combatantCount === 0}
-            variant="success"
-            size="sm"
-          >
-            {t('startCombat')}
-          </Button>
-        ) : (
-          <div className="flex items-center gap-3">
-            <span
-              className="font-bold text-gray-700 text-lg"
-              aria-live="polite"
-              aria-atomic="true"
+        <AnimatePresence mode="wait">
+          {!inCombat ? (
+            <motion.div
+              key="start"
+              variants={fadeVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={transitions.swap}
             >
-              {t('round', { round })}
-            </span>
-            <Button
-              onClick={onEndCombat}
-              variant="danger"
-              size="sm"
+              <Button 
+                onClick={onStartCombat} 
+                disabled={combatantCount === 0}
+                variant="success"
+                size="sm"
+              >
+                {t('startCombat')}
+              </Button>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="active"
+              variants={fadeVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={transitions.swap}
+              className="flex items-center gap-3"
             >
-              {t('endCombat')}
-            </Button>
-          </div>
-        )}
+              <span
+                className="font-bold text-gray-700 text-lg"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                {t('round', { round })}
+              </span>
+              <Button
+                onClick={onEndCombat}
+                variant="danger"
+                size="sm"
+              >
+                {t('endCombat')}
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <div className="flex items-center gap-4">
-        {inCombat && (
-          <Button 
-            onClick={onNextStep}
-            variant="success"
-            size="sm"
-            icon={<ChevronRight size={16} />}
-          >
-            {t('nextStep')}
-          </Button>
-        )}
+        <AnimatePresence>
+          {inCombat && (
+            <motion.div
+              variants={fadeVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={transitions.swap}
+            >
+              <Button 
+                onClick={onNextStep}
+                variant="success"
+                size="sm"
+                icon={<ChevronRight size={16} />}
+              >
+                {t('nextStep')}
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

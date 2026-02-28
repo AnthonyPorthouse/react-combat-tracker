@@ -92,7 +92,7 @@ export function ToastItem({ toast, onDismiss }: ToastItemProps) {
       initial={{ opacity: 0, x: 80 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 80 }}
-      transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+      transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
       role="status"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

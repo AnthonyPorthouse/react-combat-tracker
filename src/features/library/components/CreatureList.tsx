@@ -2,7 +2,9 @@ import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Link } from '@tanstack/react-router'
+import { AnimatePresence, motion } from 'motion/react'
 import { db } from '../../../db/db'
+import { slideUpVariants, transitions } from '../../../utils/motion'
 import { useToast } from '../../../state/toastContext'
 import { useModal } from '../../../hooks/useModal'
 import { useSelection } from '../../../hooks/useSelection'
@@ -136,10 +138,16 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
             onToggleAll={handleToggleAll}
             onBulkDelete={bulkDeleteModal.open}
           />
+          <AnimatePresence initial={false}>
           {filteredCreatures.map((creature) => (
-            <div
+            <motion.div
               key={creature.id}
-              className="p-3 bg-white border border-gray-200 rounded hover:bg-gray-50 transition"
+              variants={slideUpVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={transitions.item}
+              className="p-3 bg-white border border-gray-200 rounded hover:bg-gray-50 transition mb-2"
             >
               <div className="flex justify-between items-start mb-1">
                 <div className="flex items-start gap-2">
@@ -180,8 +188,9 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
                   </button>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
+          </AnimatePresence>
         </div>
       )}
 

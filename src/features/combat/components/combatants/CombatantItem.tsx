@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { AnimatePresence, motion } from 'motion/react'
 import { ChevronRight, Heart, MoreVertical, Pencil, Swords, Trash2 } from 'lucide-react'
 import type { Combatant } from '../../../../types/combatant'
 import { RemoveCombatantModal } from '../../modals/RemoveCombatantModal'
@@ -91,18 +92,38 @@ export function CombatantItem({
               {dragHandle}
             </div>
             <div className="w-6 flex items-center justify-center font-bold">
-              {isCurrentTurn && (
-                <ChevronRight size={20} aria-label={t('combatantsTurn', { name: combatant.name })} aria-current="true" />
-              )}
+              <AnimatePresence>
+                {isCurrentTurn && (
+                  <motion.span
+                    className="inline-flex"
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+                  >
+                    <ChevronRight size={20} aria-label={t('combatantsTurn', { name: combatant.name })} aria-current="true" />
+                  </motion.span>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         )}
 
         {mode === 'player' && (
           <div className="w-6 flex items-center justify-center font-bold text-gray-600">
-            {isCurrentTurn && (
-              <ChevronRight size={20} aria-label={t('combatantsTurn', { name: combatant.name })} aria-current="true" />
-            )}
+            <AnimatePresence>
+              {isCurrentTurn && (
+                <motion.span
+                  className="inline-flex"
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+                >
+                  <ChevronRight size={20} aria-label={t('combatantsTurn', { name: combatant.name })} aria-current="true" />
+                </motion.span>
+              )}
+            </AnimatePresence>
           </div>
         )}
 

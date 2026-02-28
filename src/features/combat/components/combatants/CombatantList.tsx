@@ -1,6 +1,8 @@
 import { useMemo, type Dispatch } from 'react'
 import { useTranslation } from 'react-i18next'
+import { AnimatePresence, motion } from 'motion/react'
 import type { Combatant } from '../../../../types/combatant'
+import { slideUpVariants, transitions } from '../../../../utils/motion'
 import {
   DndContext,
   closestCenter,
@@ -176,8 +178,16 @@ export function CombatantList({
           disabled={!inCombat}
         >
           <ol className="flex flex-col gap-3 list-none">
+            <AnimatePresence initial={false}>
             {combatants.map((combatant, index) => (
-              <li key={combatant.id}>
+              <motion.li
+                key={combatant.id}
+                variants={slideUpVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={transitions.item}
+              >
                 <SortableCombatantItem
                   combatant={combatant}
                   isCurrentTurn={isCurrentTurn(index)}
@@ -185,8 +195,9 @@ export function CombatantList({
                   onRemove={(id) => dispatch({ type: 'REMOVE_COMBATANT', payload: id })}
                   onUpdate={(updated) => dispatch({ type: 'UPDATE_COMBATANT', payload: updated })}
                 />
-              </li>
+              </motion.li>
             ))}
+            </AnimatePresence>
           </ol>
         </SortableContext>
       </DndContext>

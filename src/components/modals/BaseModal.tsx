@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 import type { ReactNode, SubmitEventHandler } from 'react'
 import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
+import { AnimatePresence, motion } from 'motion/react'
+import { fadeVariants, scaleVariants, transitions } from '../../utils/motion'
 
 export interface BaseModalProps {
   isOpen: boolean
@@ -63,10 +65,8 @@ export function BaseModal({
     }
   }, [isOpen])
 
-  if (!isOpen) return null
-
   const panelClassName = [
-    'static bg-white rounded-lg shadow-xl max-w-2xl overflow-y-auto m-4 md:m-0',
+    'bg-white rounded-lg shadow-xl max-w-2xl overflow-y-auto m-4 md:m-0',
     className,
   ]
     .filter(Boolean)
@@ -76,9 +76,9 @@ export function BaseModal({
    * Closes the modal when the user clicks the dimmed backdrop area.
    *
    * Guarded by `isClosable` so callers can prevent accidental dismissal
-   * during sensitive operations (e.g. a long-running import). The dialog
-   * element's own click handler calls `stopPropagation` so clicks inside
-   * the panel don't bubble up and trigger this.
+   * during sensitive operations (e.g. a long-running import). The panel's
+   * click handler calls `stopPropagation` so clicks inside don't bubble up
+   * and trigger this.
    */
   const handleBackdropClick = () => {
     if (isClosable) {
@@ -116,14 +116,31 @@ export function BaseModal({
   )
 
   return createPortal(
-    <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-      onClick={handleBackdropClick}
-    >
-      <dialog open={isOpen} aria-modal="true" aria-labelledby={titleId} className={panelClassName} onClick={(e) => e.stopPropagation()}>
-        {content}
-      </dialog>
-    </div>,
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          variants={fadeVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          transition={transitions.backdrop}
+          onClick={handleBackdropClick}
+        >
+          <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={titleId}
+            className={panelClassName}
+            variants={scaleVariants}
+            transition={transitions.modal}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {content}
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>,
     document.getElementById('modal-root')!
   )
 }
