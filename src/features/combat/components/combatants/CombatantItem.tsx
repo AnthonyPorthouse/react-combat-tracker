@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AnimatePresence, motion } from 'motion/react'
 import { ChevronRight, Heart, MoreVertical, Pencil, Swords, Trash2 } from 'lucide-react'
@@ -43,8 +43,11 @@ interface CombatantItemProps {
  *
  * The `▶` chevron marks the active turn. The HP bar (shown when `inCombat`)
  * transitions green → yellow → red via HSL hue interpolation.
+ *
+ * Wrapped with `React.memo` so the row only re-renders when its own combatant
+ * data or turn state changes — turn advances affecting other rows are skipped.
  */
-export function CombatantItem({
+export const CombatantItem = memo(function CombatantItem({
   combatant,
   isCurrentTurn,
   inCombat,
@@ -253,6 +256,6 @@ export function CombatantItem({
       )}
     </div>
   )
-}
+})
 
 

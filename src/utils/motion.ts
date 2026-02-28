@@ -113,3 +113,32 @@ export const staggeredContainer: Variants = {
   animate: { transition: { staggerChildren: 0.04 } },
   exit: {},
 }
+
+// ---------------------------------------------------------------------------
+// Animation threshold
+// ---------------------------------------------------------------------------
+
+/**
+ * Maximum number of list items that receive per-item enter/exit animations.
+ *
+ * Framer Motion's layout recalculation runs on the main thread and scales
+ * linearly with the number of animated nodes. Above this count the cost
+ * becomes perceptible on low-end devices (~50 items = ~one visible screen).
+ * Lists exceeding the threshold should render plain HTML elements instead of
+ * `motion.*` nodes so animation work is eliminated entirely.
+ */
+export const ANIMATION_THRESHOLD = 50
+
+/**
+ * Returns `true` when per-item enter/exit animations should be applied to a
+ * list containing `count` items.
+ *
+ * Use at the call-site to conditionally switch between an animated
+ * (`AnimatePresence` + `motion.*`) and a plain-element rendering path.
+ *
+ * @example
+ * const animateItems = shouldAnimate(combatants.length)
+ */
+export function shouldAnimate(count: number): boolean {
+  return count <= ANIMATION_THRESHOLD
+}

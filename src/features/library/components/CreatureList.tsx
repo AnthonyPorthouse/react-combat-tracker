@@ -1,10 +1,9 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Link } from '@tanstack/react-router'
-import { AnimatePresence, motion } from 'motion/react'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import { db } from '../../../db/db'
-import { slideUpVariants, transitions } from '../../../utils/motion'
 import { useToast } from '../../../state/toastContext'
 import { useModal } from '../../../hooks/useModal'
 import { useSelection } from '../../../hooks/useSelection'
@@ -40,6 +39,12 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
   const { addToast } = useToast()
   const bulkDeleteModal = useModal()
 
+  /**
+   * Ref attached to the scrollable container used by the virtualizer to
+   * determine which rows fall within the visible viewport.
+   */
+  const listRef = useRef<HTMLDivElement>(null)
+
   const filteredCreatures = useMemo(() => {
     if (!creatures) return []
 
@@ -52,6 +57,23 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
       return matchesCategory && matchesSearch
     })
   }, [creatures, selectedCategoryId, searchTerm])
+
+  /**
+   * Virtualises the `filteredCreatures` list so only visible rows are mounted
+   * in the DOM. `measureElement` is used instead of a fixed `estimateSize` to
+   * correctly handle variable-height rows (creatures with/without category
+   * labels). The virtualizer reads the rendered height of each row after mount
+   * and recalculates offsets, so the scrollbar and total height stay accurate.
+   *
+   * `overscan: 5` pre-renders five extra rows above and below the viewport to
+   * eliminate blank flashes during fast scrolling on low-end devices.
+   */
+  const rowVirtualizer = useVirtualizer({
+    count: filteredCreatures.length,
+    getScrollElement: () => listRef.current,
+    estimateSize: () => 84,
+    overscan: 5,
+  })
 
   const visibleIds = useMemo(
     () => filteredCreatures.map((c) => c.id),
@@ -132,66 +154,89 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
             : t('noCreaturesMatch')}
         </p>
       ) : (
-        <div className="space-y-2 overflow-y-auto">
+        <div className="flex flex-col gap-2">
           <SelectionToolbar
             selectionState={selectionState}
             selectionCount={selectionCount}
             onToggleAll={handleToggleAll}
             onBulkDelete={bulkDeleteModal.open}
           />
-          <AnimatePresence initial={false}>
-          {filteredCreatures.map((creature) => (
-            <motion.div
-              key={creature.id}
-              variants={slideUpVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              transition={transitions.item}
-              className="p-3 bg-white border border-gray-200 rounded hover:bg-gray-50 transition mb-2"
+          {/*
+           * Virtual scroll container. Only rows within (or near) the visible
+           * area are rendered. The inner div is sized to the full list height
+           * so the scrollbar remains proportional; each row is positioned
+           * absolutely via a translateY transform.
+           */}
+          <div
+            ref={listRef}
+            className="overflow-y-auto max-h-[66vh]"
+          >
+            <div
+              style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}
             >
-              <div className="flex justify-between items-start mb-1">
-                <div className="flex items-start gap-2">
-                  <div className="pt-0.5">
-                    <SelectableIcon
-                      state={isSelected(creature.id) ? 'checked' : 'unchecked'}
-                      onClick={() => toggle(creature.id)}
-                      ariaLabel={creature.name}
-                    />
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900">{creature.name}</h4>
-                    <p className="text-xs text-gray-500">
-                      {t('initiativeSummary', { initiative: creature.initiative, type: creature.initiativeType === 'fixed' ? tCommon('fixed') : tCommon('roll') })}
-                    </p>
-                    {getCategoryNames(creature.categoryIds) && (
-                      <p className="text-xs text-gray-600 mt-1">
-                        {getCategoryNames(creature.categoryIds)}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Link
-                    to="/library/creature/$id"
-                    params={{ id: creature.id }}
-                    className="text-blue-600 hover:text-blue-700 p-1 transition"
-                    aria-label={t('edit', { entity: t('creature') })}
+              {rowVirtualizer.getVirtualItems().map((virtualItem) => {
+                const creature = filteredCreatures[virtualItem.index]
+                // Compute once to avoid the previous double-call pattern
+                // (one call for the truthiness guard, a second for the value).
+                const categoryNames = getCategoryNames(creature.categoryIds)
+                return (
+                  <div
+                    key={virtualItem.key}
+                    ref={rowVirtualizer.measureElement}
+                    data-index={virtualItem.index}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      transform: `translateY(${virtualItem.start}px)`,
+                      paddingBottom: '8px',
+                    }}
                   >
-                    <Edit size={16} />
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(creature.id)}
-                    className="text-red-600 hover:text-red-700 p-1 transition"
-                    aria-label={t('delete', { entity: t('creature') })}
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-          </AnimatePresence>
+                    <div className="p-3 bg-white border border-gray-200 rounded hover:bg-gray-50 transition">
+                      <div className="flex justify-between items-start mb-1">
+                        <div className="flex items-start gap-2">
+                          <div className="pt-0.5">
+                            <SelectableIcon
+                              state={isSelected(creature.id) ? 'checked' : 'unchecked'}
+                              onClick={() => toggle(creature.id)}
+                              ariaLabel={creature.name}
+                            />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-gray-900">{creature.name}</h4>
+                            <p className="text-xs text-gray-500">
+                              {t('initiativeSummary', { initiative: creature.initiative, type: creature.initiativeType === 'fixed' ? tCommon('fixed') : tCommon('roll') })}
+                            </p>
+                            {categoryNames && (
+                              <p className="text-xs text-gray-600 mt-1">{categoryNames}</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Link
+                            to="/library/creature/$id"
+                            params={{ id: creature.id }}
+                            className="text-blue-600 hover:text-blue-700 p-1 transition"
+                            aria-label={t('edit', { entity: t('creature') })}
+                          >
+                            <Edit size={16} />
+                          </Link>
+                          <button
+                            onClick={() => handleDelete(creature.id)}
+                            className="text-red-600 hover:text-red-700 p-1 transition"
+                            aria-label={t('delete', { entity: t('creature') })}
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
         </div>
       )}
 

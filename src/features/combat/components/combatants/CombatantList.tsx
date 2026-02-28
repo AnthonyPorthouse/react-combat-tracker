@@ -1,8 +1,8 @@
-import { useMemo, type Dispatch } from 'react'
+import { memo, useMemo, useCallback, type Dispatch } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AnimatePresence, motion } from 'motion/react'
 import type { Combatant } from '../../../../types/combatant'
-import { slideUpVariants, transitions } from '../../../../utils/motion'
+import { slideUpVariants, transitions, shouldAnimate } from '../../../../utils/motion'
 import {
   DndContext,
   closestCenter,
@@ -45,8 +45,13 @@ interface CombatantListProps {
  * Exists as a named component (not an inline arrow) because React requires a
  * stable component reference for the reconciler to correctly pair drag state
  * to the right item during animated reorders.
+ *
+ * Wrapped with `React.memo` so turn advances that change `isCurrentTurn` for
+ * only one row do not force every other combatant to re-render. Requires
+ * stable `onRemove` and `onUpdate` references from the parent (provided via
+ * `useCallback`) for the memo equality check to succeed.
  */
-function SortableCombatantItem({ combatant, isCurrentTurn, inCombat, onRemove, onUpdate }: { combatant: Combatant; isCurrentTurn: boolean; inCombat: boolean; onRemove: (id: string) => void; onUpdate: (combatant: Combatant) => void }) {
+const SortableCombatantItem = memo(function SortableCombatantItem({ combatant, isCurrentTurn, inCombat, onRemove, onUpdate }: { combatant: Combatant; isCurrentTurn: boolean; inCombat: boolean; onRemove: (id: string) => void; onUpdate: (combatant: Combatant) => void }) {
   const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({ id: combatant.id })
   const { t } = useTranslation('combat')
   const dragStyle: React.CSSProperties = {
@@ -77,7 +82,7 @@ function SortableCombatantItem({ combatant, isCurrentTurn, inCombat, onRemove, o
       dragHandle={dragHandle}
     />
   )
-}
+})
 
 /**
  * Renders the full sortable list of combatants for the current encounter.
@@ -161,6 +166,33 @@ export function CombatantList({
     return inCombat && currentStep - 1 === index
   }
 
+  /**
+   * Stable remove callback memoised with `useCallback` so that `React.memo`
+   * on `SortableCombatantItem` can pass its equality check — an inline arrow
+   * function would be a new reference on every render.
+   *
+   * `dispatch` from `useImmerReducer` has a stable identity, so the callback
+   * itself never changes unless the parent re-mounts.
+   */
+  const handleRemove = useCallback(
+    (id: string) => dispatch({ type: 'REMOVE_COMBATANT', payload: id }),
+    [dispatch],
+  )
+
+  /** Stable update callback. See `handleRemove` for rationale. */
+  const handleUpdate = useCallback(
+    (updated: Combatant) => dispatch({ type: 'UPDATE_COMBATANT', payload: updated }),
+    [dispatch],
+  )
+
+  /**
+   * Whether per-item enter/exit animations should run for this list.
+   * Suppressed above `ANIMATION_THRESHOLD` to avoid blocking the main thread
+   * with simultaneous Framer Motion layout recalculations during turn advances
+   * when the encounter has many combatants.
+   */
+  const animateItems = shouldAnimate(combatants.length)
+
   if (combatants.length === 0) {
     return;
   }
@@ -178,26 +210,40 @@ export function CombatantList({
           disabled={!inCombat}
         >
           <ol className="flex flex-col gap-3 list-none">
-            <AnimatePresence initial={false}>
-            {combatants.map((combatant, index) => (
-              <motion.li
-                key={combatant.id}
-                variants={slideUpVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                transition={transitions.item}
-              >
-                <SortableCombatantItem
-                  combatant={combatant}
-                  isCurrentTurn={isCurrentTurn(index)}
-                  inCombat={inCombat}
-                  onRemove={(id) => dispatch({ type: 'REMOVE_COMBATANT', payload: id })}
-                  onUpdate={(updated) => dispatch({ type: 'UPDATE_COMBATANT', payload: updated })}
-                />
-              </motion.li>
-            ))}
-            </AnimatePresence>
+            {animateItems ? (
+              <AnimatePresence initial={false}>
+              {combatants.map((combatant, index) => (
+                <motion.li
+                  key={combatant.id}
+                  variants={slideUpVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  transition={transitions.item}
+                >
+                  <SortableCombatantItem
+                    combatant={combatant}
+                    isCurrentTurn={isCurrentTurn(index)}
+                    inCombat={inCombat}
+                    onRemove={handleRemove}
+                    onUpdate={handleUpdate}
+                  />
+                </motion.li>
+              ))}
+              </AnimatePresence>
+            ) : (
+              combatants.map((combatant, index) => (
+                <li key={combatant.id}>
+                  <SortableCombatantItem
+                    combatant={combatant}
+                    isCurrentTurn={isCurrentTurn(index)}
+                    inCombat={inCombat}
+                    onRemove={handleRemove}
+                    onUpdate={handleUpdate}
+                  />
+                </li>
+              ))
+            )}
           </ol>
         </SortableContext>
       </DndContext>

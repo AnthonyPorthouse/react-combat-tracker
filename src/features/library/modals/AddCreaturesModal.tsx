@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { db } from '../../../db/db';
 import { BaseModal } from '../../../components/modals/BaseModal';
 import { creaturesToCombatants } from '../hooks/useCreaturesFromLibrary';
@@ -31,9 +32,14 @@ export function AddCreaturesModal({
   onClose,
   onAddCreatures,
 }: AddCreaturesModalProps) {
-  const creatures = useLiveQuery(() => db.creatures.toArray());
-  const categories = useLiveQuery(() => db.categories.toArray());
-  const [selectedCreatureIds, setSelectedCreatureIds] = useState<string[]>([]);
+  // TanStack Virtual's useVirtualizer returns functions that the React
+  // Compiler cannot safely memoize. We opt this component out of automatic
+  // memoization so the compiler does not attempt transformations that would
+  // break the virtualizer's internal update model.
+  'use no memo'
+  const creatures = useLiveQuery(() => db.creatures.orderBy('name').toArray());
+  const categories = useLiveQuery(() => db.categories.orderBy('name').toArray());
+  const [selectedCreatureIds, setSelectedCreatureIds] = useState<Set<string>>(new Set());
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const { t } = useTranslation('library');
@@ -53,13 +59,38 @@ export function AddCreaturesModal({
     });
   }, [creatures, selectedCategoryId, searchTerm]);
 
-  /** Toggles a creature's presence in the selection set. */
+  /**
+   * Ref attached to the scrollable creature list container, required by the
+   * virtualizer to determine scroll position and visible range.
+   */
+  const listRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * Virtualises `filteredCreatures` so only visible rows are in the DOM.
+   * Each row is ~64px (checkbox + name + initiative label). `overscan: 5`
+   * pre-renders a buffer above/below the viewport for smooth scrolling.
+   */
+  // eslint-disable-next-line react-hooks/incompatible-library -- useVirtualizer returns functions that the React Compiler cannot memoize; the compiler already skips this component, this comment makes the opt-out explicit.
+  const rowVirtualizer = useVirtualizer({
+    count: filteredCreatures.length,
+    getScrollElement: () => listRef.current,
+    estimateSize: () => 64,
+    overscan: 5,
+  });
+
+  /**
+   * Toggles a creature's presence in the selection set.
+   *
+   * Uses `Set` for O(1) membership checks instead of the previous `Array.includes`
+   * which was O(N) per render, causing up to O(N²) work across the list.
+   */
   const toggleCreature = (creatureId: string) => {
-    setSelectedCreatureIds((prev) =>
-      prev.includes(creatureId)
-        ? prev.filter((id) => id !== creatureId)
-        : [...prev, creatureId]
-    );
+    setSelectedCreatureIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(creatureId)) next.delete(creatureId)
+      else next.add(creatureId)
+      return next
+    })
   };
 
   /**
@@ -70,7 +101,7 @@ export function AddCreaturesModal({
     if (!creatures) return;
 
     const creaturesToAdd = creatures.filter((c) =>
-      selectedCreatureIds.includes(c.id)
+      selectedCreatureIds.has(c.id)
     );
     const combatants = creaturesToCombatants(creaturesToAdd);
 
@@ -78,7 +109,7 @@ export function AddCreaturesModal({
       onAddCreatures([combatant]);
     });
 
-    setSelectedCreatureIds([]);
+    setSelectedCreatureIds(new Set());
     setSearchTerm('');
     setSelectedCategoryId('all');
     onClose();
@@ -98,12 +129,12 @@ export function AddCreaturesModal({
       isOpen={isOpen}
       onClose={onClose}
       title={t('addCreaturesFromLibrary')}
-      onSubmit={selectedCreatureIds.length > 0 ? (e) => {
+      onSubmit={selectedCreatureIds.size > 0 ? (e) => {
         e.preventDefault();
         handleAddCreatures();
       } : undefined}
       actions={
-        selectedCreatureIds.length > 0 ? (
+        selectedCreatureIds.size > 0 ? (
           <div className="flex justify-end gap-2">
             <button
               type="button"
@@ -116,7 +147,7 @@ export function AddCreaturesModal({
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
             >
-              {t('addCreaturesCount', { count: selectedCreatureIds.length })}
+              {t('addCreaturesCount', { count: selectedCreatureIds.size })}
             </button>
           </div>
         ) : null
@@ -166,35 +197,54 @@ export function AddCreaturesModal({
               : t('noCreaturesMatchFilterShort')}
           </p>
         ) : (
-          <div className="space-y-2 max-h-64 overflow-y-auto border border-gray-200 rounded p-3 bg-gray-50">
-            {filteredCreatures.map((creature) => (
-              <label
-                key={creature.id}
-                className="flex items-start gap-3 p-2 hover:bg-white rounded cursor-pointer transition"
-              >
-                <input
-                  type="checkbox"
-                  id={`add-creature-${creature.id}`}
-                  name="selected-creatures"
-                  checked={selectedCreatureIds.includes(creature.id)}
-                  onChange={() => toggleCreature(creature.id)}
-                  className="w-4 h-4 rounded border-gray-300 mt-0.5"
-                />
-                <div className="flex-1">
-                  <h4 className="font-medium text-gray-900 text-sm">
-                    {creature.name}
-                  </h4>
-                  <p className="text-xs text-gray-600">
-                    {tCommon('initSummaryWithType', { initiative: creature.initiative, type: creature.initiativeType })}
-                  </p>
-                  {getCategoryNames(creature.categoryIds) && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      {getCategoryNames(creature.categoryIds)}
-                    </p>
-                  )}
-                </div>
-              </label>
-            ))}
+          <div
+            ref={listRef}
+            className="max-h-64 overflow-y-auto border border-gray-200 rounded p-3 bg-gray-50"
+          >
+            <div
+              style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}
+            >
+              {rowVirtualizer.getVirtualItems().map((virtualItem) => {
+                const creature = filteredCreatures[virtualItem.index];
+                const categoryNames = getCategoryNames(creature.categoryIds);
+                return (
+                  <div
+                    key={virtualItem.key}
+                    ref={rowVirtualizer.measureElement}
+                    data-index={virtualItem.index}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      transform: `translateY(${virtualItem.start}px)`,
+                    }}
+                  >
+                    <label className="flex items-start gap-3 p-2 hover:bg-white rounded cursor-pointer transition">
+                      <input
+                        type="checkbox"
+                        id={`add-creature-${creature.id}`}
+                        name="selected-creatures"
+                        checked={selectedCreatureIds.has(creature.id)}
+                        onChange={() => toggleCreature(creature.id)}
+                        className="w-4 h-4 rounded border-gray-300 mt-0.5"
+                      />
+                      <div className="flex-1">
+                        <h4 className="font-medium text-gray-900 text-sm">
+                          {creature.name}
+                        </h4>
+                        <p className="text-xs text-gray-600">
+                          {tCommon('initSummaryWithType', { initiative: creature.initiative, type: creature.initiativeType })}
+                        </p>
+                        {categoryNames && (
+                          <p className="text-xs text-gray-500 mt-1">{categoryNames}</p>
+                        )}
+                      </div>
+                    </label>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>

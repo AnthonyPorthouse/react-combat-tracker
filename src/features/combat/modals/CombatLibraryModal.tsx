@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import { Plus } from 'lucide-react'
 import { BaseModal } from '../../../components/modals/BaseModal'
 import { db } from '../../../db/db'
@@ -36,11 +37,16 @@ export function CombatLibraryModal({
   onClose,
   onAddCombatants,
 }: CombatLibraryModalProps) {
+  // TanStack Virtual's useVirtualizer returns functions that the React
+  // Compiler cannot safely memoize. We opt this component out of automatic
+  // memoization so the compiler does not attempt transformations that would
+  // break the virtualizer's internal update model.
+  'use no memo'
   const creatures = useLiveQuery(() => db.creatures.orderBy('name').toArray())
   const categories = useLiveQuery(() => db.categories.orderBy('name').toArray())
   const [nameFilter, setNameFilter] = useState('')
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([])
-  const [selectedCreatureIds, setSelectedCreatureIds] = useState<string[]>([])
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<Set<string>>(new Set())
+  const [selectedCreatureIds, setSelectedCreatureIds] = useState<Set<string>>(new Set())
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [confirmCreatures, setConfirmCreatures] = useState<Creature[]>([])
 
@@ -53,12 +59,31 @@ export function CombatLibraryModal({
         loweredName.length === 0 ||
         creature.name.toLowerCase().includes(loweredName)
       const matchesCategory =
-        selectedCategoryIds.length === 0 ||
-        creature.categoryIds.some((id) => selectedCategoryIds.includes(id))
+        selectedCategoryIds.size === 0 ||
+        creature.categoryIds.some((id) => selectedCategoryIds.has(id))
 
       return matchesName && matchesCategory
     })
   }, [creatures, nameFilter, selectedCategoryIds])
+
+  /**
+   * Ref for the creature list scroll container. TanStack Virtual uses this to
+   * calculate which rows are within the visible area.
+   */
+  const creatureListRef = useRef<HTMLDivElement>(null)
+
+  /**
+   * Virtualises the filtered creature list. Each row contains a checkbox,
+   * creature name, and initiative type — approximately 52px. `measureElement`
+   * allows the virtualizer to self-correct if actual heights differ.
+   */
+  // eslint-disable-next-line react-hooks/incompatible-library -- useVirtualizer returns functions that the React Compiler cannot memoize; the compiler already skips this component, this comment makes the opt-out explicit.
+  const creatureVirtualizer = useVirtualizer({
+    count: filteredCreatures.length,
+    getScrollElement: () => creatureListRef.current,
+    estimateSize: () => 52,
+    overscan: 5,
+  })
 
   /** Closes both this modal and any open confirm modal, resetting all local state. */
   const handleCloseModal = () => {
@@ -75,20 +100,22 @@ export function CombatLibraryModal({
    * an empty filter means "show everything", not "show nothing".
    */
   const toggleCategory = (categoryId: string) => {
-    setSelectedCategoryIds((prev) =>
-      prev.includes(categoryId)
-        ? prev.filter((id) => id !== categoryId)
-        : [...prev, categoryId]
-    )
+    setSelectedCategoryIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(categoryId)) next.delete(categoryId)
+      else next.add(categoryId)
+      return next
+    })
   }
 
-  /** Toggles a creature's presence in the selection set. */
+  /** Toggles a creature's presence in the selection set. Uses Set for O(1) membership checks. */
   const toggleCreature = (creatureId: string) => {
-    setSelectedCreatureIds((prev) =>
-      prev.includes(creatureId)
-        ? prev.filter((id) => id !== creatureId)
-        : [...prev, creatureId]
-    )
+    setSelectedCreatureIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(creatureId)) next.delete(creatureId)
+      else next.add(creatureId)
+      return next
+    })
   }
 
   /**
@@ -101,7 +128,7 @@ export function CombatLibraryModal({
    */
   const handleOpenConfirm = () => {
     if (!creatures) return
-    const selected = creatures.filter((c) => selectedCreatureIds.includes(c.id))
+    const selected = creatures.filter((c) => selectedCreatureIds.has(c.id))
     if (selected.length === 0) return
 
     setConfirmCreatures(selected)
@@ -128,12 +155,12 @@ export function CombatLibraryModal({
 
     const combatants = creaturesToCombatants(expandedCreatures)
     onAddCombatants(combatants)
-    setSelectedCreatureIds([])
+    setSelectedCreatureIds(new Set())
     setIsConfirmOpen(false)
     handleCloseModal()
   }
 
-  const hasSelectedCreatures = selectedCreatureIds.length > 0
+  const hasSelectedCreatures = selectedCreatureIds.size > 0
   const showLibraryModal = isOpen && !isConfirmOpen
   const { t } = useTranslation('combat')
   const { t: tCommon } = useTranslation('common')
@@ -207,7 +234,7 @@ export function CombatLibraryModal({
                         type="checkbox"
                         id={`combat-cat-${category.id}`}
                         name="combat-categories"
-                        checked={selectedCategoryIds.includes(category.id)}
+                        checked={selectedCategoryIds.has(category.id)}
                         onChange={() => toggleCategory(category.id)}
                         className="w-4 h-4 rounded border-gray-300"
                       />
@@ -227,28 +254,48 @@ export function CombatLibraryModal({
                   : tCommon('noCreaturesMatchFilter')}
               </div>
             ) : (
-              <div className="space-y-2 max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-white">
-                {filteredCreatures.map((creature) => (
-                  <label
-                    key={creature.id}
-                    className="flex items-start gap-3 p-2 rounded hover:bg-gray-50 transition cursor-pointer"
-                  >
-                    <input
-                      type="checkbox"
-                      id={`combat-creature-${creature.id}`}
-                      name="combat-creatures"
-                      checked={selectedCreatureIds.includes(creature.id)}
-                      onChange={() => toggleCreature(creature.id)}
-                      className="w-4 h-4 rounded border-gray-300 mt-1"
-                    />
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900 text-sm">{creature.name}</p>
-                      <p className="text-xs text-gray-500">
-                        {tCommon('initSummaryWithType', { initiative: creature.initiative, type: creature.initiativeType })}
-                      </p>
-                    </div>
-                  </label>
-                ))}
+              <div
+                ref={creatureListRef}
+                className="max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-white"
+              >
+                <div
+                  style={{ height: `${creatureVirtualizer.getTotalSize()}px`, position: 'relative' }}
+                >
+                  {creatureVirtualizer.getVirtualItems().map((virtualItem) => {
+                    const creature = filteredCreatures[virtualItem.index]
+                    return (
+                      <div
+                        key={virtualItem.key}
+                        ref={creatureVirtualizer.measureElement}
+                        data-index={virtualItem.index}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          transform: `translateY(${virtualItem.start}px)`,
+                        }}
+                      >
+                        <label className="flex items-start gap-3 p-2 rounded hover:bg-gray-50 transition cursor-pointer">
+                          <input
+                            type="checkbox"
+                            id={`combat-creature-${creature.id}`}
+                            name="combat-creatures"
+                            checked={selectedCreatureIds.has(creature.id)}
+                            onChange={() => toggleCreature(creature.id)}
+                            className="w-4 h-4 rounded border-gray-300 mt-1"
+                          />
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-900 text-sm">{creature.name}</p>
+                            <p className="text-xs text-gray-500">
+                              {tCommon('initSummaryWithType', { initiative: creature.initiative, type: creature.initiativeType })}
+                            </p>
+                          </div>
+                        </label>
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
             )}
           </div>

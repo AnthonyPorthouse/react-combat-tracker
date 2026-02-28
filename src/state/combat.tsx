@@ -1,25 +1,31 @@
 import { type PropsWithChildren } from 'react'
 import { useImmerReducer } from 'use-immer'
-import { CombatContext } from './combatContext'
+import { CombatContext, CombatStateContext, CombatDispatchContext } from './combatContext'
 import { combatReducer, initialCombatState } from './combatState'
 
 /**
  * Initialises and owns the combat state for its entire subtree.
  *
- * Wraps `useImmerReducer` so that reducer cases can mutate a draft directly
- * rather than returning new objects — keeping the reducer logic concise for
- * the complex, nested state changes involved in turn management. The context
- * value is stable across renders unless state actually changes.
+ * Provides three contexts in a single provider:
+ * 1. `CombatStateContext` — the Immer-produced state object.
+ * 2. `CombatDispatchContext` — the stable dispatch function.
+ * 3. `CombatContext` (legacy) — both combined for backward-compatible consumers.
  *
- * Place this as high in the tree as needed so all combat-aware components
- * (combatant list, combat bar, modals) share the same instance.
+ * Separating state and dispatch means components that only call `dispatch`
+ * (e.g. button handlers) will not re-render when unrelated state changes.
+ * Components that read state can further reduce re-renders by subscribing
+ * via `useCombatSelector` rather than consuming the full state object.
  */
 export function CombatProvider({ children }: PropsWithChildren) {
     const [state, dispatch] = useImmerReducer(combatReducer, initialCombatState)
 
     return (
-        <CombatContext.Provider value={{ state, dispatch }}>
-            {children}
-        </CombatContext.Provider>
+        <CombatStateContext.Provider value={state}>
+            <CombatDispatchContext.Provider value={dispatch}>
+                <CombatContext.Provider value={{ state, dispatch }}>
+                    {children}
+                </CombatContext.Provider>
+            </CombatDispatchContext.Provider>
+        </CombatStateContext.Provider>
     )
 }
