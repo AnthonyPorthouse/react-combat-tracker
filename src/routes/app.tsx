@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { createFileRoute } from '@tanstack/react-router'
-import { Plus, Share, Import, BookOpen, Monitor } from 'lucide-react'
+import { Plus, Download, Upload, BookOpen, Monitor } from 'lucide-react'
 import {
   CombatantList,
   CombatBar,
@@ -124,7 +124,7 @@ function CombatAppPage() {
           <Button
             variant="ghost"
             onClick={modals.exportState.open}
-            icon={<Share size={18} />}
+            icon={<Download size={18} />}
             aria-label={t('exportCombat')}
             className="rounded-full"
           >
@@ -133,7 +133,7 @@ function CombatAppPage() {
           <Button
             variant="ghost"
             onClick={modals.importState.open}
-            icon={<Import size={18} />}
+            icon={<Upload size={18} />}
             aria-label={t('importCombat')}
             className="rounded-full"
           >
