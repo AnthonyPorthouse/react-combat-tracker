@@ -1,7 +1,7 @@
-import { Plus } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { Plus } from 'lucide-react';
 import { BaseModal } from '../../../components/modals/BaseModal';
 import { useToast } from '../../../state/toastContext';
 import { db } from '../../../db/db';
@@ -10,7 +10,9 @@ import type { Creature } from '../../../db/stores/creature';
 import type { Combatant } from '../../../types/combatant';
 import { CategoryForm } from '../components/CategoryForm';
 import { CreatureForm } from '../components/CreatureForm';
-import { creaturesToCombatants } from '../hooks/useCreaturesFromLibrary';
+import { CreatureFilterPanel } from '../components/CreatureFilterPanel';
+import { useCreatureFilter } from '../hooks/useCreatureFilter';
+import { useConfirmAddFlow } from '../hooks/useConfirmAddFlow';
 import { ConfirmAddCreaturesModal } from './ConfirmAddCreaturesModal';
 
 interface LibraryModalProps {
@@ -45,57 +47,49 @@ export function LibraryModal({
   const creatures = useLiveQuery(() => db.creatures.toArray());
   const categories = useLiveQuery(() => db.categories.toArray());
   const { addToast } = useToast();
-  const [nameFilter, setNameFilter] = useState('');
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
-  const [selectedCreatureIds, setSelectedCreatureIds] = useState<string[]>([]);
+  const [selectedCreatureIds, setSelectedCreatureIds] = useState<Set<string>>(
+    new Set(),
+  );
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [isAddingCreature, setIsAddingCreature] = useState(false);
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [confirmCreatures, setConfirmCreatures] = useState<Creature[]>([]);
+  const { t } = useTranslation('library');
+  const { t: tCommon } = useTranslation('common');
+
+  const {
+    nameFilter,
+    setNameFilter,
+    selectedCategoryIds,
+    filteredCreatures,
+    toggleCategory,
+  } = useCreatureFilter(creatures);
+
+  const {
+    isConfirmOpen,
+    confirmCreatures,
+    handleOpenConfirm,
+    handleConfirmAdd,
+    handleCancelConfirm,
+    resetConfirm,
+  } = useConfirmAddFlow({
+    onAddCombatants,
+    onClose,
+    onResetSelection: () => setSelectedCreatureIds(new Set()),
+  });
 
   /** Closes the modal and resets all transient state (selection, confirm step). */
   const handleCloseModal = () => {
-    setIsConfirmOpen(false);
-    setConfirmCreatures([]);
+    resetConfirm();
     onClose();
-  };
-
-  const filteredCreatures = useMemo(() => {
-    if (!creatures) return [];
-    const loweredName = nameFilter.trim().toLowerCase();
-
-    return creatures.filter((creature) => {
-      const matchesName =
-        loweredName.length === 0 ||
-        creature.name.toLowerCase().includes(loweredName);
-      const matchesCategory =
-        selectedCategoryIds.length === 0 ||
-        creature.categoryIds.some((id) => selectedCategoryIds.includes(id));
-
-      return matchesName && matchesCategory;
-    });
-  }, [creatures, nameFilter, selectedCategoryIds]);
-
-  /**
-   * Toggles a category filter. An empty selection means "show all creatures".
-   * Adding a filter narrows the creature list to those assigned to any
-   * of the selected categories.
-   */
-  const toggleCategory = (categoryId: string) => {
-    setSelectedCategoryIds((prev) =>
-      prev.includes(categoryId)
-        ? prev.filter((id) => id !== categoryId)
-        : [...prev, categoryId]
-    );
   };
 
   /** Toggles a creature's presence in the selection set for the confirm step. */
   const toggleCreature = (creatureId: string) => {
-    setSelectedCreatureIds((prev) =>
-      prev.includes(creatureId)
-        ? prev.filter((id) => id !== creatureId)
-        : [...prev, creatureId]
-    );
+    setSelectedCreatureIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(creatureId)) next.delete(creatureId);
+      else next.add(creatureId);
+      return next;
+    });
   };
 
   /**
@@ -123,51 +117,8 @@ export function LibraryModal({
     setIsAddingCreature(false);
   };
 
-  /**
-   * Snapshots the selected creatures and opens the quantity confirmation step.
-   *
-   * The snapshot is necessary because the `creatures` live query could update
-   * between the selection step and the confirmation step (e.g. another tab
-   * edits a creature). The confirm modal works from the snapshot, not the
-   * live query, for consistency.
-   */
-  const handleOpenConfirm = () => {
-    if (!creatures) return;
-    const selected = creatures.filter((c) => selectedCreatureIds.includes(c.id));
-    if (selected.length === 0) return;
-
-    setConfirmCreatures(selected);
-    setIsConfirmOpen(true);
-  };
-
-  /**
-   * Expands confirmed creature+quantity pairs into individual combatants
-   * and forwards them to the encounter.
-   *
-   * Each creature is pushed `quantity` times so the reducer's
-   * `renumberCombatants` logic receives the correct repetition count for
-   * auto-numbering (e.g. 3× Goblin → "Goblin 1", "Goblin 2", "Goblin 3").
-   */
-  const handleConfirmAdd = (items: { creature: Creature; quantity: number }[]) => {
-    const expandedCreatures: Creature[] = [];
-
-    items.forEach(({ creature, quantity }) => {
-      for (let i = 0; i < quantity; i += 1) {
-        expandedCreatures.push(creature);
-      }
-    });
-
-    const combatants = creaturesToCombatants(expandedCreatures);
-    onAddCombatants(combatants);
-    setSelectedCreatureIds([]);
-    setIsConfirmOpen(false);
-    handleCloseModal();
-  };
-
-  const hasSelectedCreatures = selectedCreatureIds.length > 0;
+  const hasSelectedCreatures = selectedCreatureIds.size > 0;
   const showLibraryModal = isOpen && !isConfirmOpen;
-  const { t } = useTranslation('library');
-  const { t: tCommon } = useTranslation('common');
 
   return (
     <>
@@ -187,7 +138,7 @@ export function LibraryModal({
             </button>
             <button
               type="button"
-              onClick={handleOpenConfirm}
+              onClick={() => handleOpenConfirm(creatures, selectedCreatureIds)}
               disabled={!hasSelectedCreatures}
               className={`px-4 py-2 rounded-md font-medium transition flex items-center gap-2 ${
                 hasSelectedCreatures
@@ -248,53 +199,16 @@ export function LibraryModal({
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-1 space-y-4">
-            <div>
-              <label
-                htmlFor="creature-name-filter"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                {tCommon('filterBy', { field: tCommon('name') })}
-              </label>
-              <input
-                id="creature-name-filter"
-                name="creature-name-filter"
-                type="text"
-                value={nameFilter}
-                onChange={(e) => setNameFilter(e.target.value)}
-                placeholder={tCommon('searchCreatures')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:border-blue-500"
-              />
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">{tCommon('categories')}</p>
-              {!categories || categories.length === 0 ? (
-                <p className="text-sm text-gray-500">
-                  {t('noCategoriesForFilter')}
-                </p>
-              ) : (
-                <div className="space-y-2 max-h-64 overflow-y-auto border border-gray-200 rounded-md p-3 bg-white">
-                  {categories.map((category) => (
-                    <label
-                      key={category.id}
-                      className="flex items-center gap-2 text-sm text-gray-700"
-                    >
-                      <input
-                        type="checkbox"
-                        id={`lib-cat-${category.id}`}
-                        name="library-categories"
-                        checked={selectedCategoryIds.includes(category.id)}
-                        onChange={() => toggleCategory(category.id)}
-                        className="w-4 h-4 rounded border-gray-300"
-                      />
-                      <span>{category.name}</span>
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+          <CreatureFilterPanel
+            nameFilter={nameFilter}
+            onNameFilterChange={setNameFilter}
+            selectedCategoryIds={selectedCategoryIds}
+            onToggleCategory={toggleCategory}
+            categories={categories}
+            noCategoriesMessage={t('noCategoriesForFilter')}
+            nameInputId="lib-creature-name-filter"
+            checkboxIdPrefix="lib-cat"
+          />
 
           <div className="md:col-span-2">
             {!creatures || filteredCreatures.length === 0 ? (
@@ -314,7 +228,7 @@ export function LibraryModal({
                       type="checkbox"
                       id={`lib-creature-${creature.id}`}
                       name="library-creatures"
-                      checked={selectedCreatureIds.includes(creature.id)}
+                      checked={selectedCreatureIds.has(creature.id)}
                       onChange={() => toggleCreature(creature.id)}
                       className="w-4 h-4 rounded border-gray-300 mt-1"
                     />
@@ -335,7 +249,7 @@ export function LibraryModal({
       {isOpen && isConfirmOpen ? (
         <ConfirmAddCreaturesModal
           isOpen={isOpen && isConfirmOpen}
-          onClose={() => setIsConfirmOpen(false)}
+          onClose={handleCancelConfirm}
           creatures={confirmCreatures}
           onConfirm={handleConfirmAdd}
         />

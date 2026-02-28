@@ -1,13 +1,14 @@
-import { useMemo, useState, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { Plus } from 'lucide-react'
 import { BaseModal } from '../../../components/modals/BaseModal'
 import { db } from '../../../db/db'
-import type { Creature } from '../../../db/stores/creature'
 import type { Combatant } from '../../../types/combatant'
-import { creaturesToCombatants } from '../../library/hooks/useCreaturesFromLibrary'
+import { useCreatureFilter } from '../../library/hooks/useCreatureFilter'
+import { useConfirmAddFlow } from '../../library/hooks/useConfirmAddFlow'
+import { CreatureFilterPanel } from '../../library/components/CreatureFilterPanel'
 import { ConfirmAddCreaturesModal } from '../../library/modals/ConfirmAddCreaturesModal'
 
 interface CombatLibraryModalProps {
@@ -44,27 +45,32 @@ export function CombatLibraryModal({
   'use no memo'
   const creatures = useLiveQuery(() => db.creatures.orderBy('name').toArray())
   const categories = useLiveQuery(() => db.categories.orderBy('name').toArray())
-  const [nameFilter, setNameFilter] = useState('')
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<Set<string>>(new Set())
-  const [selectedCreatureIds, setSelectedCreatureIds] = useState<Set<string>>(new Set())
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
-  const [confirmCreatures, setConfirmCreatures] = useState<Creature[]>([])
+  const [selectedCreatureIds, setSelectedCreatureIds] = useState<Set<string>>(
+    new Set(),
+  )
+  const { t } = useTranslation('combat')
+  const { t: tCommon } = useTranslation('common')
 
-  const filteredCreatures = useMemo(() => {
-    if (!creatures) return []
-    const loweredName = nameFilter.trim().toLowerCase()
+  const {
+    nameFilter,
+    setNameFilter,
+    selectedCategoryIds,
+    filteredCreatures,
+    toggleCategory,
+  } = useCreatureFilter(creatures)
 
-    return creatures.filter((creature) => {
-      const matchesName =
-        loweredName.length === 0 ||
-        creature.name.toLowerCase().includes(loweredName)
-      const matchesCategory =
-        selectedCategoryIds.size === 0 ||
-        creature.categoryIds.some((id) => selectedCategoryIds.has(id))
-
-      return matchesName && matchesCategory
-    })
-  }, [creatures, nameFilter, selectedCategoryIds])
+  const {
+    isConfirmOpen,
+    confirmCreatures,
+    handleOpenConfirm,
+    handleConfirmAdd,
+    handleCancelConfirm,
+    resetConfirm,
+  } = useConfirmAddFlow({
+    onAddCombatants,
+    onClose,
+    onResetSelection: () => setSelectedCreatureIds(new Set()),
+  })
 
   /**
    * Ref for the creature list scroll container. TanStack Virtual uses this to
@@ -87,25 +93,8 @@ export function CombatLibraryModal({
 
   /** Closes both this modal and any open confirm modal, resetting all local state. */
   const handleCloseModal = () => {
-    setIsConfirmOpen(false)
-    setConfirmCreatures([])
+    resetConfirm()
     onClose()
-  }
-
-  /**
-   * Toggles a category filter on or off.
-   *
-   * When at least one category is selected, only creatures assigned to that
-   * category are shown. When the selection is empty, all creatures are shown —
-   * an empty filter means "show everything", not "show nothing".
-   */
-  const toggleCategory = (categoryId: string) => {
-    setSelectedCategoryIds((prev) => {
-      const next = new Set(prev)
-      if (next.has(categoryId)) next.delete(categoryId)
-      else next.add(categoryId)
-      return next
-    })
   }
 
   /** Toggles a creature's presence in the selection set. Uses Set for O(1) membership checks. */
@@ -118,52 +107,8 @@ export function CombatLibraryModal({
     })
   }
 
-  /**
-   * Transitions from the selection step to the quantity confirmation step.
-   *
-   * Snapshots the currently selected creatures into `confirmCreatures` before
-   * opening the confirm modal, so the quantity form shows exactly what was
-   * selected even if the underlying `creatures` live query updates between
-   * the two steps.
-   */
-  const handleOpenConfirm = () => {
-    if (!creatures) return
-    const selected = creatures.filter((c) => selectedCreatureIds.has(c.id))
-    if (selected.length === 0) return
-
-    setConfirmCreatures(selected)
-    setIsConfirmOpen(true)
-  }
-
-  /**
-   * Expands the confirmed creature+quantity pairs into individual combatants
-   * and dispatches them to the encounter.
-   *
-   * Each creature is pushed `quantity` times into a flat array before being
-   * passed to `creaturesToCombatants` — this allows the combatant auto-
-   * numbering logic in the reducer to correctly group and number identical
-   * creatures (e.g. 3× Goblin → "Goblin 1", "Goblin 2", "Goblin 3").
-   */
-  const handleConfirmAdd = (items: { creature: Creature; quantity: number }[]) => {
-    const expandedCreatures: Creature[] = []
-
-    items.forEach(({ creature, quantity }) => {
-      for (let i = 0; i < quantity; i += 1) {
-        expandedCreatures.push(creature)
-      }
-    })
-
-    const combatants = creaturesToCombatants(expandedCreatures)
-    onAddCombatants(combatants)
-    setSelectedCreatureIds(new Set())
-    setIsConfirmOpen(false)
-    handleCloseModal()
-  }
-
   const hasSelectedCreatures = selectedCreatureIds.size > 0
   const showLibraryModal = isOpen && !isConfirmOpen
-  const { t } = useTranslation('combat')
-  const { t: tCommon } = useTranslation('common')
 
   return (
     <>
@@ -183,7 +128,7 @@ export function CombatLibraryModal({
             </button>
             <button
               type="button"
-              onClick={handleOpenConfirm}
+              onClick={() => handleOpenConfirm(creatures, selectedCreatureIds)}
               disabled={!hasSelectedCreatures}
               className={`px-4 py-2 rounded-md font-medium transition flex items-center gap-2 ${
                 hasSelectedCreatures
@@ -198,53 +143,16 @@ export function CombatLibraryModal({
         }
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-1 space-y-4">
-            <div>
-              <label
-                htmlFor="creature-name-filter"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                {tCommon('filterBy', { field: tCommon('name') })}
-              </label>
-              <input
-                id="creature-name-filter"
-                name="creature-name-filter"
-                type="text"
-                value={nameFilter}
-                onChange={(e) => setNameFilter(e.target.value)}
-                placeholder={tCommon('searchCreatures')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none focus:border-blue-500"
-              />
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">{tCommon('categories')}</p>
-              {!categories || categories.length === 0 ? (
-                <p className="text-sm text-gray-500">
-                  {t('noCategoriesYet')}
-                </p>
-              ) : (
-                <div className="space-y-2 max-h-64 overflow-y-auto border border-gray-200 rounded-md p-3 bg-white">
-                  {categories.map((category) => (
-                    <label
-                      key={category.id}
-                      className="flex items-center gap-2 text-sm text-gray-700"
-                    >
-                      <input
-                        type="checkbox"
-                        id={`combat-cat-${category.id}`}
-                        name="combat-categories"
-                        checked={selectedCategoryIds.has(category.id)}
-                        onChange={() => toggleCategory(category.id)}
-                        className="w-4 h-4 rounded border-gray-300"
-                      />
-                      <span>{category.name}</span>
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+          <CreatureFilterPanel
+            nameFilter={nameFilter}
+            onNameFilterChange={setNameFilter}
+            selectedCategoryIds={selectedCategoryIds}
+            onToggleCategory={toggleCategory}
+            categories={categories}
+            noCategoriesMessage={t('noCategoriesYet')}
+            nameInputId="combat-creature-name-filter"
+            checkboxIdPrefix="combat-cat"
+          />
 
           <div className="md:col-span-2">
             {!creatures || filteredCreatures.length === 0 ? (
@@ -304,7 +212,7 @@ export function CombatLibraryModal({
 
       <ConfirmAddCreaturesModal
         isOpen={isOpen && isConfirmOpen}
-        onClose={() => setIsConfirmOpen(false)}
+        onClose={handleCancelConfirm}
         creatures={confirmCreatures}
         onConfirm={handleConfirmAdd}
       />
