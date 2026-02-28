@@ -1,5 +1,6 @@
 // Common UI components
 export { Button } from './Button'
+export { FileDropzone } from './FileDropzone'
 export { FormField } from './FormField'
 export { SelectField } from './SelectField'
 export { CheckboxItem } from './CheckboxItem'

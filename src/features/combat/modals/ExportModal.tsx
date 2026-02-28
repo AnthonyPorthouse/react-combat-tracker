@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Copy, Check } from 'lucide-react'
+import { Copy, Check, Download } from 'lucide-react'
 import type { CombatState } from '../../../state/combatState'
-import { createExportString } from '../../../utils/exportData'
+import { createExportString, createExportBytes } from '../../../utils/exportData'
 import { BaseModal } from '../../../components/modals/BaseModal'
 import { Button } from '../../../components/common'
 import { useCopyToClipboard } from '../../../hooks'
@@ -14,39 +14,53 @@ interface ExportModalProps {
 }
 
 /**
- * Modal that serialises and displays the current combat state for export.
+ * Modal that serialises the current combat state for export.
  *
- * The export string is formatted as `<hmac>.<base64json>`, where the HMAC
- * allows the import flow to detect corruption or manual edits. The full
- * pipeline is: `CombatState → JSON.stringify → btoa → HMAC sign → display`.
+ * The export payload is a MessagePack-encoded `Exportable<CombatState>` wrapped
+ * in an HMAC-protected `<hmac>.<base64>` envelope. Two export paths are
+ * available:
  *
- * The `useEffect` regenerates the export string every time `state` changes
- * so the displayed string is always up-to-date if the modal is left open
- * while the encounter progresses.
+ * - **Download** — triggers a `.ctdata` file download (primary path, least
+ *   error-prone since the whole string is written automatically).
+ * - **Copy** — copies the base64 string to the clipboard for sharing via
+ *   text (secondary path, for paste-based imports).
  *
- * A copy-to-clipboard button with a 2-second "Copied!" confirmation replaces
- * the need to manually select the textarea content, which is impractical on
- * mobile for long strings.
+ * The `useEffect` regenerates the export string each time `state` changes so
+ * both buttons are always in sync with the current encounter.
  */
 export function ExportModal({ isOpen, onClose, state }: ExportModalProps) {
   const { copied, copyToClipboard } = useCopyToClipboard()
-  const [exportData, setExportData] = useState<string>('')
+  const [exportString, setExportString] = useState<string>('')
   const { t } = useTranslation('combat')
   const { t: tCommon } = useTranslation('common')
 
   useEffect(() => {
-    createExportString(state).then(setExportData)
+    createExportString('combat', state).then(setExportString)
   }, [state])
 
   /**
-   * Copies the export string to the clipboard and shows a brief confirmation.
+   * Triggers a browser file download of the export as a `.ctdata` binary file.
    *
-   * The `useCopyToClipboard` hook manages the timed "Copied!" feedback and
-   * error handling. `console.error` is used (not thrown) because a clipboard
-   * failure is non-critical — the user can still manually select and copy the
-   * textarea text as a fallback.
+   * Creates a transient object URL from the MessagePack bytes, clicks a hidden
+   * anchor to initiate the download, then immediately revokes the URL to avoid
+   * memory leaks.
    */
-  const handleCopy = () => copyToClipboard(exportData)
+  const handleDownload = async () => {
+    const bytes = await createExportBytes('combat', state)
+    const blob = new Blob([bytes.buffer as ArrayBuffer], { type: 'application/octet-stream' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'combat-export.ctdata'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  /**
+   * Copies the base64 export string to the clipboard with a brief "Copied!"
+   * confirmation. Delegates to the `useCopyToClipboard` hook.
+   */
+  const handleCopy = () => copyToClipboard(exportString)
 
   return (
     <BaseModal
@@ -55,28 +69,31 @@ export function ExportModal({ isOpen, onClose, state }: ExportModalProps) {
       title={t('exportTitle')}
       className="max-w-2xl"
       actions={
-        <Button
-          variant="primary"
-          onClick={handleCopy}
-          icon={copied ? <Check size={18} /> : <Copy size={18} />}
-          className="w-full justify-center"
-        >
-          {copied ? tCommon('copied') : tCommon('copyToClipboard')}
-        </Button>
+        <div className="flex gap-3 w-full">
+          <Button
+            variant="primary"
+            onClick={handleDownload}
+            disabled={!exportString}
+            icon={<Download size={18} />}
+            className="flex-1 justify-center"
+          >
+            {tCommon('download')}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={handleCopy}
+            disabled={!exportString}
+            icon={copied ? <Check size={18} /> : <Copy size={18} />}
+            className="flex-1 justify-center"
+          >
+            {copied ? tCommon('copied') : tCommon('copyToClipboard')}
+          </Button>
+        </div>
       }
     >
       <p className="text-sm text-gray-600">
         {t('exportDescription')}
       </p>
-
-      <textarea
-        id="export-data"
-        name="export-data"
-        value={exportData}
-        readOnly
-        aria-label={t('exportedJson')}
-        className="w-full h-48 p-3 border border-gray-300 rounded font-mono text-sm bg-gray-50 text-gray-700 focus:outline-none resize-none"
-      />
     </BaseModal>
   )
 }

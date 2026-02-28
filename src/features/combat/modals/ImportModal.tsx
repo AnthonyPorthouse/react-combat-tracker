@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CombatValidator, type CombatState } from '../../../state/combatState'
-import { parseImportString } from '../../../utils/importData'
+import { parseImportString, parseImportBytes } from '../../../utils/importData'
 import { BaseModal } from '../../../components/modals/BaseModal'
+import { Button, FileDropzone } from '../../../components/common'
 
 interface ImportModalProps {
   isOpen: boolean
@@ -11,31 +12,38 @@ interface ImportModalProps {
 }
 
 /**
- * Modal for importing a previously exported combat state string.
+ * Modal for importing a previously exported combat state.
  *
- * The import pipeline is the reverse of export and includes a full validation
- * chain to guard against corrupted or tampered strings:
- * 1. Split on `.` to extract HMAC and base64 payload.
- * 2. Re-compute the HMAC and compare — rejects if the payload was altered.
- * 3. `atob` decode the base64 back to a JSON string.
- * 4. `JSON.parse` the JSON.
- * 5. Validate the parsed object against `CombatValidator` — rejects
- *    structurally invalid data (wrong field types, missing fields, etc.).
+ * Two import paths are offered to accommodate different sharing methods:
  *
- * Each failure surface produces a specific user-readable error message so
- * the DM can diagnose what went wrong (bad paste, truncated string, etc.)
- * rather than seeing a generic failure.
+ * - **File upload (primary)** — accepts a `.ctdata` file via a file picker.
+ *   The raw bytes are passed to `parseImportBytes`, which decodes the
+ *   MessagePack payload, verifies the HMAC, and validates the structure.
+ * - **Paste (secondary)** — accepts the base64 `<hmac>.<base64>` string
+ *   directly, delegating to `parseImportString` for the same pipeline.
  *
- * The async import is wrapped in a synchronous `handleSubmit` that spawns
- * the async function internally — required because React's `onSubmit` expects
- * a synchronous handler and `async` handlers would swallow uncaught rejections.
+ * Both paths assert `source === 'combat'` before returning data, so a library
+ * export pasted or dropped here is rejected with a descriptive error.
+ *
+ * The submit button is enabled as soon as either a file is selected or the
+ * textarea contains text. If both are present, the file takes precedence.
  */
 export function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
-  const [base64Input, setBase64Input] = useState('')
+  const [fileInput, setFileInput] = useState<File | null>(null)
+  const [textInput, setTextInput] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const { t } = useTranslation('combat')
   const { t: tCommon } = useTranslation('common')
+
+  const hasInput = fileInput !== null || textInput.trim().length > 0
+
+  const handleClose = () => {
+    setFileInput(null)
+    setTextInput('')
+    setError(null)
+    onClose()
+  }
 
   const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault()
@@ -44,14 +52,19 @@ export function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
 
     const performImport = async () => {
       try {
-        const data = await parseImportString(base64Input, CombatValidator)
+        let data: CombatState
+
+        if (fileInput) {
+          const buffer = await fileInput.arrayBuffer()
+          data = await parseImportBytes(buffer, 'combat', CombatValidator)
+        } else {
+          data = await parseImportString(textInput, 'combat', CombatValidator)
+        }
+
         onImport(data)
-        setBase64Input('')
-        onClose()
+        handleClose()
       } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : 'Failed to import state'
-        setError(errorMessage)
+        setError(err instanceof Error ? err.message : 'Failed to import state')
       } finally {
         setIsLoading(false)
       }
@@ -63,26 +76,28 @@ export function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
   return (
     <BaseModal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       title={t('importTitle')}
       className="max-w-2xl"
       onSubmit={handleSubmit}
       actions={
         <div className="flex gap-3">
-          <button
+          <Button
             type="submit"
-            disabled={!base64Input.trim() || isLoading}
-            className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded font-medium transition-colors"
+            variant="primary"
+            disabled={!hasInput || isLoading}
+            className="flex-1 justify-center"
           >
             {isLoading ? tCommon('importing') : tCommon('importAction')}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            onClick={onClose}
-            className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 px-4 py-2 rounded font-medium transition-colors"
+            variant="secondary"
+            onClick={handleClose}
+            className="flex-1 justify-center"
           >
             {tCommon('cancel')}
-          </button>
+          </Button>
         </div>
       }
     >
@@ -90,17 +105,29 @@ export function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
         {t('importDescription')}
       </p>
 
+      <FileDropzone
+        file={fileInput}
+        accept={{ 'application/octet-stream': ['.ctdata'] }}
+        onFile={(f) => { setFileInput(f); setError(null) }}
+      />
+
+      <div className="relative flex items-center gap-3 py-1">
+        <div className="flex-1 border-t border-gray-200" />
+        <span className="text-xs text-gray-400 shrink-0">{tCommon('orPasteString')}</span>
+        <div className="flex-1 border-t border-gray-200" />
+      </div>
+
       <textarea
         id="import-data"
         name="import-data"
         aria-label={t('importPlaceholder')}
-        value={base64Input}
+        value={textInput}
         onChange={(e) => {
-          setBase64Input(e.target.value)
+          setTextInput(e.target.value)
           if (error) setError(null)
         }}
         placeholder={t('importPlaceholder')}
-        className="w-full h-48 p-3 border border-gray-300 rounded font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+        className="w-full h-32 p-3 border border-gray-300 rounded font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
       />
 
       {error && (

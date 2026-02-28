@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Check, Copy } from 'lucide-react'
+import { Check, Copy, Download } from 'lucide-react'
 import { BaseModal } from '../../../components/modals/BaseModal'
 import { Button } from '../../../components/common'
 import { db } from '../../../db/db'
-import { createExportString } from '../../../utils/exportData'
+import { createExportString, createExportBytes } from '../../../utils/exportData'
 import { useCopyToClipboard } from '../../../hooks'
 
 interface ExportLibraryModalProps {
@@ -14,24 +14,28 @@ interface ExportLibraryModalProps {
 
 /**
  * Exports the entire creature library (all categories and creatures) as a
- * portable HMAC-protected string.
+ * portable HMAC-protected MessagePack file or clipboard string.
  *
- * The export pipeline mirrors the combat state export: categories and
- * creatures are fetched directly from IndexedDB (not from a live query,
- * since this is a one-shot async read), serialised as JSON, base64-encoded,
- * and signed with an HMAC.
+ * Categories and creatures are fetched directly from IndexedDB in a one-shot
+ * async read when the modal opens. The payload is wrapped in an `Exportable`
+ * envelope with `source: 'library'` before encoding, so the import flow can
+ * quickly reject mismatched export types (e.g. a combat export pasted into
+ * the library importer).
  *
- * The `useEffect` only triggers when `isOpen` changes to `true`, avoiding
- * unnecessary database reads while the modal is closed. If the database read
- * fails, `exportData` is cleared and the copy button is disabled rather than
- * showing an error-state string.
+ * Two export paths are available:
+ * - **Download** — triggers a `.ctdata` file download (primary).
+ * - **Copy** — copies the base64 string for paste-based imports (secondary).
+ *
+ * If the database read fails, both buttons are disabled rather than showing
+ * an error-state string.
  *
  * Useful for backup/restore workflows, sharing creature libraries between
  * DMs, or migrating data to a new browser/device.
  */
 export function ExportLibraryModal({ isOpen, onClose }: ExportLibraryModalProps) {
   const { copied, copyToClipboard } = useCopyToClipboard()
-  const [exportData, setExportData] = useState('')
+  const [exportString, setExportString] = useState('')
+  const [libraryData, setLibraryData] = useState<{ categories: Awaited<ReturnType<typeof db.categories.toArray>>, creatures: Awaited<ReturnType<typeof db.creatures.toArray>> } | null>(null)
   const { t } = useTranslation('library')
   const { t: tCommon } = useTranslation('common')
 
@@ -44,11 +48,14 @@ export function ExportLibraryModal({ isOpen, onClose }: ExportLibraryModalProps)
           db.categories.toArray(),
           db.creatures.toArray(),
         ])
-        const result = await createExportString({ categories, creatures })
-        setExportData(result)
+        const data = { categories, creatures }
+        setLibraryData(data)
+        const result = await createExportString('library', data)
+        setExportString(result)
       } catch (err) {
         console.error('Failed to generate library export:', err)
-        setExportData('')
+        setExportString('')
+        setLibraryData(null)
       }
     }
 
@@ -56,11 +63,29 @@ export function ExportLibraryModal({ isOpen, onClose }: ExportLibraryModalProps)
   }, [isOpen])
 
   /**
-   * Copies the export string to the clipboard with a brief "Copied!" confirmation.
-   * Delegates to the `useCopyToClipboard` hook, which mirrors the same pattern
-   * used in `ExportModal` for combat state export.
+   * Triggers a browser file download of the library export as a `.ctdata` file.
+   *
+   * Uses the already-fetched `libraryData` to avoid a second IndexedDB read.
+   * Creates a transient object URL, clicks a hidden anchor, then revokes the
+   * URL to avoid memory leaks.
    */
-  const handleCopy = () => copyToClipboard(exportData)
+  const handleDownload = async () => {
+    if (!libraryData) return
+    const bytes = await createExportBytes('library', libraryData)
+    const blob = new Blob([bytes.buffer as ArrayBuffer], { type: 'application/octet-stream' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'library-export.ctdata'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  /**
+   * Copies the base64 export string to the clipboard with a brief "Copied!"
+   * confirmation. Delegates to the `useCopyToClipboard` hook.
+   */
+  const handleCopy = () => copyToClipboard(exportString)
 
   return (
     <BaseModal
@@ -69,29 +94,31 @@ export function ExportLibraryModal({ isOpen, onClose }: ExportLibraryModalProps)
       title={t('exportLibraryTitle')}
       className="max-w-2xl"
       actions={
-        <Button
-          variant="primary"
-          onClick={handleCopy}
-          disabled={!exportData}
-          icon={copied ? <Check size={18} /> : <Copy size={18} />}
-          className="w-full justify-center"
-        >
-          {copied ? tCommon('copied') : tCommon('copyToClipboard')}
-        </Button>
+        <div className="flex gap-3 w-full">
+          <Button
+            variant="primary"
+            onClick={handleDownload}
+            disabled={!exportString}
+            icon={<Download size={18} />}
+            className="flex-1 justify-center"
+          >
+            {tCommon('download')}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={handleCopy}
+            disabled={!exportString}
+            icon={copied ? <Check size={18} /> : <Copy size={18} />}
+            className="flex-1 justify-center"
+          >
+            {copied ? tCommon('copied') : tCommon('copyToClipboard')}
+          </Button>
+        </div>
       }
     >
       <p className="text-sm text-gray-600">
         {t('exportDescription')}
       </p>
-
-      <textarea
-        id="export-library-data"
-        name="export-library-data"
-        value={exportData}
-        readOnly
-        aria-label={t('exportedLibraryJson')}
-        className="w-full h-48 p-3 border border-gray-300 rounded font-mono text-sm bg-gray-50 text-gray-700 focus:outline-none resize-none"
-      />
     </BaseModal>
   )
 }
