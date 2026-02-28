@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Dark navy background with rounded corners -->
+  <rect width="512" height="512" rx="80" fill="#1a1a2e"/>
+
+  <!-- Sword 1: hilt top-left, tip bottom-right -->
+  <line x1="150" y1="130" x2="362" y2="382" stroke="#c9a227" stroke-width="20" stroke-linecap="round"/>
+  <!-- Guard 1 -->
+  <line x1="165" y1="190" x2="215" y2="140" stroke="#c9a227" stroke-width="16" stroke-linecap="round"/>
+  <!-- Pommel 1 -->
+  <circle cx="138" cy="118" r="18" fill="#c9a227"/>
+
+  <!-- Sword 2: hilt top-right, tip bottom-left -->
+  <line x1="362" y1="130" x2="150" y2="382" stroke="#c9a227" stroke-width="20" stroke-linecap="round"/>
+  <!-- Guard 2 -->
+  <line x1="347" y1="190" x2="297" y2="140" stroke="#c9a227" stroke-width="16" stroke-linecap="round"/>
+  <!-- Pommel 2 -->
+  <circle cx="374" cy="118" r="18" fill="#c9a227"/>
+</svg>
