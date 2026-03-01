@@ -10,6 +10,7 @@ export { DropdownMenu } from './DropdownMenu'
 export { SelectableIcon } from './SelectableIcon'
 export { SelectionToolbar } from './SelectionToolbar'
 export { ImportFormBody } from './ImportFormBody'
+export { ExportActionButtons } from './ExportActionButtons'
 
 // Re-export types for convenience
 export type {

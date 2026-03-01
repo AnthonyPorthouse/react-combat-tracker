@@ -1,7 +1,7 @@
 # Plan 3: Deduplicate ExportModal + ExportLibraryModal
 
 **Priority:** High  
-**Status:** Not started
+**Status:** Complete
 
 ## Problem
 
@@ -45,14 +45,14 @@ Extract the shared action logic into a hook and the shared button pair into a co
 
 ## Verification
 
-- [ ] Download works in both combat and library export
-- [ ] Copy to clipboard works in both contexts
-- [ ] "Copied!" feedback state displays and resets correctly
-- [ ] Object URL is revoked after download (no memory leak — verify via DevTools Memory tab)
-- [ ] Export area is disabled/empty when no data is available
-- [ ] `npx tsc --noEmit` passes
-- [ ] `npm run lint` passes
-- [ ] `npx i18next-cli lint` passes
+- [x] Download works in both combat and library export
+- [x] Copy to clipboard works in both contexts
+- [x] "Copied!" feedback state displays and resets correctly
+- [x] Object URL is revoked after download (no memory leak — verify via DevTools Memory tab)
+- [x] Export area is disabled/empty when no data is available
+- [x] `npx tsc --noEmit` passes
+- [x] `npm run lint` passes
+- [x] `npx i18next-cli lint` passes
 
 ## Notes
 
