@@ -1,3 +1,4 @@
+import type { RefObject } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CombatValidator, type CombatState } from '../../../state/combatState'
 import { BaseModal } from '../../../components/modals/BaseModal'
@@ -7,6 +8,8 @@ import { useImportForm } from '../../../hooks/useImportForm'
 interface ImportModalProps {
   isOpen: boolean
   onClose: () => void
+  /** Ref to the element that triggered this modal, used for focus restoration. */
+  triggerRef: RefObject<HTMLElement | null>
   onImport: (state: CombatState) => void
 }
 
@@ -30,7 +33,7 @@ interface ImportModalProps {
  * Shared import state and pipeline logic live in `useImportForm`; shared
  * form markup lives in `ImportFormBody`.
  */
-export function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
+export function ImportModal({ isOpen, onClose, triggerRef, onImport }: ImportModalProps) {
   const { t } = useTranslation('combat')
   const { t: tCommon } = useTranslation('common')
 
@@ -56,6 +59,7 @@ export function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
     <BaseModal
       isOpen={isOpen}
       onClose={handleClose}
+      triggerRef={triggerRef}
       title={t('importTitle')}
       className="max-w-2xl"
       onSubmit={handleSubmit}

@@ -1,3 +1,4 @@
+import type { RefObject } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BaseModal } from '../../../components/modals/BaseModal'
 import { Button, ImportFormBody } from '../../../components/common'
@@ -9,6 +10,8 @@ import { useImportForm } from '../../../hooks/useImportForm'
 interface ImportLibraryModalProps {
   isOpen: boolean
   onClose: () => void
+  /** Ref to the element that triggered this modal, used for focus restoration. */
+  triggerRef: RefObject<HTMLElement | null>
   onImport?: (state: LibraryState) => void
 }
 
@@ -35,7 +38,7 @@ interface ImportLibraryModalProps {
  * Shared import state and pipeline logic live in `useImportForm`; shared
  * form markup lives in `ImportFormBody`.
  */
-export function ImportLibraryModal({ isOpen, onClose, onImport }: ImportLibraryModalProps) {
+export function ImportLibraryModal({ isOpen, onClose, triggerRef, onImport }: ImportLibraryModalProps) {
   const { t } = useTranslation('library')
   const { t: tCommon } = useTranslation('common')
   const { addToast } = useToast()
@@ -69,6 +72,7 @@ export function ImportLibraryModal({ isOpen, onClose, onImport }: ImportLibraryM
     <BaseModal
       isOpen={isOpen}
       onClose={handleClose}
+      triggerRef={triggerRef}
       title={t('importLibraryTitle')}
       className="max-w-2xl"
       onSubmit={handleSubmit}

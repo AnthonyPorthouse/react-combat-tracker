@@ -51,6 +51,11 @@ src/
 
 This project is actively in development. Features and functionality are being added and refined.
 
+## Accessibility
+
+- **Focus trapping** — All modals and dropdown menus use the `useFocusTrap` hook, which marks background content `inert` while an overlay is open (preventing keyboard focus and pointer events from reaching it) and restores focus to the trigger element on close, meeting WCAG 2.1 SC 2.4.3.
+- **Trigger refs** — `Button` forwards its `ref` so parent components can pass a `triggerRef` to any modal, enabling predictable focus restoration regardless of how the modal was opened.
+
 ## Performance
 
 The application is designed to remain responsive on low-end devices even at scale:

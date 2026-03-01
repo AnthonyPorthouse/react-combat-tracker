@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import type { Category } from '../../../db/stores/categories'
+import { CategoryCheckboxList } from './CategoryCheckboxList'
 
 interface CreatureFilterPanelProps {
   /** Current value of the name search input. */
@@ -26,11 +27,6 @@ interface CreatureFilterPanelProps {
    * satisfy HTML validity, even though only one panel is in the DOM at a time.
    */
   nameInputId?: string
-  /**
-   * Prefix applied to each category checkbox `id` and `name` attribute.
-   * Must be unique per panel instance to avoid duplicate IDs.
-   */
-  checkboxIdPrefix?: string
 }
 
 /**
@@ -51,7 +47,6 @@ export function CreatureFilterPanel({
   categories,
   noCategoriesMessage,
   nameInputId = 'creature-name-filter',
-  checkboxIdPrefix = 'cat',
 }: CreatureFilterPanelProps) {
   const { t: tCommon } = useTranslation('common')
 
@@ -79,28 +74,13 @@ export function CreatureFilterPanel({
         <p className="text-sm font-medium text-gray-700 mb-2">
           {tCommon('categories')}
         </p>
-        {!categories || categories.length === 0 ? (
-          <p className="text-sm text-gray-500">{noCategoriesMessage}</p>
-        ) : (
-          <div className="space-y-2 max-h-64 overflow-y-auto border border-gray-200 rounded-md p-3 bg-white">
-            {categories.map((category) => (
-              <label
-                key={category.id}
-                className="flex items-center gap-2 text-sm text-gray-700"
-              >
-                <input
-                  type="checkbox"
-                  id={`${checkboxIdPrefix}-${category.id}`}
-                  name={`${checkboxIdPrefix}-categories`}
-                  checked={selectedCategoryIds.has(category.id)}
-                  onChange={() => onToggleCategory(category.id)}
-                  className="w-4 h-4 rounded border-gray-300"
-                />
-                <span>{category.name}</span>
-              </label>
-            ))}
-          </div>
-        )}
+        <CategoryCheckboxList
+          categories={categories ?? []}
+          selectedIds={selectedCategoryIds}
+          onToggle={onToggleCategory}
+          noCategoriesMessage={noCategoriesMessage}
+          className="space-y-2 max-h-64 overflow-y-auto border border-gray-200 rounded-md p-3 bg-white"
+        />
       </div>
     </div>
   )

@@ -1,3 +1,4 @@
+import type { RefObject } from 'react'
 import { nanoid } from 'nanoid'
 import { useTranslation } from 'react-i18next'
 import type { Combatant } from '../../../../types/combatant'
@@ -8,6 +9,8 @@ import { useCombatantForm } from '../../../../hooks'
 interface CreateCombatantProps {
   isOpen: boolean
   onClose: () => void
+  /** Ref to the element that triggered this modal, used for focus restoration. */
+  triggerRef: RefObject<HTMLElement | null>
   onSubmit: (combatant: Combatant) => void
 }
 
@@ -29,6 +32,7 @@ interface CreateCombatantProps {
 export function CreateCombatant({
   isOpen,
   onClose,
+  triggerRef,
   onSubmit,
 }: CreateCombatantProps) {
   const { formData, formErrors, handleChange, validate, reset } = useCombatantForm()
@@ -54,6 +58,7 @@ export function CreateCombatant({
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
+      triggerRef={triggerRef}
       title={t('addNewCombatantTitle')}
       className="max-w-md rounded-none h-screen md:h-auto md:rounded-lg m-0"
       onSubmit={handleSubmit}

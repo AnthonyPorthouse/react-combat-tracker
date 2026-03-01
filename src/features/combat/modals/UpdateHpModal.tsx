@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type RefObject } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Heart, Swords } from 'lucide-react'
 import { BaseModal } from '../../../components/modals/BaseModal'
@@ -7,6 +7,8 @@ import { Button } from '../../../components/common'
 interface UpdateHpModalProps {
   isOpen: boolean
   onClose: () => void
+  /** Ref to the element that triggered this modal, used for focus restoration. */
+  triggerRef: RefObject<HTMLElement | null>
   /** Called with the raw positive amount entered by the user. The caller is
    *  responsible for applying the delta (add or subtract) and clamping. */
   onConfirm: (amount: number) => void
@@ -34,6 +36,7 @@ interface UpdateHpModalProps {
 export function UpdateHpModal({
   isOpen,
   onClose,
+  triggerRef,
   onConfirm,
   combatantName,
   mode,
@@ -63,6 +66,7 @@ export function UpdateHpModal({
     <BaseModal
       isOpen={isOpen}
       onClose={handleClose}
+      triggerRef={triggerRef}
       title={
         <span className="inline-flex items-center gap-2">
           {icon}

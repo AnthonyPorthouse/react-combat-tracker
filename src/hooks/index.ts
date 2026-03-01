@@ -1,5 +1,7 @@
 // Custom hooks
 export { useModal } from './useModal'
+export { useDndSensors } from './useDndSensors'
+export { useFocusTrap } from './useFocusTrap'
 export { useFormValidation } from './useFormValidation'
 export { useCopyToClipboard } from './useCopyToClipboard'
 export { useCombatantForm } from './useCombatantForm'

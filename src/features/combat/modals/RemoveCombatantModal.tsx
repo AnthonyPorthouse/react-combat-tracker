@@ -1,3 +1,4 @@
+import type { RefObject } from 'react'
 import { Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ConfirmDialog } from '../../../components/common/ConfirmDialog'
@@ -5,6 +6,8 @@ import { ConfirmDialog } from '../../../components/common/ConfirmDialog'
 interface RemoveCombatantModalProps {
   isOpen: boolean
   onClose: () => void
+  /** Ref to the element that triggered this modal, used for focus restoration. */
+  triggerRef: RefObject<HTMLElement | null>
   onConfirm: () => void
   combatantName: string
 }
@@ -20,6 +23,7 @@ interface RemoveCombatantModalProps {
 export function RemoveCombatantModal({
   isOpen,
   onClose,
+  triggerRef,
   onConfirm,
   combatantName,
 }: RemoveCombatantModalProps) {
@@ -34,6 +38,7 @@ export function RemoveCombatantModal({
     <ConfirmDialog
       isOpen={isOpen}
       onClose={onClose}
+      triggerRef={triggerRef}
       title={t('removeCombatantTitle')}
       message={t('removeCombatantMessage', { name: combatantName })}
       icon={<Trash2 size={24} />}

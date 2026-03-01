@@ -1,3 +1,4 @@
+import type { RefObject } from 'react'
 import { AlertTriangle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ConfirmDialog } from '../../../components/common/ConfirmDialog'
@@ -5,6 +6,8 @@ import { ConfirmDialog } from '../../../components/common/ConfirmDialog'
 interface EndCombatModalProps {
   isOpen: boolean
   onClose: () => void
+  /** Ref to the element that triggered this modal, used for focus restoration. */
+  triggerRef: RefObject<HTMLElement | null>
   onConfirm: () => void
 }
 
@@ -19,6 +22,7 @@ interface EndCombatModalProps {
 export function EndCombatModal({
   isOpen,
   onClose,
+  triggerRef,
   onConfirm,
 }: EndCombatModalProps) {
   const { t } = useTranslation('combat')
@@ -32,6 +36,7 @@ export function EndCombatModal({
     <ConfirmDialog
       isOpen={isOpen}
       onClose={onClose}
+      triggerRef={triggerRef}
       title={t('endCombatTitle')}
       message={t('endCombatMessage')}
       icon={<AlertTriangle size={24} />}

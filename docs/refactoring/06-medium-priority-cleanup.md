@@ -1,7 +1,7 @@
 # Plan 6: Medium-Priority Cleanup Bundle
 
 **Priority:** Medium  
-**Status:** Not started
+**Status:** Complete ✅
 
 ## Overview
 
@@ -23,8 +23,8 @@ Four smaller, independent cleanups grouped into one pass. Each item is self-cont
 
 ### Verification
 
-- [ ] Drag-to-reorder still works in the combat view
-- [ ] `npx tsc --noEmit` passes
+- [x] Drag-to-reorder still works in the combat view
+- [x] `npx tsc --noEmit` passes
 
 ---
 
@@ -41,16 +41,17 @@ Additionally, the same `<fieldset>/<legend>/<CheckboxItem>` category selector bl
 1. Refactor `src/features/library/components/CreatureForm.tsx` to use `useFormValidation<CreatureFormData>(creatureValidator)` — removes ~15 lines of manual error handling
 2. Refactor `src/features/library/components/CategoryForm.tsx` the same way
 3. Extract the category checkboxes block to `src/features/library/components/CategoryCheckboxList.tsx`
-   - Accepts: `categories`, `selectedIds`, `onChange` props
+   - Accepts: `categories`, `selectedIds: Set<string>`, `onToggle` props
+   - Uses `useId()` internally for checkbox id uniqueness (no external `idPrefix` prop needed)
    - Used by: `CreatureForm` and `CreatureFilterPanel` from Plan 1
 
 ### Verification
 
-- [ ] Creature form validates and displays errors correctly on invalid submit
-- [ ] Category form validates and displays errors correctly
-- [ ] Category checkboxes render and update correctly in both forms
-- [ ] `npx tsc --noEmit` passes
-- [ ] `npm run lint` passes
+- [x] Creature form validates and displays errors correctly on invalid submit
+- [x] Category form validates and displays errors correctly
+- [x] Category checkboxes render and update correctly in both forms
+- [x] `npx tsc --noEmit` passes
+- [x] `npm run lint` passes
 
 ---
 
@@ -68,8 +69,8 @@ Additionally, the same `<fieldset>/<legend>/<CheckboxItem>` category selector bl
 
 ### Verification
 
-- [ ] No runtime errors or broken imports after deletion
-- [ ] `npx tsc --noEmit` passes
+- [x] No runtime errors or broken imports after deletion
+- [x] `npx tsc --noEmit` passes
 
 ---
 
@@ -82,15 +83,29 @@ Additionally, the same `<fieldset>/<legend>/<CheckboxItem>` category selector bl
 ### Steps
 
 1. Create `src/hooks/useFocusTrap.ts`
-   - Accepts: `isOpen: boolean`, `triggerRef: RefObject<HTMLElement>`
-   - Manages: toggling `inert` on `#root` (and `#modal-root` where applicable), setting initial focus on open, restoring focus to trigger on close
+   - Accepts: `isOpen: boolean`, `triggerRef: RefObject<HTMLElement | null>`, optional `{ inertSelectors, focusOnOpenSelector }`
+   - Manages: toggling `inert` on configured selectors, setting initial focus on open, restoring focus to trigger on close
 2. Refactor `src/components/common/DropdownMenu.tsx` to consume `useFocusTrap`
 3. Refactor `src/components/modals/BaseModal.tsx` to consume `useFocusTrap`
+   - `triggerRef` is a **required** prop on `BaseModal` — pass `useRef(null)` when no obvious trigger exists
+4. Add `forwardRef` to `src/components/common/Button.tsx` so callers can attach trigger refs
+5. Thread `triggerRef` through all `BaseModal` consumers (wrapper modals) and `ConfirmDialog`
+6. Update all parent call sites to create refs and attach to trigger buttons:
+   - `src/routes/app.tsx` — refs for library, export, import, and create combatant buttons; `endCombatRef` is a null ref (trigger is inside `CombatBar`)
+   - `src/routes/library/index.tsx` — refs for export and import library buttons
+   - `src/features/combat/components/combatants/CombatantActionMenu.tsx` — null refs for all four modals (dropdown items are the triggers; `DropdownMenu`'s own focus trap handles the return path)
+   - `src/features/library/components/CategoryList.tsx` — captures `e.currentTarget` for single-delete; null ref for bulk-delete
+   - `src/features/library/components/CreatureList.tsx` — same pattern as `CategoryList`
+
+### Notes
+
+- `ConfirmDialogProps` (in `src/types/common.ts`) also gains a required `triggerRef` field so it flows through `ConfirmDialog` → `BaseModal`
+- Null `triggerRef` values are intentional in a few call sites where focus restoration is either impossible or already handled by another layer
 
 ### Verification
 
-- [ ] Dropdown opens, traps focus, and restores focus to trigger on close
-- [ ] Modal opens, traps focus, and restores focus to trigger on close
-- [ ] Background content is inert (not keyboard-reachable) while overlay is open
-- [ ] `npx tsc --noEmit` passes
-- [ ] `npm run lint` passes
+- [x] Dropdown opens, traps focus, and restores focus to trigger on close
+- [x] Modal opens, traps focus, and restores focus to trigger on close
+- [x] Background content is inert (not keyboard-reachable) while overlay is open
+- [x] `npx tsc --noEmit` passes
+- [x] `npm run lint` passes

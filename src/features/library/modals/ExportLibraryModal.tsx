@@ -1,3 +1,4 @@
+import type { RefObject } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BaseModal } from '../../../components/modals/BaseModal'
 import { ExportActionButtons } from '../../../components/common'
@@ -7,6 +8,8 @@ import { useExportActions } from '../../../hooks'
 interface ExportLibraryModalProps {
   isOpen: boolean
   onClose: () => void
+  /** Ref to the element that triggered this modal, used for focus restoration. */
+  triggerRef: RefObject<HTMLElement | null>
 }
 
 /**
@@ -29,7 +32,7 @@ interface ExportLibraryModalProps {
  * Useful for backup/restore workflows, sharing creature libraries between
  * DMs, or migrating data to a new browser/device.
  */
-export function ExportLibraryModal({ isOpen, onClose }: ExportLibraryModalProps) {
+export function ExportLibraryModal({ isOpen, onClose, triggerRef }: ExportLibraryModalProps) {
   const { t } = useTranslation('library')
   const { exportString, handleDownload, handleCopy, copied } = useExportActions({
     exportType: 'library',
@@ -48,6 +51,7 @@ export function ExportLibraryModal({ isOpen, onClose }: ExportLibraryModalProps)
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
+      triggerRef={triggerRef}
       title={t('exportLibraryTitle')}
       className="max-w-2xl"
       actions={

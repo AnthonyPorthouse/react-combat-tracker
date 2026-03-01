@@ -1,3 +1,4 @@
+import type { RefObject } from 'react'
 import { Pencil } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { Combatant } from '../../../types/combatant'
@@ -8,6 +9,8 @@ import { useCombatantForm } from '../../../hooks'
 interface EditCombatantModalProps {
   isOpen: boolean
   onClose: () => void
+  /** Ref to the element that triggered this modal, used for focus restoration. */
+  triggerRef: RefObject<HTMLElement | null>
   /** Called with the fully-updated combatant on successful submission. */
   onConfirm: (combatant: Combatant) => void
   combatant: Combatant
@@ -33,6 +36,7 @@ interface EditCombatantModalProps {
 export function EditCombatantModal({
   isOpen,
   onClose,
+  triggerRef,
   onConfirm,
   combatant,
 }: EditCombatantModalProps) {
@@ -62,6 +66,7 @@ export function EditCombatantModal({
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
+      triggerRef={triggerRef}
       title={
         <span className="inline-flex items-center gap-2">
           <Pencil size={16} />

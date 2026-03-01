@@ -43,6 +43,17 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
    */
   const listRef = useRef<HTMLDivElement>(null)
 
+  /**
+   * Tracks the delete button that last opened the single-item confirm dialog,
+   * so focus can be restored when that dialog closes.
+   */
+  const singleDeleteTriggerRef = useRef<HTMLElement | null>(null)
+  /**
+   * Bulk delete uses a null ref — items being deleted means the toolbar button
+   * may no longer exist when the dialog closes, so focus restoration is skipped.
+   */
+  const bulkDeleteTriggerRef = useRef<HTMLElement | null>(null)
+
   const filteredCreatures = useMemo(() => {
     if (!creatures) return []
 
@@ -201,7 +212,7 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
                             <Edit size={16} />
                           </Link>
                           <button
-                            onClick={() => openSingleConfirm(creature.id)}
+                            onClick={(e) => { singleDeleteTriggerRef.current = e.currentTarget; openSingleConfirm(creature.id) }}
                             className="text-red-600 hover:text-red-700 p-1 transition"
                             aria-label={t('delete', { entity: t('creature') })}
                           >
@@ -221,6 +232,7 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
       <ConfirmDialog
         isOpen={bulkDeleteModal.isOpen}
         onClose={bulkDeleteModal.close}
+        triggerRef={bulkDeleteTriggerRef}
         title={t('bulkDeleteCreatures.title', { count: selectionCount })}
         message={t('bulkDeleteCreatures.message', { count: selectionCount })}
         icon={<Trash2 size={36} />}
@@ -232,6 +244,7 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
       <ConfirmDialog
         isOpen={singleDeleteModal.isOpen}
         onClose={closeSingleConfirm}
+        triggerRef={singleDeleteTriggerRef}
         title={t('deleteCreature.title')}
         message={t('deleteCreature.message')}
         icon={<Trash2 size={36} />}

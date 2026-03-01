@@ -1,3 +1,4 @@
+import { forwardRef } from 'react';
 import type { ButtonVariant, ButtonSize, ButtonProps } from '../../types/common';
 
 /**
@@ -52,8 +53,12 @@ const getSizeClasses = (size: ButtonSize = 'md'): string => {
  * Disabled state is handled uniformly here rather than per-callsite — the
  * `disabled:` Tailwind variant overrides the variant colour and sets a
  * `not-allowed` cursor so the visual feedback is consistent everywhere.
+ *
+ * Supports ref forwarding so callers can pass a `triggerRef` and receive the
+ * underlying `<button>` element back — used by `useFocusTrap` to restore
+ * keyboard focus after a modal or dropdown closes.
  */
-export function Button({
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button({
   variant = 'primary',
   size = 'md',
   disabled = false,
@@ -62,7 +67,7 @@ export function Button({
   className = '',
   type = 'button',
   ...props
-}: ButtonProps) {
+}, ref) {
   const baseClasses =
     'rounded font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed';
   const variantClasses = getVariantClasses(variant);
@@ -72,6 +77,7 @@ export function Button({
 
   return (
     <button
+      ref={ref}
       type={type}
       disabled={disabled}
       className={fullClasses}
@@ -87,4 +93,4 @@ export function Button({
       )}
     </button>
   );
-}
+});

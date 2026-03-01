@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BaseModal } from '../../../components/modals/BaseModal';
 import type { Creature } from '../../../db/stores/creature';
@@ -7,6 +7,8 @@ import { Minus, Plus, Trash2 } from 'lucide-react';
 interface ConfirmAddCreaturesModalProps {
   isOpen: boolean;
   onClose: () => void;
+  /** Ref to the element that triggered this modal, used for focus restoration. */
+  triggerRef: RefObject<HTMLElement | null>;
   creatures: Creature[];
   onConfirm: (items: { creature: Creature; quantity: number }[]) => void;
 }
@@ -34,6 +36,7 @@ interface ConfirmItem {
 export function ConfirmAddCreaturesModal({
   isOpen,
   onClose,
+  triggerRef,
   creatures,
   onConfirm,
 }: ConfirmAddCreaturesModalProps) {
@@ -104,6 +107,7 @@ export function ConfirmAddCreaturesModal({
     <BaseModal
       isOpen={isOpen}
       onClose={handleClose}
+      triggerRef={triggerRef}
       title={t('confirmAddToCombat')}
       className="max-w-3xl"
       actions={

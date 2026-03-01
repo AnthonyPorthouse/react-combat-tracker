@@ -19,6 +19,7 @@ import { Button } from './Button';
 export function ConfirmDialog({
   isOpen,
   onClose,
+  triggerRef,
   title,
   message,
   icon,
@@ -30,7 +31,7 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   const { t } = useTranslation('common')
   return (
-    <BaseModal isOpen={isOpen} onClose={onClose} title="">
+    <BaseModal isOpen={isOpen} onClose={onClose} title="" triggerRef={triggerRef}>
       <div className="space-y-4">
         {icon && (
           <div className="flex justify-center text-4xl text-gray-600">

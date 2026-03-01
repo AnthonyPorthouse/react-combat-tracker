@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Heart, MoreVertical, Pencil, Swords, Trash2 } from 'lucide-react'
 import type { Combatant } from '../../../../types/combatant'
@@ -33,6 +34,14 @@ export function CombatantActionMenu({
   onUpdate,
 }: CombatantActionMenuProps) {
   const { t } = useTranslation('combat')
+
+  // Modals are triggered from inside a portal dropdown, so no external element
+  // acts as the focus-restoration target. Null refs are intentional here —
+  // DropdownMenu's own useFocusTrap already returns focus to the menu trigger.
+  const removeModalRef = useRef<HTMLElement | null>(null)
+  const healModalRef = useRef<HTMLElement | null>(null)
+  const harmModalRef = useRef<HTMLElement | null>(null)
+  const editModalRef = useRef<HTMLElement | null>(null)
 
   const {
     isRemoveModalOpen,
@@ -120,12 +129,14 @@ export function CombatantActionMenu({
       <RemoveCombatantModal
         isOpen={isRemoveModalOpen}
         onClose={closeRemoveModal}
+        triggerRef={removeModalRef}
         onConfirm={handleRemoveConfirm}
         combatantName={combatant.name}
       />
       <UpdateHpModal
         isOpen={isHealModalOpen}
         onClose={closeHealModal}
+        triggerRef={healModalRef}
         onConfirm={handleHealConfirm}
         combatantName={combatant.name}
         mode="heal"
@@ -133,6 +144,7 @@ export function CombatantActionMenu({
       <UpdateHpModal
         isOpen={isHarmModalOpen}
         onClose={closeHarmModal}
+        triggerRef={harmModalRef}
         onConfirm={handleHarmConfirm}
         combatantName={combatant.name}
         mode="harm"
@@ -141,6 +153,7 @@ export function CombatantActionMenu({
         key={String(isEditModalOpen)}
         isOpen={isEditModalOpen}
         onClose={closeEditModal}
+        triggerRef={editModalRef}
         onConfirm={handleEditConfirm}
         combatant={combatant}
       />

@@ -6,6 +6,7 @@
  * consumer that needs to pass typed props without importing the full component
  * module (e.g. in tests or higher-order wrappers).
  */
+import type { RefObject } from 'react'
 
 /** Semantic colour intent for the `Button` component. */
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'danger-icon' | 'success' | 'ghost';
@@ -71,6 +72,12 @@ export interface ModalActionsProps {
 export interface ConfirmDialogProps {
   isOpen: boolean;
   onClose: () => void;
+  /**
+   * Ref pointing to the element that triggered the dialog.
+   * Returned focus on close and used by `useFocusTrap` to inert the background.
+   * Pass `useRef(null)` when no obvious trigger exists.
+   */
+  triggerRef: RefObject<HTMLElement | null>;
   title: string;
   message: string;
   /** Icon rendered above the title, typically from lucide-react. */

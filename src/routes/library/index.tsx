@@ -1,7 +1,7 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { Download, Upload } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { ExportLibraryModal, ImportLibraryModal, LibraryPanel } from '../../features/library'
 
 export const Route = createFileRoute('/library/')({
@@ -21,6 +21,8 @@ function LibraryPage() {
   const { t: tCommon } = useTranslation('common')
   const [isExportOpen, setIsExportOpen] = useState(false)
   const [isImportOpen, setIsImportOpen] = useState(false)
+  const exportRef = useRef<HTMLButtonElement>(null)
+  const importRef = useRef<HTMLButtonElement>(null)
 
   return (
     <div className="space-y-6">
@@ -35,6 +37,7 @@ function LibraryPage() {
         </div>
         <div className="flex flex-wrap gap-2">
           <button
+            ref={exportRef}
             type="button"
             onClick={() => setIsExportOpen(true)}
             className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 inline-flex items-center gap-2"
@@ -43,6 +46,7 @@ function LibraryPage() {
             {t('exportLibrary')}
           </button>
           <button
+            ref={importRef}
             type="button"
             onClick={() => setIsImportOpen(true)}
             className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 inline-flex items-center gap-2"
@@ -70,10 +74,12 @@ function LibraryPage() {
       <ExportLibraryModal
         isOpen={isExportOpen}
         onClose={() => setIsExportOpen(false)}
+        triggerRef={exportRef}
       />
       <ImportLibraryModal
         isOpen={isImportOpen}
         onClose={() => setIsImportOpen(false)}
+        triggerRef={importRef}
       />
     </div>
   )

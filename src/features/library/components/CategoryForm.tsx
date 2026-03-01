@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid';
 import { categoryValidator, type Category } from '../../../db/stores/categories';
 import { FormField } from '../../../components/common/FormField';
 import { Button } from '../../../components/common/Button';
+import { useFormValidation } from '../../../hooks';
 
 interface CategoryFormProps {
   category?: Category;
@@ -26,7 +27,7 @@ interface CategoryFormProps {
  */
 export function CategoryForm({ category, onSubmit, onCancel }: CategoryFormProps) {
   const [name, setName] = useState(category?.name || '');
-  const [error, setError] = useState<string>('');
+  const { errors, validate, clearFieldError } = useFormValidation<{ id: string; name: string }>(categoryValidator);
   const { t } = useTranslation('library');
   const { t: tCommon } = useTranslation('common');
 
@@ -37,21 +38,19 @@ export function CategoryForm({ category, onSubmit, onCancel }: CategoryFormProps
    * duplicate record — the caller is expected to `update` rather than `add`
    * when an id is already present. In create mode a new nanoid is generated
    * here so the caller always receives a fully-formed `Category` object.
+   *
+   * `validate` returns the parsed value on success or `null` on failure,
+   * populating per-field `errors` automatically — no manual try/catch needed.
    */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
 
-    try {
-      const newCategory = categoryValidator.parse({
-        id: category?.id || nanoid(),
-        name,
-      });
-      onSubmit(newCategory);
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      }
+    const result = validate({
+      id: category?.id || nanoid(),
+      name,
+    });
+    if (result) {
+      onSubmit(result);
     }
   };
 
@@ -65,10 +64,10 @@ export function CategoryForm({ category, onSubmit, onCancel }: CategoryFormProps
         value={name}
         onChange={(e) => {
           setName(e.target.value);
-          setError('');
+          clearFieldError('name');
         }}
         placeholder={t('categoryNamePlaceholder')}
-        error={error}
+        error={errors['name']}
         required
       />
 

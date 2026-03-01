@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, type RefObject } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useVirtualizer } from '@tanstack/react-virtual'
@@ -14,6 +14,8 @@ import { ConfirmAddCreaturesModal } from '../../library/modals/ConfirmAddCreatur
 interface CombatLibraryModalProps {
   isOpen: boolean
   onClose: () => void
+  /** Ref to the element that triggered this modal, used for focus restoration. */
+  triggerRef: RefObject<HTMLElement | null>
   onAddCombatants: (combatants: Combatant[]) => void
 }
 
@@ -36,6 +38,7 @@ interface CombatLibraryModalProps {
 export function CombatLibraryModal({
   isOpen,
   onClose,
+  triggerRef,
   onAddCombatants,
 }: CombatLibraryModalProps) {
   // TanStack Virtual's useVirtualizer returns functions that the React
@@ -115,6 +118,7 @@ export function CombatLibraryModal({
       <BaseModal
         isOpen={showLibraryModal}
         onClose={handleCloseModal}
+        triggerRef={triggerRef}
         title={tCommon('creatureLibraryTitle')}
         className="max-w-5xl"
         actions={
@@ -151,7 +155,6 @@ export function CombatLibraryModal({
             categories={categories}
             noCategoriesMessage={t('noCategoriesYet')}
             nameInputId="combat-creature-name-filter"
-            checkboxIdPrefix="combat-cat"
           />
 
           <div className="md:col-span-2">
@@ -213,6 +216,7 @@ export function CombatLibraryModal({
       <ConfirmAddCreaturesModal
         isOpen={isOpen && isConfirmOpen}
         onClose={handleCancelConfirm}
+        triggerRef={triggerRef}
         creatures={confirmCreatures}
         onConfirm={handleConfirmAdd}
       />

@@ -43,6 +43,12 @@ function CombatAppPage() {
   const { state, dispatch } = useCombat()
   const modals = useCombatModals()
   const playerWindowRef = useRef<Window | null>(null)
+  const createCombatantRef = useRef<HTMLButtonElement>(null)
+  const exportRef = useRef<HTMLButtonElement>(null)
+  const importRef = useRef<HTMLButtonElement>(null)
+  const libraryRef = useRef<HTMLButtonElement>(null)
+  // EndCombatModal is triggered inside CombatBar; no external ref is available.
+  const endCombatRef = useRef<HTMLElement | null>(null)
   const { t } = useTranslation('combat')
   const { t: tCommon } = useTranslation('common')
   const { addToast } = useToast()
@@ -113,6 +119,7 @@ function CombatAppPage() {
             {t('playerView')}
           </Button>
           <Button
+            ref={libraryRef}
             variant="ghost"
             onClick={modals.library.open}
             icon={<BookOpen size={18} />}
@@ -122,6 +129,7 @@ function CombatAppPage() {
             {t('library')}
           </Button>
           <Button
+            ref={exportRef}
             variant="ghost"
             onClick={modals.exportState.open}
             icon={<Download size={18} />}
@@ -131,6 +139,7 @@ function CombatAppPage() {
             {t('export')}
           </Button>
           <Button
+            ref={importRef}
             variant="ghost"
             onClick={modals.importState.open}
             icon={<Upload size={18} />}
@@ -151,6 +160,7 @@ function CombatAppPage() {
         />
 
         <Button
+          ref={createCombatantRef}
           variant="success"
           onClick={modals.create.open}
           icon={<Plus size={18} />}
@@ -161,6 +171,7 @@ function CombatAppPage() {
         <CreateCombatant
           isOpen={modals.create.isOpen}
           onClose={modals.create.close}
+          triggerRef={createCombatantRef}
           onSubmit={(combatant) => {
             dispatch({ type: 'ADD_COMBATANT', payload: combatant })
             modals.create.close()
@@ -170,12 +181,14 @@ function CombatAppPage() {
         <ExportModal
           isOpen={modals.exportState.isOpen}
           onClose={modals.exportState.close}
+          triggerRef={exportRef}
           state={state}
         />
 
         <ImportModal
           isOpen={modals.importState.isOpen}
           onClose={modals.importState.close}
+          triggerRef={importRef}
           onImport={(importedState) => {
             dispatch({ type: 'IMPORT_STATE', payload: importedState })
             addToast(t('toast.stateImported'))
@@ -185,12 +198,14 @@ function CombatAppPage() {
         <EndCombatModal
           isOpen={modals.endCombat.isOpen}
           onClose={modals.endCombat.close}
+          triggerRef={endCombatRef}
           onConfirm={() => dispatch({ type: 'END_COMBAT' })}
         />
 
         <CombatLibraryModal
           isOpen={modals.library.isOpen}
           onClose={modals.library.close}
+          triggerRef={libraryRef}
           onAddCombatants={(combatants) => {
             if (combatants.length === 0) return
             dispatch({ type: 'ADD_COMBATANTS', payload: combatants })

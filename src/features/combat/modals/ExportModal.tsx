@@ -1,3 +1,4 @@
+import type { RefObject } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { CombatState } from '../../../state/combatState'
 import { BaseModal } from '../../../components/modals/BaseModal'
@@ -7,6 +8,8 @@ import { useExportActions } from '../../../hooks'
 interface ExportModalProps {
   isOpen: boolean
   onClose: () => void
+  /** Ref to the element that triggered this modal, used for focus restoration. */
+  triggerRef: RefObject<HTMLElement | null>
   state: CombatState
 }
 
@@ -25,7 +28,7 @@ interface ExportModalProps {
  * The export string is regenerated each time `state` changes so both buttons
  * are always in sync with the current encounter.
  */
-export function ExportModal({ isOpen, onClose, state }: ExportModalProps) {
+export function ExportModal({ isOpen, onClose, triggerRef, state }: ExportModalProps) {
   const { t } = useTranslation('combat')
   const { exportString, handleDownload, handleCopy, copied } = useExportActions({
     exportType: 'combat',
@@ -38,6 +41,7 @@ export function ExportModal({ isOpen, onClose, state }: ExportModalProps) {
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
+      triggerRef={triggerRef}
       title={t('exportTitle')}
       className="max-w-2xl"
       actions={

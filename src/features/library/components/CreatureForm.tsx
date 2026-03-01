@@ -5,8 +5,9 @@ import { creatureValidator, type Creature } from '../../../db/stores/creature';
 import { type Category } from '../../../db/stores/categories';
 import { FormField } from '../../../components/common/FormField';
 import { SelectField } from '../../../components/common/SelectField';
-import { CheckboxItem } from '../../../components/common/CheckboxItem';
 import { Button } from '../../../components/common/Button';
+import { useFormValidation } from '../../../hooks';
+import { CategoryCheckboxList } from './CategoryCheckboxList';
 
 interface CreatureFormProps {
   creature?: Creature;
@@ -46,10 +47,10 @@ export function CreatureForm({
   ) as 'fixed' | 'roll');
   const [initiative, setInitiative] = useState(creature?.initiative || 0);
   const [hp, setHp] = useState(creature?.hp ?? 0);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    creature?.categoryIds || []
+  const [selectedCategories, setSelectedCategories] = useState<Set<string>>(
+    new Set(creature?.categoryIds || [])
   );
-  const [error, setError] = useState<string>('');
+  const { errors, validate, clearFieldError } = useFormValidation(creatureValidator);
   const { t } = useTranslation('library');
   const { t: tCommon } = useTranslation('common');
 
@@ -61,40 +62,43 @@ export function CreatureForm({
    * empty string. `String(initiative)` normalises any edge-case types before
    * parsing. As in `CategoryForm`, the existing `creature.id` is reused in
    * edit mode to update the correct record.
+   *
+   * `validate` returns the parsed value on success or `null` on failure,
+   * populating per-field `errors` automatically — no manual try/catch needed.
    */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
 
-    try {
-      const newCreature = creatureValidator.parse({
-        id: creature?.id || nanoid(),
-        name,
-        initiativeType,
-        initiative: parseInt(String(initiative), 10),
-        hp: Math.max(0, parseInt(String(hp), 10) || 0),
-        categoryIds: selectedCategories,
-      });
-      onSubmit(newCreature);
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      }
+    const result = validate({
+      id: creature?.id || nanoid(),
+      name,
+      initiativeType,
+      initiative: parseInt(String(initiative), 10),
+      hp: Math.max(0, parseInt(String(hp), 10) || 0),
+      categoryIds: Array.from(selectedCategories),
+    });
+    if (result) {
+      onSubmit(result);
     }
   };
 
   /**
-   * Toggles a category id in the creature's selected category set.
+   * Toggles a category ID in the creature's selected category set.
    *
-   * Uses a functional state update to avoid stale closure issues when
-   * multiple checkboxes are toggled in quick succession.
+   * Recreates the `Set` on each call so React detects the reference change
+   * and re-renders. Using a functional state update avoids stale closure
+   * issues when multiple checkboxes are toggled in quick succession.
    */
   const toggleCategory = (categoryId: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(categoryId)
-        ? prev.filter((id) => id !== categoryId)
-        : [...prev, categoryId]
-    );
+    setSelectedCategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(categoryId)) {
+        next.delete(categoryId);
+      } else {
+        next.add(categoryId);
+      }
+      return next;
+    });
   };
 
   return (
@@ -107,10 +111,10 @@ export function CreatureForm({
         value={name}
         onChange={(e) => {
           setName(e.target.value);
-          setError('');
+          clearFieldError('name');
         }}
         placeholder={t('creatureNamePlaceholder')}
-        error={error}
+        error={errors['name']}
         required
       />
 
@@ -133,6 +137,7 @@ export function CreatureForm({
           type="number"
           value={initiative}
           onChange={(e) => setInitiative(parseInt(e.target.value, 10))}
+          error={errors['initiative']}
         />
       </div>
 
@@ -144,27 +149,19 @@ export function CreatureForm({
         value={hp}
         onChange={(e) => setHp(Math.max(0, parseInt(e.target.value, 10) || 0))}
         min={0}
+        error={errors['hp']}
       />
 
       <fieldset>
         <legend className="block text-sm font-medium text-gray-700 mb-2">
           {t('categoriesLegend')}
         </legend>
-        <div className="space-y-2 max-h-48 overflow-y-auto">
-          {categories.length === 0 ? (
-            <p className="text-gray-500 text-sm">{t('noCategoriesInForm')}</p>
-          ) : (
-            categories.map((category) => (
-              <CheckboxItem
-                key={category.id}
-                id={category.id}
-                label={category.name}
-                checked={selectedCategories.includes(category.id)}
-                onChange={() => toggleCategory(category.id)}
-              />
-            ))
-          )}
-        </div>
+        <CategoryCheckboxList
+          categories={categories}
+          selectedIds={selectedCategories}
+          onToggle={toggleCategory}
+          noCategoriesMessage={t('noCategoriesInForm')}
+        />
       </fieldset>
 
       <div className="flex gap-2 justify-end">

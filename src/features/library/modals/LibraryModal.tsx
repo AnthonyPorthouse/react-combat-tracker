@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Plus } from 'lucide-react';
@@ -18,6 +18,8 @@ import { ConfirmAddCreaturesModal } from './ConfirmAddCreaturesModal';
 interface LibraryModalProps {
   isOpen: boolean;
   onClose: () => void;
+  /** Ref to the element that triggered this modal, used for focus restoration. */
+  triggerRef: RefObject<HTMLElement | null>;
   onAddCombatants: (combatants: Combatant[]) => void;
 }
 
@@ -42,6 +44,7 @@ interface LibraryModalProps {
 export function LibraryModal({
   isOpen,
   onClose,
+  triggerRef,
   onAddCombatants,
 }: LibraryModalProps) {
   const creatures = useLiveQuery(() => db.creatures.toArray());
@@ -125,6 +128,7 @@ export function LibraryModal({
       <BaseModal
         isOpen={showLibraryModal}
         onClose={handleCloseModal}
+        triggerRef={triggerRef}
         title={tCommon('creatureLibraryTitle')}
         className="max-w-5xl"
         actions={
@@ -207,7 +211,6 @@ export function LibraryModal({
             categories={categories}
             noCategoriesMessage={t('noCategoriesForFilter')}
             nameInputId="lib-creature-name-filter"
-            checkboxIdPrefix="lib-cat"
           />
 
           <div className="md:col-span-2">
@@ -250,6 +253,7 @@ export function LibraryModal({
         <ConfirmAddCreaturesModal
           isOpen={isOpen && isConfirmOpen}
           onClose={handleCancelConfirm}
+          triggerRef={triggerRef}
           creatures={confirmCreatures}
           onConfirm={handleConfirmAdd}
         />

@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useTranslation } from 'react-i18next'
 import { Link } from '@tanstack/react-router'
@@ -27,6 +27,17 @@ export function CategoryList() {
   const categories = useLiveQuery(() => db.categories.orderBy('name').toArray())
   const { t } = useTranslation('library')
   const { addToast } = useToast()
+
+  /**
+   * Tracks the delete button that last opened the single-item confirm dialog,
+   * so focus can be restored when that dialog closes.
+   */
+  const singleDeleteTriggerRef = useRef<HTMLElement | null>(null)
+  /**
+   * Bulk delete uses a null ref — items being deleted means the toolbar button
+   * may no longer exist when the dialog closes, so focus restoration is skipped.
+   */
+  const bulkDeleteTriggerRef = useRef<HTMLElement | null>(null)
 
   const visibleIds = useMemo(
     () => (categories ?? []).map((c) => c.id),
@@ -109,7 +120,7 @@ export function CategoryList() {
                     <Edit size={16} />
                   </Link>
                   <button
-                    onClick={() => openSingleConfirm(category.id)}
+                    onClick={(e) => { singleDeleteTriggerRef.current = e.currentTarget; openSingleConfirm(category.id) }}
                     className="text-red-600 hover:text-red-700 p-1 transition"
                     aria-label={t('delete', { entity: t('category') })}
                   >
@@ -125,6 +136,7 @@ export function CategoryList() {
       <ConfirmDialog
         isOpen={bulkDeleteModal.isOpen}
         onClose={bulkDeleteModal.close}
+        triggerRef={bulkDeleteTriggerRef}
         title={t('bulkDeleteCategories.title', { count: selectionCount })}
         message={t('bulkDeleteCategories.message', { count: selectionCount })}
         icon={<Trash2 size={36} />}
@@ -136,6 +148,7 @@ export function CategoryList() {
       <ConfirmDialog
         isOpen={singleDeleteModal.isOpen}
         onClose={closeSingleConfirm}
+        triggerRef={singleDeleteTriggerRef}
         title={t('deleteCategory.title')}
         message={t('deleteCategory.message')}
         icon={<Trash2 size={36} />}

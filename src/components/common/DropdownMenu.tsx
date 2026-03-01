@@ -1,5 +1,6 @@
-import { useEffect, useId, useRef, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useFocusTrap } from '../../hooks'
 
 interface MenuPosition {
   top: number
@@ -52,34 +53,10 @@ export function DropdownMenu({
   const triggerRef = useRef<HTMLButtonElement | null>(null)
   const menuRef = useRef<HTMLDivElement | null>(null)
 
-  useEffect(() => {
-    const rootElement = document.getElementById('root')
-    const modalRootElement = document.getElementById('modal-root')
-    if (!rootElement || !modalRootElement) return
-
-    if (isOpen) {
-      rootElement.inert = true
-      modalRootElement.inert = true
-    } else {
-      rootElement.inert = false
-      modalRootElement.inert = false
-    }
-
-    return () => {
-      rootElement.inert = false
-      modalRootElement.inert = false
-    }
-  }, [isOpen])
-
-  useEffect(() => {
-    if (isOpen) {
-      // Move focus to the first menu item so keyboard users can navigate immediately
-      const firstItem = menuRef.current?.querySelector<HTMLElement>('[role="menuitem"]')
-      firstItem?.focus()
-    } else {
-      triggerRef.current?.focus()
-    }
-  }, [isOpen])
+  useFocusTrap(isOpen, triggerRef, {
+    inertSelectors: ['#root', '#modal-root'],
+    focusOnOpenSelector: '[role="menuitem"]',
+  })
 
   const menuRoot = typeof document !== 'undefined' ? document.getElementById('menu-root') : null
 
