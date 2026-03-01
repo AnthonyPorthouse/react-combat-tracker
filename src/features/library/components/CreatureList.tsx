@@ -77,6 +77,7 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
    * `overscan: 5` pre-renders five extra rows above and below the viewport to
    * eliminate blank flashes during fast scrolling on low-end devices.
    */
+  // eslint-disable-next-line react-hooks/incompatible-library -- TanStack Virtual is not compatible with React Compiler memoisation; this is a known limitation of the library
   const rowVirtualizer = useVirtualizer({
     count: filteredCreatures.length,
     getScrollElement: () => listRef.current,
