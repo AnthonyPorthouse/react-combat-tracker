@@ -53,6 +53,16 @@
   "decreaseQuantity": "Decrease quantity for {{name}}",
   "increaseQuantity": "Increase quantity for {{name}}",
   "quantityFor": "Quantity for {{name}}",
+  "deleteCategory": {
+    "confirm": "Delete",
+    "message": "Are you sure you want to delete this category? Creatures in this category will not be deleted.",
+    "title": "Delete category"
+  },
+  "deleteCreature": {
+    "confirm": "Delete",
+    "message": "Are you sure you want to delete this creature? This cannot be undone.",
+    "title": "Delete creature"
+  },
   "bulkDeleteCategories": {
     "message_one": "Are you sure you want to delete {{count}} category? Creatures in these categories will not be deleted.",
     "message_other": "Are you sure you want to delete {{count}} categories? Creatures in these categories will not be deleted.",

@@ -5,8 +5,7 @@ import { Link } from '@tanstack/react-router'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { db } from '../../../db/db'
 import { useToast } from '../../../state/toastContext'
-import { useModal } from '../../../hooks/useModal'
-import { useSelection } from '../../../hooks/useSelection'
+import { useListWithSelection } from '../../../hooks/useListWithSelection'
 import { ConfirmDialog } from '../../../components/common/ConfirmDialog'
 import { SelectableIcon } from '../../../components/common/SelectableIcon'
 import { SelectionToolbar } from '../../../components/common/SelectionToolbar'
@@ -37,7 +36,6 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
   const { t } = useTranslation('library')
   const { t: tCommon } = useTranslation('common')
   const { addToast } = useToast()
-  const bulkDeleteModal = useModal()
 
   /**
    * Ref attached to the scrollable container used by the virtualizer to
@@ -81,40 +79,20 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
   )
 
   const {
-    toggle,
-    selectAll,
-    deselectAll,
-    isSelected,
-    selectionState,
-    count: selectionCount,
-    selectedIds,
-  } = useSelection(visibleIds)
-
-  /** Deletes a creature permanently from the library after a native confirmation prompt. */
-  const handleDelete = async (id: string) => {
-    if (confirm('Delete this creature?')) {
+    toggle, isSelected, selectionState, selectionCount,
+    handleToggleAll, bulkDeleteModal, handleBulkDelete,
+    singleDeleteModal, openSingleConfirm, closeSingleConfirm, handleSingleDelete,
+  } = useListWithSelection({
+    items: visibleIds,
+    bulkDeleteFn: async (ids) => {
+      await db.creatures.bulkDelete(ids)
+      addToast(t('toast.creaturesDeleted', { count: ids.length }))
+    },
+    singleDeleteFn: async (id) => {
       await db.creatures.delete(id)
       addToast(t('toast.creatureDeleted'))
-    }
-  }
-
-  /** Deletes all currently selected creatures in bulk. */
-  const handleBulkDelete = async () => {
-    const ids = [...selectedIds]
-    await db.creatures.bulkDelete(ids)
-    deselectAll()
-    bulkDeleteModal.close()
-    addToast(t('toast.creaturesDeleted', { count: ids.length }))
-  }
-
-  /** Toggles the header checkbox between select-all and deselect-all. */
-  const handleToggleAll = () => {
-    if (selectionState === 'all') {
-      deselectAll()
-    } else {
-      selectAll()
-    }
-  }
+    },
+  })
 
   /**
    * Resolves category ids to a comma-separated list of names for display.
@@ -223,7 +201,7 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
                             <Edit size={16} />
                           </Link>
                           <button
-                            onClick={() => handleDelete(creature.id)}
+                            onClick={() => openSingleConfirm(creature.id)}
                             className="text-red-600 hover:text-red-700 p-1 transition"
                             aria-label={t('delete', { entity: t('creature') })}
                           >
@@ -249,6 +227,17 @@ export function CreatureList({ selectedCategoryId }: CreatureListProps) {
         actionLabel={t('deleteSelected', { count: selectionCount })}
         actionVariant="danger"
         onConfirm={handleBulkDelete}
+      />
+
+      <ConfirmDialog
+        isOpen={singleDeleteModal.isOpen}
+        onClose={closeSingleConfirm}
+        title={t('deleteCreature.title')}
+        message={t('deleteCreature.message')}
+        icon={<Trash2 size={36} />}
+        actionLabel={t('deleteCreature.confirm')}
+        actionVariant="danger"
+        onConfirm={handleSingleDelete}
       />
     </div>
   )

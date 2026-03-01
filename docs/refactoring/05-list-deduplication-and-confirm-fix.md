@@ -1,7 +1,7 @@
 # Plan 5: Fix CategoryList + CreatureList Duplication and native confirm() Inconsistency
 
 **Priority:** High  
-**Status:** Not started
+**Status:** Complete
 
 ## Problem
 
@@ -46,16 +46,19 @@ Extract the shared wiring into a reusable hook, eliminate the double-render-path
 
 ## Verification
 
-- [ ] Single-item delete shows `ConfirmDialog` (not browser `confirm()`) in both lists
-- [ ] Bulk delete via `SelectionToolbar` still functions correctly
-- [ ] "Toggle all" selects and deselects all items
-- [ ] Animations still trigger on first load
-- [ ] Animations trigger after add/remove
-- [ ] `npx tsc --noEmit` passes
-- [ ] `npm run lint` passes
-- [ ] `npx i18next-cli lint` passes
+- [x] Single-item delete shows `ConfirmDialog` (not browser `confirm()`) in both lists
+- [x] Bulk delete via `SelectionToolbar` still functions correctly
+- [x] "Toggle all" selects and deselects all items
+- [x] Animations still trigger on first load
+- [x] Animations trigger after add/remove
+- [x] `npx tsc --noEmit` passes
+- [x] `npm run lint` passes
+- [x] `npx i18next-cli lint` passes
 
 ## Notes
 
 - Replacing `confirm()` is bundled here because both fixes share the same modal state wiring being introduced. The single-delete `ConfirmDialog` requires one extra `useModal` call — exactly what `useListWithSelection` encapsulates.
-- `AnimatableList` may also be useful in future list views outside the library feature.
+- `AnimatableList`/`AnimatableItem` are scoped to `CategoryList` — `CreatureList` uses `@tanstack/react-virtual` and has no animation path.
+- `AnimatableItem` is exported alongside `AnimatableList` from `AnimatableList.tsx` to fully eliminate the row-level `motion.div`/`div` duplication (both exported via the `common` barrel).
+- Delete callbacks are passed into `useListWithSelection`; the hook orchestrates modal-close and selection-clear while callbacks own DB operations and toasts.
+- The pre-existing `react-hooks/incompatible-library` warning on `useVirtualizer` in `CreatureList` is unrelated to this refactor and was present before.

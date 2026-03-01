@@ -11,6 +11,7 @@ export { SelectableIcon } from './SelectableIcon'
 export { SelectionToolbar } from './SelectionToolbar'
 export { ImportFormBody } from './ImportFormBody'
 export { ExportActionButtons } from './ExportActionButtons'
+export { AnimatableList, AnimatableItem } from './AnimatableList'
 
 // Re-export types for convenience
 export type {
